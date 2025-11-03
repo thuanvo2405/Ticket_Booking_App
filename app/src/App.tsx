@@ -10,6 +10,9 @@ import SearchPage from "./page/SearchPage";
 import VerifyEmailPage from "./page/VerifyEmailPage";
 import ProfilePage from "./page/ProfilePage";
 import OrganizerPage from "./page/OrganizerPage";
+import CreateEventPage from "./page/CreateEventPage";
+import DashboardPage from "./page/DashboardPage";
+import OrganizerLayout from "./components/layout/organizerlayout";
 
 function App() {
   return (
@@ -25,8 +28,14 @@ function App() {
           <Route path="my-tickets" element={<MyTicketPage />} />
         </Route>
       </Route>
-      <Route path="organizer" element={<OrganizerPage />} />
-      <Route path="admin" element={<AdminPage />} />
+      <Route path="organizer" element={<OrganizerLayout />}>
+        <Route index element={<OrganizerPage />} />
+        <Route path="create-event" element={<CreateEventPage />} />
+        <Route path="dashboard" element={<DashboardPage />} />
+      </Route>
+      <Route path="admin" element={<OrganizerLayout />}>
+        <Route index element={<AdminPage />} />
+      </Route>
     </Routes>
   );
 }

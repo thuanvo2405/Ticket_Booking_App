@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 export interface AuthContextProps {
-  user: { manguoidung: number } | null;
+  user: { manguoidung: number; vaitro: string } | null;
   token: {
     accessToken: string;
     refreshToken: string;
@@ -32,7 +32,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     refreshToken: string;
   } | null>(null);
 
-  const [user, setUser] = useState<{ manguoidung: number } | null>(null);
+  const [user, setUser] = useState<{
+    manguoidung: number;
+    vaitro: string;
+  } | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {

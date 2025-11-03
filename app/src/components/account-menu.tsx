@@ -67,20 +67,23 @@ export function AccountMenu() {
         align="end"
         className="w-56 mt-1 rounded-2xl shadow-lg"
       >
-        <DropdownMenuItem className="flex items-center gap-2">
+        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
           <NavLink to="/">
             <Ticket className="w-4 h-4" />
           </NavLink>
           Vé của tôi
         </DropdownMenuItem>
 
-        <DropdownMenuItem className="flex items-center gap-2">
+        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
           <Calendar className="w-4 h-4" />
           Sự kiện của tôi
         </DropdownMenuItem>
 
         <DropdownMenuItem>
-          <NavLink to="/my-profile" className="flex items-center gap-2">
+          <NavLink
+            to="/my-profile"
+            className="flex items-center gap-2 cursor-pointer"
+          >
             <User className="w-4 h-4" />
             Tài khoản của tôi
           </NavLink>

@@ -157,6 +157,9 @@ export const forgotPassword = async (req, res, next) => {
     ]);
     const user = result.rows[0];
     console.log(user);
+    if (!user) {
+      throw new Error("Rất tiếc tài khoản không tồn tại");
+    }
     const token = jwt.sign(
       { manguoidung: user.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
