@@ -14,6 +14,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { createOrganizerProfileAPI } from "@/services/organizerService";
+import toast from "react-hot-toast";
+import { useAuth } from "@/context/AuthProvider";
 
 const formSchema = z.object({
   tenToChuc: z.string().min(2, "Tên tổ chức phải có ít nhất 2 ký tự"),
@@ -27,24 +31,31 @@ const formSchema = z.object({
   moTa: z.string().min(5, "Giới thiệu tối thiểu 5 ký tự"),
 });
 
-export default function CreateOrganizerPage() {
+export default function CreateOrganizer() {
   const [preview, setPreview] = useState<string | null>(null);
-
+  const { refreshUserInfo } = useAuth();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
+  const { mutate: createProfile, isPending } = useMutation({
+    mutationFn: ({ tenToChuc, moTa, anhToChuc }: z.infer<typeof formSchema>) =>
+      createOrganizerProfileAPI(moTa, anhToChuc, tenToChuc),
+
+    onSuccess: async () => {
+      toast.success("Tạo hồ sơ tổ chức thành công 🎉");
+      await refreshUserInfo();
+    },
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Tạo hồ sơ thất bại 😢");
+    },
+  });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Form data:", values);
-
-    const formData = new FormData();
-    formData.append("tenToChuc", values.tenToChuc);
-    formData.append("moTa", values.moTa);
-    formData.append("anhToChuc", values.anhToChuc);
-
-    // Gửi API
-    // fetch("/api/tochuc", { method: "POST", body: formData })
+    createProfile(values);
   }
+
+  if (isPending) return <h1>Loading</h1>;
 
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-12 px-4 flex items-center justify-center">
@@ -58,7 +69,6 @@ export default function CreateOrganizerPage() {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-8 animate-fadeIn"
           >
-            {/* Tên tổ chức */}
             <FormField
               control={form.control}
               name="tenToChuc"
@@ -79,7 +89,6 @@ export default function CreateOrganizerPage() {
               )}
             />
 
-            {/* Ảnh tổ chức */}
             <Controller
               name="anhToChuc"
               control={form.control}
@@ -123,7 +132,6 @@ export default function CreateOrganizerPage() {
               )}
             />
 
-            {/* Mô tả */}
             <FormField
               control={form.control}
               name="moTa"
@@ -144,7 +152,6 @@ export default function CreateOrganizerPage() {
               )}
             />
 
-            {/* Submit */}
             <div className="flex justify-center">
               <Button
                 type="submit"

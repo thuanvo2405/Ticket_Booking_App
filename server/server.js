@@ -5,6 +5,7 @@ import helmet from "helmet";
 import cookieParser from "cookie-parser";
 
 import userRoutes from "./routes/userRoutes.js";
+import organizerRoutes from "./routes/organizerRoute.js";
 import errorHandling from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 
 app.use("/v1/api", userRoutes);
+app.use("/v1/api", organizerRoutes);
 
 app.use(errorHandling);
 

@@ -13,6 +13,7 @@ import OrganizerPage from "./page/OrganizerPage";
 import CreateEventPage from "./page/CreateEventPage";
 import DashboardPage from "./page/DashboardPage";
 import OrganizerLayout from "./components/layout/organizerlayout";
+import NotFoundPage from "./page/NotFoundPage";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
       <Route path="admin" element={<OrganizerLayout />}>
         <Route index element={<AdminPage />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

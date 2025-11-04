@@ -74,7 +74,7 @@ export const login = async (req, res, next) => {
 
 export const getRefreshToken = async (req, res, next) => {
   try {
-    console.log(">>> req.cookies:", req.cookies);
+    console.log("req.cookies:", req.cookies);
     const refreshToken = req.cookies.refresh_token;
     if (!refreshToken) {
       return res.status(401).json({ error: "null refresh token" });
@@ -193,5 +193,18 @@ export const resetPassword = async (req, res, next) => {
     handleResponse(res, 200, "Mật khẩu đã thay đổi thành công!");
   } catch (error) {
     next(error);
+  }
+};
+
+export const getCurrentUser = async (req, res, next) => {
+  try {
+    const userId = req.user.user.id;
+    const result = await pool.query(
+      "SELECT maNguoiDung, vaiTro FROM nguoi_dung WHERE maNguoiDung = $1",
+      [userId]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    next(err);
   }
 };

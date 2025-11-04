@@ -20,6 +20,7 @@ export interface AuthContextProps {
   logout: () => void;
   isLoggedIn: () => boolean;
   resetPassword: () => void;
+  refreshUserInfo: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -131,9 +132,31 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log("Hi");
   };
 
+  const refreshUserInfo = async () => {
+    try {
+      const res = await axiosInstance.get("/auth/me");
+      if (res.data) {
+        setUser(res.data);
+        localStorage.setItem("user", JSON.stringify(res.data));
+        toast.success("Cập nhật quyền người dùng thành công!");
+      }
+    } catch (error) {
+      toast.error("Không thể cập nhật thông tin người dùng.");
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ login, logout, signup, user, token, isLoggedIn, resetPassword }}
+      value={{
+        login,
+        logout,
+        signup,
+        user,
+        token,
+        isLoggedIn,
+        resetPassword,
+        refreshUserInfo,
+      }}
     >
       {isReady ? children : null}
     </AuthContext.Provider>
