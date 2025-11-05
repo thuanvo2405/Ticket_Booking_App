@@ -14,7 +14,6 @@ export default function Header() {
     <>
       <header className="w-full bg-green-500 shadow-md">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between h-[76px] px-6">
-          {/* Logo */}
           <div
             className="text-3xl font-bold text-white tracking-wide cursor-pointer select-none hover:opacity-90 transition"
             onClick={() => navigate("/")}
@@ -22,7 +21,6 @@ export default function Header() {
             Eventify
           </div>
 
-          {/* Ô tìm kiếm */}
           <div className="flex items-center gap-3">
             <div className="bg-white flex items-center rounded-full shadow-sm overflow-hidden border border-gray-200">
               <svg
@@ -51,11 +49,10 @@ export default function Header() {
             </div>
 
             <Button className="bg-white text-green-600 hover:bg-green-50">
-              Tạo sự kiện
+              <NavLink to="organizer">Tạo sự kiện</NavLink>
             </Button>
           </div>
 
-          {/* Khu vực tài khoản */}
           <div className="flex items-center gap-3">
             {isLoggedIn() ? (
               <>

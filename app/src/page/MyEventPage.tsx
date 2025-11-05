@@ -1,0 +1,64 @@
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarIcon, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+
+export default function MyEventPage() {
+  const [tab, setTab] = useState("upcoming");
+
+  return (
+    <div className="min-h-screen bg-white text-black">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-6">
+        <div className="flex items-center gap-2 w-full md:w-1/2">
+          <div className="flex w-full items-center border border-gray-300 rounded-lg overflow-hidden bg-gray-100">
+            <Search className="ml-3 text-gray-500" size={18} />
+            <Input
+              placeholder="Tìm kiếm sự kiện"
+              className="bg-transparent border-none focus-visible:ring-0 text-black placeholder:text-gray-500"
+            />
+          </div>
+          <Button className="bg-black text-white hover:bg-gray-800">
+            Tìm kiếm
+          </Button>
+          <Button className="bg-black text-white hover:bg-gray-800">
+            <Link to="/organizer/create-event">Tạo Sự Kiện</Link>
+          </Button>
+        </div>
+
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList className="bg-gray-100 rounded-xl">
+            <TabsTrigger
+              value="upcoming"
+              className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
+            >
+              Sắp tới
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="past"
+              className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
+            >
+              Đã qua
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="pending"
+              className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
+            >
+              Chờ duyệt
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      <div className="flex flex-col items-center justify-center h-[60vh] text-gray-500">
+        <div className="bg-gray-100 rounded-full p-6 shadow-sm">
+          <CalendarIcon size={48} />
+        </div>
+        <p className="mt-4 text-sm">Hiện chưa có sự kiện nào</p>
+      </div>
+    </div>
+  );
+}

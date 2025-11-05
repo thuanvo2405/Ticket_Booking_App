@@ -12,6 +12,7 @@ export default function OrganizerLayout() {
           <li>
             <NavLink
               to="/organizer"
+              end
               className={({ isActive }) =>
                 `w-full block ${
                   isActive
