@@ -1,7 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import MenuTicket from "./EventTicket/MenuTicket";
-import CreateTicketModal from "./EventTicket/CreateTicketModal";
 import { useState } from "react";
 import CreatePerformance from "./EventTicket/CreatePerformance";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +9,6 @@ import { useEventStore } from "@/store/useEventStore";
 
 export default function EventTicketSetup() {
   const { eventID } = useEventStore();
-  const [openCreateTicket, setOpenCreateTicket] = useState(false);
   const [openCreatePerformance, setOpenCreatePerformance] = useState(false);
   const handleCloseCreatePerformance = () => {
     setOpenCreatePerformance(false);
@@ -37,16 +35,6 @@ export default function EventTicketSetup() {
                 masuatdien={item.masuatdien}
               />
             ))}
-          <Button
-            variant="ghost"
-            size="default"
-            className="text-green-500 hover:bg-foreground/5 text-lg"
-            onClick={() => setOpenCreateTicket((prev) => !prev)}
-          >
-            <Plus />
-            Tạo loại vé
-          </Button>
-          {openCreateTicket && <CreateTicketModal />}
         </div>
       </div>
       <div className="w-full flex flex-col items-center justify-center my-3">

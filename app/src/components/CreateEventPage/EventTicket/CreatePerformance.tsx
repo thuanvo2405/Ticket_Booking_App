@@ -48,7 +48,6 @@ export default function CreatePerformance({ close }: CreatePerformance) {
     },
   });
 
-  console.log(eventID);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });

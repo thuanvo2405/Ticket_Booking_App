@@ -5,11 +5,11 @@ export const createTicketTypeService = async (
   moTa,
   giaTien,
   soLuongPhatHanh,
-  maSuKien
+  maSuatDien
 ) => {
   const result = await pool.query(
-    "INSERT INTO loai_ve(tenloaive,mota,giatien,soluongphathanh,masukien) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-    [tenLoaiVe, moTa, giaTien, soLuongPhatHanh, maSuKien]
+    "INSERT INTO loai_ve(tenloaive,mota,giatien,soluongphathanh,masuatdien) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+    [tenLoaiVe, moTa, giaTien, soLuongPhatHanh, maSuatDien]
   );
 
   return result.rows[0];
@@ -40,6 +40,15 @@ export const getPerformaneService = async (maSuKien) => {
 export const deletePerformanceService = async (maSuatDien) => {
   const result = await pool.query(
     "Delete from suat_dien where masuatdien = $1",
+    [maSuatDien]
+  );
+
+  return result.rows;
+};
+
+export const getTicketTypeService = async (maSuatDien) => {
+  const result = await pool.query(
+    "Select * from loai_ve where masuatdien = $1",
     [maSuatDien]
   );
 

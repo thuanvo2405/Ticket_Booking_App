@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Pencil, Ticket, Trash2 } from "lucide-react";
+import { Pencil, Plus, Ticket, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,10 +30,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletePerformaneAPI } from "@/services/ticketService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  deletePerformaneAPI,
+  getTicketTypeAPI,
+} from "@/services/ticketService";
 import toast from "react-hot-toast";
 import { useEventStore } from "@/store/useEventStore";
+import CreateTicketType from "./CreateTicketType";
 
 const eventSchema = z.object({
   thoiGianBatDau: z.date(),
@@ -58,8 +62,16 @@ export default function MenuTicket({
     defaultValues: {},
   });
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [openCreateTicket, setOpenCreateTicket] = useState(false);
+
   const queryClient = useQueryClient();
   const { eventID } = useEventStore();
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["fetchTicketType", masuatdien],
+    queryFn: () => getTicketTypeAPI(masuatdien!),
+    enabled: !!masuatdien,
+  });
 
   const deletePerformance = useMutation({
     mutationFn: () => deletePerformaneAPI(masuatdien),
@@ -75,122 +87,129 @@ export default function MenuTicket({
     },
   });
 
+  if (isFetching) return <h1>Loading</h1>;
+
   return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value="item-1" className="bg-black/5 rounded-md">
-        <AccordionTrigger className="w-full">
-          <div className="flex justify-between items-center px-2 w-full">
-            <div className="flex items-center gap-4">
-              <div>
-                <p>
-                  {formatDateTime(thoiGianBatDau) +
-                    " - " +
-                    formatDateTime(thoiGianKetThuc)}
-                </p>
-                <p className="text-sm">1 Loại vé</p>
+    <div>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1" className="bg-black/5 rounded-md">
+          <AccordionTrigger className="w-full">
+            <div className="flex justify-between items-center px-2 w-full">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p>
+                    {formatDateTime(thoiGianBatDau) +
+                      " - " +
+                      formatDateTime(thoiGianKetThuc)}
+                  </p>
+                  <p className="text-sm">1 Loại vé</p>
+                </div>
               </div>
-            </div>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenConfirm(true);
-              }}
-            >
-              <Trash2 />
-            </Button>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="flex flex-col gap-4 text-balance px-2">
-          <div className="grid grid-cols-2 gap-6">
-            <Form {...form}>
-              <FormField
-                control={form.control}
-                name="thoiGianBatDau"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thời gian bắt đầu</FormLabel>
-                    <DateTimePicker24h
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="thoiGianKetThuc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Thời gian kết thúc</FormLabel>
-                    <DateTimePicker24h
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </Form>
-          </div>
-          <h3>Loại vé</h3>
-          <ul className="flex  flex-col gap-3">
-            <li className="bg-black/10 flex items-center justify-between p-2 rounded-lg">
-              <div className="flex gap-2 items-center">
-                <Ticket />
-                <p>Tên hạng vé</p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Button size="sm">
-                  <Pencil />
-                </Button>
-                <Button variant="destructive" size="sm">
-                  <Trash2 />
-                </Button>
-              </div>
-            </li>
-            <li className="bg-black/10 flex items-center justify-between p-2 rounded-lg">
-              <div className="flex gap-2 items-center">
-                <Ticket />
-                <p>Tên hạng vé</p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <Button size="sm">
-                  <Pencil />
-                </Button>
-                <Button variant="destructive" size="sm">
-                  <Trash2 />
-                </Button>
-              </div>
-            </li>
-          </ul>
-        </AccordionContent>
-        <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                Bạn có chắc muốn xóa suất diễn này?
-              </AlertDialogTitle>
-            </AlertDialogHeader>
-
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setOpenConfirm(false)}>
-                Hủy
-              </AlertDialogCancel>
-
-              <AlertDialogAction
-                onClick={() => {
-                  deletePerformance.mutate();
-                  setOpenConfirm(false);
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenConfirm(true);
                 }}
               >
-                Xóa
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </AccordionItem>
-    </Accordion>
+                <Trash2 />
+              </Button>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col gap-4 text-balance px-2">
+            <div className="grid grid-cols-2 gap-6">
+              <Form {...form}>
+                <FormField
+                  control={form.control}
+                  name="thoiGianBatDau"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thời gian bắt đầu</FormLabel>
+                      <DateTimePicker24h
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="thoiGianKetThuc"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thời gian kết thúc</FormLabel>
+                      <DateTimePicker24h
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </Form>
+            </div>
+            <h3>Loại vé</h3>
+            <ul className="flex  flex-col gap-3">
+              {data.map((item: any) => (
+                <li
+                  className="bg-black/10 flex items-center justify-between p-2 rounded-lg"
+                  key={item.masuatdien}
+                >
+                  <div className="flex gap-2 items-center">
+                    <Ticket />
+                    <p>{item.tenloaive}</p>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <Button size="sm">
+                      <Pencil />
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Button
+              variant="ghost"
+              size="default"
+              className="text-green-500 hover:bg-foreground/5 text-lg"
+              onClick={() => setOpenCreateTicket((prev) => !prev)}
+            >
+              <Plus />
+              Tạo loại vé
+            </Button>
+            {openCreateTicket && (
+              <CreateTicketType maSuatDien={masuatdien.toString()} />
+            )}
+          </AccordionContent>
+          <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Bạn có chắc muốn xóa suất diễn này?
+                </AlertDialogTitle>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setOpenConfirm(false)}>
+                  Hủy
+                </AlertDialogCancel>
+
+                <AlertDialogAction
+                  onClick={() => {
+                    deletePerformance.mutate();
+                    setOpenConfirm(false);
+                  }}
+                >
+                  Xóa
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 }

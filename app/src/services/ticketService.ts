@@ -27,3 +27,26 @@ export const deletePerformaneAPI = async (maSuatDien: number) => {
   });
   return res.data;
 };
+
+export const CreateTicketTypeAPI = async (
+  tenLoaiVe: string,
+  moTa: string,
+  giaTien: number,
+  soLuongPhatHanh: number,
+  maSuatDien: string
+) => {
+  const res = await axiosInstance.post(URL + "ticket-type", {
+    tenLoaiVe,
+    moTa,
+    giaTien,
+    soLuongPhatHanh,
+    maSuatDien,
+  });
+
+  return res.data.data;
+};
+
+export const getTicketTypeAPI = async (maSuatDien: number) => {
+  const res = await axios.get(URL + "ticket-type", { params: { maSuatDien } });
+  return res.data.data.result;
+};
