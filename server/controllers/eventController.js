@@ -25,7 +25,7 @@ export const createEvent = async (req, res, next) => {
       !anhSuKienNgang
     )
       throw new Error("Vui lòng nhập đầy đủ trường");
-    await createEventService(
+    const result = await createEventService(
       tenSuKien,
       moTa,
       diaChi,
@@ -37,8 +37,11 @@ export const createEvent = async (req, res, next) => {
       diaChiAnhNgang,
       diaChiAnhDoc
     );
+    console.log(result);
 
-    handleResponse(res, 201, "Tạo sự kiện thành công");
+    handleResponse(res, 201, "Tạo sự kiện thành công", {
+      maSuKien: result.masukien,
+    });
   } catch (error) {
     next(error);
   }

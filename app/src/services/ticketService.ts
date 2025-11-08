@@ -1,5 +1,6 @@
 import { URL } from "@/constant/constant";
 import axiosInstance from "./axiosInstance";
+import axios from "axios";
 
 export const CreatePerformanceAPI = async (
   thoiGianBatDau: string,
@@ -9,8 +10,20 @@ export const CreatePerformanceAPI = async (
   const res = await axiosInstance.post(URL + "performance", {
     thoiGianBatDau,
     thoiGianKetThuc,
-    maSuKien: "9c13895f-daf4-4278-b691-5b49b070dbc1",
+    maSuKien,
   });
 
   return res.data.data;
+};
+
+export const getPerformaneAPI = async (maSuKien: number) => {
+  const res = await axios.get(URL + "performance", { params: { maSuKien } });
+  return res.data.data.result;
+};
+
+export const deletePerformaneAPI = async (maSuatDien: number) => {
+  const res = await axios.delete(URL + "performance", {
+    params: { maSuatDien },
+  });
+  return res.data;
 };

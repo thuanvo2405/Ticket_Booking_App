@@ -22,8 +22,26 @@ export const createPerformanceService = async (
 ) => {
   const result = await pool.query(
     "INSERT INTO suat_dien(thoigianbatdau,thoigianketthuc,masukien) VALUES ($1,$2,$3) RETURNING *",
-    [thoiGianBatDau, thoiGianKetThuc, "9c13895f-daf4-4278-b691-5b49b070dbc1"]
+    [thoiGianBatDau, thoiGianKetThuc, maSuKien]
   );
 
   return result.rows[0];
+};
+
+export const getPerformaneService = async (maSuKien) => {
+  const result = await pool.query(
+    "Select * from suat_dien where masukien = $1",
+    [maSuKien]
+  );
+
+  return result.rows;
+};
+
+export const deletePerformanceService = async (maSuatDien) => {
+  const result = await pool.query(
+    "Delete from suat_dien where masuatdien = $1",
+    [maSuatDien]
+  );
+
+  return result.rows;
 };

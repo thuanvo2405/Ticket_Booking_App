@@ -99,7 +99,8 @@ const formats = [
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-  const { setStep } = useEventStore();
+  const { setStep, setEventID } = useEventStore();
+
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -148,6 +149,7 @@ export default function CreateEventInfoStep() {
         data.quanHuyen,
         data.tinhThanh
       );
+      setEventID(res.maSuKien);
       setStep(2);
       toast("Tạo sự kiện thành công", res);
     } catch (error) {

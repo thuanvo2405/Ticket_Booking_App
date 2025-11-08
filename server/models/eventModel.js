@@ -30,7 +30,7 @@ export const createEventService = async (
       $5, $6, $7, $8,
       $9, $10
     )
-    RETURNING maSuKien, trangThai, ngayTao;
+    RETURNING masukien;
   `,
     [
       tenSuKien,

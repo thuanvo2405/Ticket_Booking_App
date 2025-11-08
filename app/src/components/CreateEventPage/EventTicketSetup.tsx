@@ -4,22 +4,39 @@ import MenuTicket from "./EventTicket/MenuTicket";
 import CreateTicketModal from "./EventTicket/CreateTicketModal";
 import { useState } from "react";
 import CreatePerformance from "./EventTicket/CreatePerformance";
+import { useQuery } from "@tanstack/react-query";
+import { getPerformaneAPI } from "@/services/ticketService";
+import { useEventStore } from "@/store/useEventStore";
 
 export default function EventTicketSetup() {
+  const { eventID } = useEventStore();
   const [openCreateTicket, setOpenCreateTicket] = useState(false);
   const [openCreatePerformance, setOpenCreatePerformance] = useState(false);
-
   const handleCloseCreatePerformance = () => {
     setOpenCreatePerformance(false);
   };
+
+  const { data } = useQuery({
+    queryKey: ["fetchPerformance", eventID],
+    queryFn: () => getPerformaneAPI(eventID!),
+    enabled: !!eventID,
+  });
+  console.log(data);
 
   return (
     <div>
       <div className="border-b-2 w-11/12 mx-auto py-3">
         <div className="text-2xl uppercase mb-3">Suất diễn</div>
         <div className="flex flex-col gap-3">
-          <MenuTicket />
-          <MenuTicket />
+          {eventID &&
+            data?.map((item: any, index: number) => (
+              <MenuTicket
+                key={index}
+                thoiGianBatDau={item.thoigianbatdau}
+                thoiGianKetThuc={item.thoigianketthuc}
+                masuatdien={item.masuatdien}
+              />
+            ))}
           <Button
             variant="ghost"
             size="default"

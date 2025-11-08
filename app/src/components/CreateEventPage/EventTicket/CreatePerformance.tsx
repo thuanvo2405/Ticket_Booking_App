@@ -1,14 +1,6 @@
 import { DateTimePicker24h } from "@/components/date-time-picker";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormField,
@@ -17,9 +9,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { CreatePerformanceAPI } from "@/services/ticketService";
+import { useEventStore } from "@/store/useEventStore";
 import { formatDate } from "@/utils/convert";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -34,23 +28,39 @@ export interface CreatePerformance {
 }
 
 export default function CreatePerformance({ close }: CreatePerformance) {
+  const { eventID } = useEventStore();
+  const queryClient = useQueryClient();
+
+  const createPerformanceMutation = useMutation({
+    mutationFn: ({ thoiGianBatDau, thoiGianKetThuc, eventID }: any) =>
+      CreatePerformanceAPI(thoiGianBatDau, thoiGianKetThuc, eventID),
+    onSuccess: () => {
+      if (eventID) {
+        queryClient.invalidateQueries({
+          queryKey: ["fetchPerformance", eventID],
+        });
+      }
+      toast.success("Tạo performance thành công");
+      close();
+    },
+    onError: (error: any) => {
+      toast.error("Lỗi tạo performance: " + (error.message || error));
+    },
+  });
+
+  console.log(eventID);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const res = await CreatePerformanceAPI(
-        formatDate(values.thoiGianBatDau),
-        formatDate(values.thoiGianKetThuc),
-        "9c13895f-daf4-4278-b691-5b49b070dbc1"
-      );
-      close();
-      toast("Tạo sự kiện thành công", res);
-    } catch (error) {
-      toast.error("Lỗi tạo sự kiện:" + error);
-    }
+    createPerformanceMutation.mutate({
+      thoiGianBatDau: formatDate(values.thoiGianBatDau),
+      thoiGianKetThuc: formatDate(values.thoiGianKetThuc),
+      eventID: eventID?.toString()!,
+    });
   }
+
   return (
     <div className="w-11/12">
       <Card>

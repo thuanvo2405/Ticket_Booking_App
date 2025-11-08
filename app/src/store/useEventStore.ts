@@ -64,6 +64,6 @@ export const useEventStore = create<Store>()(
           promotions: [],
         }),
     }),
-    { name: "create-event-flow" } // key localStorage để khôi phục sau reload
+    { name: "create-event-flow" }
   )
 );

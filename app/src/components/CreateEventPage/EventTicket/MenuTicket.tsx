@@ -1,12 +1,6 @@
 import { DateTimePicker24h } from "@/components/date-time-picker";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Accordion,
   AccordionContent,
@@ -21,10 +15,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { ChevronDown, Ellipsis, Pencil, Ticket, Trash2 } from "lucide-react";
+import { Pencil, Ticket, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { formatDateTime } from "@/utils/convert";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deletePerformaneAPI } from "@/services/ticketService";
+import toast from "react-hot-toast";
+import { useEventStore } from "@/store/useEventStore";
 
 const eventSchema = z.object({
   thoiGianBatDau: z.date(),
@@ -33,10 +42,37 @@ const eventSchema = z.object({
 
 type EventForm = z.infer<typeof eventSchema>;
 
-export default function MenuTicket() {
+export interface MenuTicketProps {
+  thoiGianBatDau: string;
+  thoiGianKetThuc: string;
+  masuatdien: number;
+}
+
+export default function MenuTicket({
+  thoiGianBatDau,
+  thoiGianKetThuc,
+  masuatdien,
+}: MenuTicketProps) {
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
     defaultValues: {},
+  });
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const queryClient = useQueryClient();
+  const { eventID } = useEventStore();
+
+  const deletePerformance = useMutation({
+    mutationFn: () => deletePerformaneAPI(masuatdien),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetchPerformance", eventID],
+      });
+      toast.success("Xóa performance thành công");
+      close();
+    },
+    onError: (error: any) => {
+      toast.error("Lỗi xóa performance: " + (error.message || error));
+    },
   });
 
   return (
@@ -46,12 +82,21 @@ export default function MenuTicket() {
           <div className="flex justify-between items-center px-2 w-full">
             <div className="flex items-center gap-4">
               <div>
-                <p>Thời gian suất</p>
+                <p>
+                  {formatDateTime(thoiGianBatDau) +
+                    " - " +
+                    formatDateTime(thoiGianKetThuc)}
+                </p>
                 <p className="text-sm">1 Loại vé</p>
               </div>
             </div>
-            <Button>
-              <Ellipsis />
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpenConfirm(true);
+              }}
+            >
+              <Trash2 />
             </Button>
           </div>
         </AccordionTrigger>
@@ -121,6 +166,30 @@ export default function MenuTicket() {
             </li>
           </ul>
         </AccordionContent>
+        <AlertDialog open={openConfirm} onOpenChange={setOpenConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Bạn có chắc muốn xóa suất diễn này?
+              </AlertDialogTitle>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setOpenConfirm(false)}>
+                Hủy
+              </AlertDialogCancel>
+
+              <AlertDialogAction
+                onClick={() => {
+                  deletePerformance.mutate();
+                  setOpenConfirm(false);
+                }}
+              >
+                Xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AccordionItem>
     </Accordion>
   );
