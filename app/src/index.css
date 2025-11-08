@@ -118,3 +118,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+.ql-container {
+  height: 350px !important;
+}
+
+.ql-editor {
+  height: 100% !important;
+  overflow-y: auto;
+}

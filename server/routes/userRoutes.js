@@ -8,7 +8,7 @@ import {
   verifyEmail,
   forgotPassword,
   resetPassword,
-  getCurrentUser
+  getCurrentUser,
 } from "../controllers/authController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 import checkRole from "../middleware/verifyRole.js";
@@ -26,7 +26,7 @@ router.post("/reset-password", resetPassword);
 router.post("/resend-verification", resendVerificationEmail);
 router.get("/verify-email", verifyEmail);
 
-router.get("/test", checkRole(["khach_hang"]), (req, res) => {
+router.get("/test", checkRole(["KHACH_HANG"]), (req, res) => {
   res.send("hello 123");
 });
 

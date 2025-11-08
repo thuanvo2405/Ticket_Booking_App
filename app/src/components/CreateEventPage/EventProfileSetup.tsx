@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+
 import {
   Form,
   FormField,
@@ -22,6 +23,11 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import province from "@/data/vietnam-provinces.json";
+import { URL } from "@/constant/constant";
+import { createEventAPI } from "@/services/eventService";
+import toast from "react-hot-toast";
+import { useEventStore } from "@/store/useEventStore";
 
 const eventSchema = z.object({
   tenSuKien: z.string().min(1, "Vui lòng nhập tên sự kiện"),
@@ -35,10 +41,65 @@ const eventSchema = z.object({
 
 type EventForm = z.infer<typeof eventSchema>;
 
+const imageHandler = function (this: any) {
+  const input = document.createElement("input");
+  input.setAttribute("type", "file");
+  input.setAttribute("accept", "image/*");
+  input.click();
+
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const res = await fetch(URL + "upload", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+
+    const quill = this.quill;
+    const range = quill.getSelection(true);
+    quill.insertEmbed(range.index, "image", data.imageUrl);
+  };
+};
+
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
+    ["image"],
+  ],
+  handlers: {
+    image: imageHandler,
+  },
+};
+
+const formats = [
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "image",
+];
+
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-
+  const { setStep } = useEventStore();
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -52,6 +113,15 @@ export default function CreateEventInfoStep() {
     },
   });
 
+  const city = form.watch("tinhThanh");
+  const district = form.watch("quanHuyen");
+
+  const selectedCity = province.find((c) => c.name === city);
+  const districts = selectedCity?.districts || [];
+
+  const selectedDistrict = districts.find((d) => d.name === district);
+  const wards = selectedDistrict?.wards || [];
+
   const handleUpload = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "poster" | "banner"
@@ -61,34 +131,54 @@ export default function CreateEventInfoStep() {
     type === "poster" ? setPoster(file) : setBanner(file);
   };
 
-  const onSubmit = (data: EventForm) => {
-    console.log({ ...data, poster, banner });
+  const onSubmit = async (data: EventForm) => {
+    if (!poster || !banner) {
+      toast.error("Vui lòng chọn đầy đủ hình ảnh!");
+      return;
+    }
+
+    try {
+      const res = await createEventAPI(
+        data.tenSuKien,
+        banner,
+        poster,
+        data.moTa ?? "",
+        data.soNha,
+        data.phuongXa,
+        data.quanHuyen,
+        data.tinhThanh
+      );
+      setStep(2);
+      toast("Tạo sự kiện thành công", res);
+    } catch (error) {
+      toast.error("Lỗi tạo sự kiện:" + error);
+    }
   };
 
   return (
-    <div className="max-w-5xl mx-auto py-10 space-y-8">
+    <div className="mx-auto px-8 py-10 space-y-8 overflow-hidden">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-          {/* Upload hình ảnh */}
+          {/* Upload Image */}
           <div>
             <FormLabel className="text-base font-medium mb-2 block">
               Upload hình ảnh
             </FormLabel>
-            <div className="grid grid-cols-2 gap-6">
-              {/* Ảnh dọc (Poster) */}
-              <div className="relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
+            <div className="grid grid-cols-7 gap-6">
+              {/* Poster */}
+              <div className="col-span-2 relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
                 <Label
                   htmlFor="poster-upload"
                   className="cursor-pointer w-full h-full"
                 >
                   {poster ? (
                     <img
-                      src={URL.createObjectURL(poster)}
+                      src={window.URL.createObjectURL(poster)}
                       alt="Poster"
                       className="object-contain w-full h-full rounded-2xl"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full">
+                    <div className="flex flex-col items-center justify-center h-full mx-auto">
                       <p className="text-sm text-gray-400 font-medium">
                         Thêm ảnh sự kiện
                       </p>
@@ -105,20 +195,20 @@ export default function CreateEventInfoStep() {
                 />
               </div>
 
-              {/* Ảnh ngang (Banner) */}
-              <div className="relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
+              {/* Banner */}
+              <div className="col-span-5 relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
                 <Label
                   htmlFor="banner-upload"
                   className="cursor-pointer w-full h-full"
                 >
                   {banner ? (
                     <img
-                      src={URL.createObjectURL(banner)}
+                      src={window.URL.createObjectURL(banner)}
                       alt="Banner"
                       className="object-cover w-full h-full rounded-2xl"
                     />
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full">
+                    <div className="flex flex-col items-center justify-center h-full mx-auto">
                       <p className="text-sm text-gray-400 font-medium">
                         Thêm ảnh nền sự kiện
                       </p>
@@ -137,7 +227,7 @@ export default function CreateEventInfoStep() {
             </div>
           </div>
 
-          {/* Thông tin cơ bản */}
+          {/* Event name & type */}
           <div className="grid grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -152,21 +242,17 @@ export default function CreateEventInfoStep() {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="loaiSuKien"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Thể loại sự kiện</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn loại sự kiện" />
-                      </SelectTrigger>
-                    </FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn loại sự kiện" />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="amnhac">Âm nhạc</SelectItem>
                       <SelectItem value="hoithao">Hội thảo</SelectItem>
@@ -179,10 +265,11 @@ export default function CreateEventInfoStep() {
             />
           </div>
 
-          {/* Địa chỉ */}
+          {/* Location Selects */}
           <div className="space-y-3">
             <FormLabel>Địa chỉ sự kiện</FormLabel>
             <div className="grid grid-cols-2 gap-4">
+              {/* City */}
               <FormField
                 control={form.control}
                 name="tinhThanh"
@@ -190,18 +277,22 @@ export default function CreateEventInfoStep() {
                   <FormItem>
                     <FormLabel>Tỉnh/Thành</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue("quanHuyen", "");
+                        form.setValue("phuongXa", "");
+                      }}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn tỉnh/thành" />
-                        </SelectTrigger>
-                      </FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn thành phố" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="hcm">TP. Hồ Chí Minh</SelectItem>
-                        <SelectItem value="hanoi">Hà Nội</SelectItem>
-                        <SelectItem value="danang">Đà Nẵng</SelectItem>
+                        {province.map((c) => (
+                          <SelectItem key={c.name} value={c.name}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -209,6 +300,7 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
+              {/* District */}
               <FormField
                 control={form.control}
                 name="quanHuyen"
@@ -216,18 +308,22 @@ export default function CreateEventInfoStep() {
                   <FormItem>
                     <FormLabel>Quận/Huyện</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      disabled={!city}
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue("phuongXa", "");
+                      }}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn quận/huyện" />
-                        </SelectTrigger>
-                      </FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn quận" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="quan1">Quận 1</SelectItem>
-                        <SelectItem value="quan3">Quận 3</SelectItem>
-                        <SelectItem value="quan7">Quận 7</SelectItem>
+                        {districts.map((d) => (
+                          <SelectItem key={d.name} value={d.name}>
+                            {d.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -235,6 +331,7 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
+              {/* Ward */}
               <FormField
                 control={form.control}
                 name="phuongXa"
@@ -242,18 +339,19 @@ export default function CreateEventInfoStep() {
                   <FormItem>
                     <FormLabel>Phường/Xã</FormLabel>
                     <Select
+                      disabled={!district}
+                      value={field.value}
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn phường/xã" />
-                        </SelectTrigger>
-                      </FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn phường" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="p1">Phường 1</SelectItem>
-                        <SelectItem value="p2">Phường 2</SelectItem>
-                        <SelectItem value="p3">Phường 3</SelectItem>
+                        {wards.map((w) => (
+                          <SelectItem key={w.name} value={w.name}>
+                            {w.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -261,6 +359,7 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
+              {/* House Number */}
               <FormField
                 control={form.control}
                 name="soNha"
@@ -277,7 +376,7 @@ export default function CreateEventInfoStep() {
             </div>
           </div>
 
-          {/* Mô tả sự kiện */}
+          {/* Description */}
           <div className="space-y-3">
             <FormLabel>Giới thiệu sự kiện</FormLabel>
             <Controller
@@ -288,7 +387,9 @@ export default function CreateEventInfoStep() {
                   theme="snow"
                   value={field.value}
                   onChange={field.onChange}
-                  className="bg-white rounded-lg"
+                  className="bg-white rounded-lg "
+                  modules={modules}
+                  formats={formats}
                 />
               )}
             />

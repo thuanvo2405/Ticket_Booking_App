@@ -15,6 +15,10 @@ import DashboardPage from "./page/DashboardPage";
 import OrganizerLayout from "./components/layout/organizerlayout";
 import NotFoundPage from "./page/NotFoundPage";
 import MyEventPage from "./page/MyEventPage";
+import AdminLayout from "./components/layout/adminlayout";
+import EventManage from "./page/EventManage";
+import AccountManage from "./page/AccountManage";
+import DashboardManage from "./page/DashboardManage";
 
 function App() {
   return (
@@ -36,8 +40,11 @@ function App() {
         <Route path="my-events" element={<MyEventPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
       </Route>
-      <Route path="admin" element={<OrganizerLayout />}>
+      <Route path="admin" element={<AdminLayout />}>
         <Route index element={<AdminPage />} />
+        <Route path="account-manage" element={<AccountManage />} />
+        <Route path="event-manage" element={<EventManage />} />
+        <Route path="dashboard" element={<DashboardManage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
