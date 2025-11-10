@@ -1,3 +1,9 @@
+import { TableEvent } from "@/components/AdminPage/TableEvent";
+
 export default function EventManage() {
-  return <div>EventManage</div>;
+  return (
+    <div>
+      <TableEvent />
+    </div>
+  );
 }

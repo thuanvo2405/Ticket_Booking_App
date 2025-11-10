@@ -1,3 +1,8 @@
+import { TableAccount } from "../components/AdminPage/TableAccount";
 export default function AccountManage() {
-  return <div>AccountManage</div>;
+  return (
+    <div>
+      <TableAccount />
+    </div>
+  );
 }
