@@ -1,4 +1,4 @@
-import Card from "@/components/card";
+import Card from "@/components/event-card";
 import TicketInfo from "@/components/ticket-info";
 import { Button } from "@/components/ui/button";
 import TicketDescription from "@/components/ui/ticket-description";

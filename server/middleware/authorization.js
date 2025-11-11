@@ -11,4 +11,23 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-export { authenticateToken };
+const parseTokenIfExists = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader?.split(" ")[1];
+
+  if (!token) {
+    req.user = undefined;
+    return next();
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      req.user = undefined;
+    } else {
+      req.user = user;
+    }
+    next();
+  });
+};
+
+export { authenticateToken, parseTokenIfExists };

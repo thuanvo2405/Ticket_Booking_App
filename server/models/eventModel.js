@@ -119,10 +119,56 @@ export const getEventByIdService = async (maSuKien) => {
   return result.rows[0];
 };
 
-export const getEventsService = async (page, limit, trangThai) => {
+export const getEventsService = async ({
+  page = 1,
+  limit = 10,
+  trangThai,
+  from,
+  to,
+  viTri,
+  maLoaiSuKien,
+  role,
+  maToChuc,
+}) => {
   const offset = (page - 1) * limit;
+  const conditions = [];
+  const params = [];
 
-  let query = `
+  if (role === "TO_CHUC" && maToChuc) {
+    conditions.push(`su_kien.matochuc = $${params.length + 1}`);
+    params.push(maToChuc);
+  } else if (!role || role === "KHACH_HANG") {
+    conditions.push(`su_kien.trangthai = 'DA_DUYET'`);
+  } else if (role === "QUAN_TRI") {
+    conditions.push(`su_kien.trangthai != 'NHAP'`);
+  }
+
+  if (trangThai) {
+    conditions.push(`su_kien.trangthai = $${params.length + 1}`);
+    params.push(trangThai);
+  }
+  if (from) {
+    conditions.push(`su_kien.ngaytao >= $${params.length + 1}`);
+    params.push(from);
+  }
+  if (to) {
+    conditions.push(`su_kien.ngaytao <= $${params.length + 1}`);
+    params.push(to);
+  }
+  if (viTri) {
+    conditions.push(`su_kien.vitri ILIKE $${params.length + 1}`);
+    params.push(`%${viTri}%`);
+  }
+  if (maLoaiSuKien) {
+    conditions.push(`su_kien.maloaisukien = $${params.length + 1}`);
+    params.push(maLoaiSuKien);
+  }
+
+  const whereClause = conditions.length
+    ? `WHERE ${conditions.join(" AND ")}`
+    : "";
+
+  const query = `
     SELECT 
       su_kien.*,
       to_chuc.tentochuc,
@@ -131,37 +177,22 @@ export const getEventsService = async (page, limit, trangThai) => {
     FROM su_kien
     JOIN to_chuc ON to_chuc.matochuc = su_kien.matochuc
     JOIN loai_su_kien ON loai_su_kien.maloaisukien = su_kien.maloaisukien
-    WHERE su_kien.trangthai != 'NHAP'
+    ${whereClause}
+    ORDER BY su_kien.ngaytao DESC
+    LIMIT ${limit} OFFSET ${offset}
   `;
 
-  let countQuery = `SELECT COUNT(*) FROM su_kien WHERE su_kien.trangthai != 'NHAP'`;
+  const countQuery = `SELECT COUNT(*) FROM su_kien ${whereClause}`;
 
-  const params = [];
-  let paramIndex = 1;
-
-  if (trangThai) {
-    query += ` AND su_kien.trangthai = $${paramIndex}  `;
-    countQuery += ` AND su_kien.trangthai = $${paramIndex} `;
-    params.push(trangThai);
-    paramIndex++;
-  }
-
-  query += ` ORDER BY su_kien.ngaytao DESC LIMIT $${paramIndex} OFFSET $${
-    paramIndex + 1
-  }`;
-  params.push(limit, offset);
-
+  console.log(query);
+  console.log(params);
   const result = await pool.query(query, params);
-  const totalResult = await pool.query(
-    countQuery,
-    trangThai ? [trangThai] : []
-  );
-  const total = parseInt(totalResult.rows[0].count, 10);
+  const totalResult = await pool.query(countQuery, params);
 
   return {
     data: result.rows,
     page,
     limit,
-    total,
+    total: parseInt(totalResult.rows[0].count, 10),
   };
 };

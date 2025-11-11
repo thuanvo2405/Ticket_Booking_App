@@ -1,4 +1,4 @@
-import Card from "@/components/card";
+import Card from "@/components/event-card";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -12,19 +12,39 @@ import { NavLink } from "react-router";
 export default function HomePage() {
   return (
     <div>
-      <nav className="h-[60px] bg-blue-200 w-full flex items-center justify-center mb-4">
-        <ul className="flex h-full items-center w-[1284px] gap-2">
+      <nav className="h-[60px] bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
+        <ul className="flex h-full items-center w-[1284px] gap-3 ">
           <li>
-            <Button variant="destructive">Nhạc sống</Button>
+            <Button
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+            >
+              Nhạc sống
+            </Button>
           </li>
           <li>
-            <Button>Sân khấu và nghệ thuật</Button>
+            <Button
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+            >
+              Sân khấu và nghệ thuật
+            </Button>
           </li>
           <li>
-            <Button>Thể thao</Button>
+            <Button
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+            >
+              Thể thao
+            </Button>
           </li>
           <li>
-            <Button>Khác</Button>
+            <Button
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+            >
+              Khác
+            </Button>
           </li>
         </ul>
       </nav>
@@ -107,7 +127,7 @@ export default function HomePage() {
         </div>
         <div className="mt-8">
           <p className="font-semibold text-lg mb-3">Sự kiện theo khu vực</p>
-          <div className="flex gap-4 ">
+          <div className="flex gap-4">
             {Array.from({ length: 4 }).map((_, index) => (
               <NavLink
                 to="/"
@@ -117,9 +137,14 @@ export default function HomePage() {
                 <img
                   src="/place.jpg"
                   alt={`slide-${index}`}
-                  className="aspect-square object-cover"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-800"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black to-green-100 opacity-70"></div>
+                <div className="absolute inset-0 flex justify-center items-center">
+                  <span className="text-white font-bold text-lg">
+                    Khu vực {index + 1}
+                  </span>
+                </div>
               </NavLink>
             ))}
           </div>

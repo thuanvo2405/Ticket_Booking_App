@@ -18,7 +18,7 @@ export default function TimePicker() {
   const [open, setOpen] = React.useState(false);
 
   const getDateLabel = () => {
-    if (!dateRange?.from) return "Select date";
+    if (!dateRange?.from) return "Chọn ngày";
     if (!dateRange.to) return format(dateRange.from, "PPP");
 
     return `${format(dateRange.from, "PPP")} - ${format(dateRange.to, "PPP")}`;
@@ -31,43 +31,63 @@ export default function TimePicker() {
           <Button
             variant="outline"
             id="date"
-            className="w-80 justify-between font-normal text-left"
+            className="w-80 justify-between font-normal text-left hover:bg-gray-50 transition-all"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              className="lucide lucide-calendar-days-icon lucide-calendar-days"
-            >
-              <path d="M8 2v4" />
-              <path d="M16 2v4" />
-              <rect width="18" height="18" x="3" y="4" rx="2" />
-              <path d="M3 10h18" />
-              <path d="M8 14h.01" />
-              <path d="M12 14h.01" />
-              <path d="M16 14h.01" />
-              <path d="M8 18h.01" />
-              <path d="M12 18h.01" />
-              <path d="M16 18h.01" />
-            </svg>
-            {getDateLabel()}
-
+            <div className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-calendar-days text-gray-600"
+              >
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M3 10h18" />
+                <path d="M8 14h.01" />
+                <path d="M12 14h.01" />
+                <path d="M16 14h.01" />
+                <path d="M8 18h.01" />
+                <path d="M12 18h.01" />
+                <path d="M16 18h.01" />
+              </svg>
+              <span>{getDateLabel()}</span>
+            </div>
             <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Button>Tất cả các ngày</Button>
-          <Button>Hôm nay</Button>
-          <Button>Ngày mai</Button>
-          <Button>Cuối tuần</Button>
-          <Button>Tháng này</Button>
+        <PopoverContent
+          className="w-auto overflow-hidden p-4 bg-white rounded-xl shadow-lg border"
+          align="start"
+        >
+          {/* Quick filter buttons */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[
+              "Tất cả các ngày",
+              "Hôm nay",
+              "Ngày mai",
+              "Cuối tuần",
+              "Tháng này",
+            ].map((label) => (
+              <Button
+                key={label}
+                variant="outline"
+                size="sm"
+                className="rounded-lg text-sm font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+
+          {/* Calendar */}
           <Calendar
             mode="range"
             defaultMonth={dateRange?.from}
@@ -76,9 +96,22 @@ export default function TimePicker() {
             numberOfMonths={2}
             className="rounded-lg border shadow-sm mx-auto"
           />
-          <div className="flex gap-3 p-3">
-            <Button className="flex-1">Thoát</Button>
-            <Button className="flex-1">Áp dụng</Button>
+
+          {/* Action buttons */}
+          <div className="flex gap-3 p-3 mt-2 border-t">
+            <Button
+              variant="outline"
+              className="flex-1 border-green-400 text-green-600 hover:bg-green-50"
+              onClick={() => setDateRange(undefined)}
+            >
+              Thiết lập lại
+            </Button>
+            <Button
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={() => setOpen(false)}
+            >
+              Áp dụng
+            </Button>
           </div>
         </PopoverContent>
       </Popover>

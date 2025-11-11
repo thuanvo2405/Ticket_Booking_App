@@ -137,9 +137,24 @@ export const getEvents = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { trangThai } = req.query;
 
-    const result = await getEventsService(page, limit, trangThai);
+    const { trangThai, from, to, viTri, maLoaiSuKien, maToChuc } = req.query;
+
+    const role = req.user?.user?.role;
+    console.log(role);
+    console.log(maToChuc);
+
+    const result = await getEventsService({
+      page,
+      limit,
+      trangThai,
+      from,
+      to,
+      viTri,
+      maLoaiSuKien,
+      role,
+      maToChuc,
+    });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", { ...result });
   } catch (error) {

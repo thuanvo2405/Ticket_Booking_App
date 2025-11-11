@@ -6,14 +6,17 @@ import {
   getEventById,
   getEvents,
 } from "../controllers/eventController.js";
-import { authenticateToken } from "../middleware/authorization.js";
+import {
+  authenticateToken,
+  parseTokenIfExists,
+} from "../middleware/authorization.js";
 import upload from "../utils/multer.js";
 import checkRole from "../middleware/verifyRole.js";
 
 const router = express.Router();
 
 router.get("/event", getEventById);
-router.get("/events", getEvents);
+router.get("/events", parseTokenIfExists, getEvents);
 
 router.post(
   "/event",
@@ -36,6 +39,6 @@ router.patch(
   ]),
   updateEvent
 );
-router.patch("/event-status", authenticateToken, updateEventStatus);  
+router.patch("/event-status", authenticateToken, updateEventStatus);
 
 export default router;
