@@ -127,3 +127,8 @@
   height: 100% !important;
   overflow-y: auto;
 }
+
+[data-state="open"] > .dialog-content {
+  width: 95vw !important;
+  max-width: 1400px !important;
+}

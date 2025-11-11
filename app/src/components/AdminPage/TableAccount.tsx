@@ -123,12 +123,28 @@ export const columns: ColumnDef<UserInformation>[] = [
   },
   {
     accessorKey: "soDienThoai",
-    header: "Số điện thoại",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Số Điện thoại
+        <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => <div>{row.getValue("soDienThoai")}</div>,
   },
   {
     accessorKey: "vaiTro",
-    header: "Vai trò",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Vai trò
+        <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("vaiTro")}</div>
     ),

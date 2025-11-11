@@ -1,8 +1,17 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export interface EventData {
-  // fields form tạo sự kiện
+  tenSuKien: string;
+  loaiSuKien: string;
+  tinhThanh: string;
+  quanHuyen: string;
+  phuongXa: string;
+  soNha: string;
+  moTa?: string;
+  posterFile?: File;
+  bannerFile?: File;
+  posterUrl?: string;
+  bannerUrl?: string;
 }
 
 export interface TicketTypes {
@@ -30,40 +39,41 @@ type Store = {
   resetAll: () => void;
 };
 
-export const useEventStore = create<Store>()(
-  persist(
-    (set) => ({
+export const useEventStore = create<Store>()((set) => ({
+  step: 1,
+  eventID: null,
+  eventData: null,
+  ticketTypes: [],
+  promotions: [],
+
+  setStep: (step) => set({ step }),
+  setNextStep: () =>
+    set((state) => ({
+      step: state.step < 4 ? state.step + 1 : state.step,
+    })),
+  setPrevStep: () =>
+    set((state) => ({
+      step: state.step > 1 ? state.step - 1 : state.step,
+    })),
+  setEventID: (id) => set({ eventID: id }),
+  setEventData: (data) =>
+    set((state) => ({
+      eventData: {
+        ...state.eventData,
+        ...data,
+      },
+    })),
+  addTicketType: (ticket) =>
+    set((state) => ({ ticketTypes: [...state.ticketTypes, ticket] })),
+  addPromotion: (promotion) =>
+    set((state) => ({ promotions: [...state.promotions, promotion] })),
+
+  resetAll: () =>
+    set({
       step: 1,
       eventID: null,
       eventData: null,
       ticketTypes: [],
       promotions: [],
-
-      setStep: (step) => set({ step }),
-      setNextStep: () =>
-        set((state) => ({
-          step: state.step < 4 ? state.step + 1 : state.step,
-        })),
-      setPrevStep: () =>
-        set((state) => ({
-          step: state.step > 1 ? state.step - 1 : state.step,
-        })),
-      setEventID: (id) => set({ eventID: id }),
-      setEventData: (data) => set({ eventData: data }),
-      addTicketType: (ticket) =>
-        set((state) => ({ ticketTypes: [...state.ticketTypes, ticket] })),
-      addPromotion: (promotion) =>
-        set((state) => ({ promotions: [...state.promotions, promotion] })),
-
-      resetAll: () =>
-        set({
-          step: 1,
-          eventID: null,
-          eventData: null,
-          ticketTypes: [],
-          promotions: [],
-        }),
     }),
-    { name: "create-event-flow" }
-  )
-);
+}));

@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -7,6 +6,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+
 import type {
   VisibilityState,
   SortingState,
@@ -32,112 +39,108 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EventProfileModal } from "./EventProfileModal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getEvents, updateEventStatusAPI } from "@/services/eventService";
+import { useState } from "react";
 
 export interface EventProfile {
-  maSuKien: string;
-  tenSuKien: string;
-  moTa: string;
-  trangThai: "DANG_DIEN_RA" | "DA_KET_THUC" | "HUY";
-  tenToChuc: string;
-  loaiSuKien: string;
+  masukien: string;
+  tensukien: string;
+  mota: string;
+  trangthai: "CHO_DUYET" | "DA_DUYET" | "HUY" | "NHAP" | "TU_CHOI";
+  tentochuc: string;
+  loaisukien: string;
 }
 
-const data: EventProfile[] = [
-  {
-    maSuKien: "e001",
-    tenSuKien: "Hoạt động thể thao",
-    moTa: "Giải bóng đá học sinh",
-    trangThai: "DANG_DIEN_RA",
-    tenToChuc: "CLB Thể Thao",
-    loaiSuKien: "Thể thao",
-  },
-  {
-    maSuKien: "e002",
-    tenSuKien: "Hội thảo công nghệ",
-    moTa: "Chia sẻ kiến thức về AI",
-    trangThai: "DA_KET_THUC",
-    tenToChuc: "Tech Group",
-    loaiSuKien: "Hội thảo",
-  },
-  {
-    maSuKien: "e003",
-    tenSuKien: "Lễ hội âm nhạc",
-    moTa: "Festival âm nhạc mùa hè",
-    trangThai: "HUY",
-    tenToChuc: "Music Org",
-    loaiSuKien: "Âm nhạc",
-  },
-];
-
-export const columns: ColumnDef<EventProfile>[] = [
-  {
-    accessorKey: "tenSuKien",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Tên sự kiện <ArrowUpDown />
-      </Button>
-    ),
-    cell: ({ row }) => <div>{row.getValue("tenSuKien")}</div>,
-  },
-  {
-    accessorKey: "moTa",
-    header: "Mô tả",
-    cell: ({ row }) => <div>{row.getValue("moTa")}</div>,
-  },
-  {
-    accessorKey: "trangThai",
-    header: "Trạng thái",
-    cell: ({ row }) => {
-      const value = row.getValue("trangThai") as string;
-      const color =
-        value === "DANG_DIEN_RA"
-          ? "text-green-600"
-          : value === "DA_KET_THUC"
-          ? "text-gray-600"
-          : "text-red-600";
-      return <div className={color}>{value.replaceAll("_", " ")}</div>;
-    },
-  },
-  {
-    accessorKey: "tenToChuc",
-    header: "Tên tổ chức",
-    cell: ({ row }) => <div>{row.getValue("tenToChuc")}</div>,
-  },
-  {
-    accessorKey: "loaiSuKien",
-    header: "Loại sự kiện",
-    cell: ({ row }) => <div>{row.getValue("loaiSuKien")}</div>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const event = row.original;
-      return (
-        <div className="flex gap-2">
-          <EventProfileModal />
-          <Button>Duyệt</Button>
-          <Button variant="destructive">Từ chối</Button>
-        </div>
-      );
-    },
-  },
-];
-
 export function TableEvent() {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(5);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+
+  const queryClient = useQueryClient();
+
+  const { data } = useQuery({
+    queryKey: ["fetchingEvents", page, limit],
+    queryFn: () => getEvents(page, limit),
+  });
+
+  const mutation = useMutation({
+    mutationFn: (maSuKien: string) =>
+      updateEventStatusAPI(maSuKien, "DA_DUYET"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetchingEvents", page, limit],
+      });
+    },
+  });
+
+  const columns: ColumnDef<EventProfile>[] = [
+    {
+      accessorKey: "tensukien",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tên sự kiện <ArrowUpDown />
+        </Button>
+      ),
+      cell: ({ row }) => <div>{row.getValue("tensukien")}</div>,
+    },
+    {
+      accessorKey: "trangthai",
+      header: "Trạng thái",
+      cell: ({ row }) => {
+        const value = row.getValue("trangthai") as string;
+
+        const colorMap: Record<string, string> = {
+          CHO_DUYET: "text-yellow-600",
+          DA_DUYET: "text-green-600",
+          HUY: "text-red-600",
+          TU_CHOI: "text-red-600",
+          NHAP: "text-gray-500",
+        };
+
+        return (
+          <span className={colorMap[value] || "text-black"}>
+            {value.replaceAll("_", " ")}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "tentochuc",
+      header: "Tên tổ chức",
+      cell: ({ row }) => <div>{row.getValue("tentochuc")}</div>,
+    },
+    {
+      accessorKey: "tenloaisukien",
+      header: "Loại sự kiện",
+      cell: ({ row }) => <div>{row.getValue("tenloaisukien")}</div>,
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const event = row.original;
+        return (
+          <div className="flex gap-2">
+            <EventProfileModal event={event} />
+            <Button onClick={() => mutation.mutate(event.masukien)}>
+              Duyệt
+            </Button>
+            <Button variant="destructive">Từ chối</Button>
+          </div>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
-    data,
+    data: data?.data || [],
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -158,6 +161,25 @@ export function TableEvent() {
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
+        <Select
+          onValueChange={(value) => {
+            table;
+            table
+              .getColumn("trangthai")
+              ?.setFilterValue(value === "ALL" ? undefined : value);
+          }}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Lọc trạng thái" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Tất cả</SelectItem>
+            <SelectItem value="DANG_DIEN_RA">Đang diễn ra</SelectItem>
+            <SelectItem value="DA_KET_THUC">Đã kết thúc</SelectItem>
+            <SelectItem value="HUY">Hủy</SelectItem>
+          </SelectContent>
+        </Select>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,9 +25,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import province from "@/data/vietnam-provinces.json";
 import { URL } from "@/constant/constant";
-import { createEventAPI } from "@/services/eventService";
+import { createEventAPI, updateEventAPI } from "@/services/eventService";
 import toast from "react-hot-toast";
-import { useEventStore } from "@/store/useEventStore";
+import { useEventStore, type EventData } from "@/store/useEventStore";
 
 const eventSchema = z.object({
   tenSuKien: z.string().min(1, "Vui lòng nhập tên sự kiện"),
@@ -99,8 +99,9 @@ const formats = [
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-  const { setStep, setEventID } = useEventStore();
-
+  const { setStep, setEventID, setEventData, eventData, eventID } =
+    useEventStore();
+  console.log(eventData);
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -114,8 +115,27 @@ export default function CreateEventInfoStep() {
     },
   });
 
+  useEffect(() => {
+    if (eventData) {
+      form.reset({
+        tenSuKien: eventData.tenSuKien,
+        loaiSuKien: eventData.loaiSuKien,
+        tinhThanh: eventData.tinhThanh,
+        quanHuyen: eventData.quanHuyen,
+        phuongXa: eventData.phuongXa,
+        soNha: eventData.soNha,
+        moTa: eventData.moTa ?? "",
+      });
+
+      setPoster(eventData.posterFile ?? null);
+      setBanner(eventData.bannerFile ?? null);
+    }
+  }, [eventData]);
+
   const city = form.watch("tinhThanh");
   const district = form.watch("quanHuyen");
+  const ward = form.watch("phuongXa");
+  const eventType = form.watch("loaiSuKien");
 
   const selectedCity = province.find((c) => c.name === city);
   const districts = selectedCity?.districts || [];
@@ -133,27 +153,71 @@ export default function CreateEventInfoStep() {
   };
 
   const onSubmit = async (data: EventForm) => {
-    if (!poster || !banner) {
-      toast.error("Vui lòng chọn đầy đủ hình ảnh!");
-      return;
-    }
+    if (!eventID) {
+      if (!poster || !banner) {
+        toast.error("Vui lòng chọn đầy đủ hình ảnh!");
+        return;
+      }
 
-    try {
-      const res = await createEventAPI(
-        data.tenSuKien,
-        banner,
-        poster,
-        data.moTa ?? "",
-        data.soNha,
-        data.phuongXa,
-        data.quanHuyen,
-        data.tinhThanh
-      );
-      setEventID(res.maSuKien);
-      setStep(2);
-      toast("Tạo sự kiện thành công", res);
-    } catch (error) {
-      toast.error("Lỗi tạo sự kiện:" + error);
+      const eventDataToStore: EventData = {
+        ...data,
+        posterFile: poster,
+        bannerFile: banner,
+      };
+
+      try {
+        const res = await createEventAPI(
+          data.tenSuKien,
+          banner,
+          poster,
+          data.moTa ?? "",
+          data.soNha,
+          data.phuongXa,
+          data.quanHuyen,
+          data.tinhThanh
+        );
+
+        setEventID(res.maSuKien);
+        setEventData(eventDataToStore);
+
+        setStep(2);
+
+        toast.success("Tạo sự kiện thành công");
+      } catch (error) {
+        toast.error("Lỗi tạo sự kiện: " + error);
+      }
+    } else {
+      if (!poster || !banner) {
+        toast.error("Vui lòng chọn đầy đủ hình ảnh!");
+        return;
+      }
+
+      const eventDataToStore: EventData = {
+        ...data,
+        posterFile: poster,
+        bannerFile: banner,
+      };
+
+      try {
+        await updateEventAPI(
+          eventID,
+          data.tenSuKien,
+          banner,
+          poster,
+          data.moTa ?? "",
+          data.soNha,
+          data.phuongXa,
+          data.quanHuyen,
+          data.tinhThanh
+        );
+
+        setEventData(eventDataToStore);
+        setStep(2);
+
+        toast.success("Cập nhật sự kiện thành công");
+      } catch (error) {
+        toast.error("Lỗi cập nhật sự kiện: " + error);
+      }
     }
   };
 
@@ -161,13 +225,11 @@ export default function CreateEventInfoStep() {
     <div className="mx-auto px-8 py-10 space-y-8 overflow-hidden">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
-          {/* Upload Image */}
           <div>
             <FormLabel className="text-base font-medium mb-2 block">
               Upload hình ảnh
             </FormLabel>
             <div className="grid grid-cols-7 gap-6">
-              {/* Poster */}
               <div className="col-span-2 relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
                 <Label
                   htmlFor="poster-upload"
@@ -175,7 +237,11 @@ export default function CreateEventInfoStep() {
                 >
                   {poster ? (
                     <img
-                      src={window.URL.createObjectURL(poster)}
+                      src={
+                        poster instanceof File
+                          ? window.URL.createObjectURL(poster)
+                          : poster || ""
+                      }
                       alt="Poster"
                       className="object-contain w-full h-full rounded-2xl"
                     />
@@ -205,7 +271,11 @@ export default function CreateEventInfoStep() {
                 >
                   {banner ? (
                     <img
-                      src={window.URL.createObjectURL(banner)}
+                      src={
+                        banner instanceof File
+                          ? window.URL.createObjectURL(banner)
+                          : banner || ""
+                      }
                       alt="Banner"
                       className="object-cover w-full h-full rounded-2xl"
                     />
@@ -246,6 +316,7 @@ export default function CreateEventInfoStep() {
             />
 
             <FormField
+              key={eventType}
               control={form.control}
               name="loaiSuKien"
               render={({ field }) => (
@@ -279,6 +350,7 @@ export default function CreateEventInfoStep() {
                   <FormItem>
                     <FormLabel>Tỉnh/Thành</FormLabel>
                     <Select
+                      key={city}
                       value={field.value}
                       onValueChange={(value) => {
                         field.onChange(value);
@@ -310,6 +382,7 @@ export default function CreateEventInfoStep() {
                   <FormItem>
                     <FormLabel>Quận/Huyện</FormLabel>
                     <Select
+                      key={district}
                       disabled={!city}
                       value={field.value}
                       onValueChange={(value) => {
@@ -335,6 +408,7 @@ export default function CreateEventInfoStep() {
 
               {/* Ward */}
               <FormField
+                key={ward}
                 control={form.control}
                 name="phuongXa"
                 render={({ field }) => (
