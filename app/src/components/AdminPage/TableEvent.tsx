@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/table";
 import { EventProfileModal } from "./EventProfileModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getEvents, updateEventStatusAPI } from "@/services/eventService";
+import { getEventsAPI, updateEventStatusAPI } from "@/services/eventService";
 import { useState } from "react";
 
 export interface EventProfile {
@@ -64,7 +64,7 @@ export function TableEvent() {
 
   const { data } = useQuery({
     queryKey: ["fetchingEvents", page, limit],
-    queryFn: () => getEvents(page, limit),
+    queryFn: () => getEventsAPI({ page, limit }),
   });
 
   const mutation = useMutation({

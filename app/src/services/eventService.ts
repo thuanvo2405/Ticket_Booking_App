@@ -2,9 +2,41 @@ import axios from "axios";
 import { URL } from "@/constant/constant";
 import axiosInstance from "./axiosInstance";
 
-export const getEvents = async (page: number, limit: number) => {
-  const res = await axios.get(URL + `events?page=${page}&limit=${limit}`);
+export const getEventsAPI = async ({
+  page = 1,
+  limit = 10,
+  trangThai,
+  from,
+  to,
+  viTri,
+  maLoaiSuKien,
+  maToChuc,
+  tenSuKien,
+}: {
+  page?: number;
+  limit?: number;
+  trangThai?: string;
+  from?: string;
+  to?: string;
+  viTri?: string;
+  maLoaiSuKien?: string;
+  maToChuc?: string;
+  tenSuKien?: string;
+}) => {
+  const params = new URLSearchParams();
 
+  params.append("page", page.toString());
+  params.append("limit", limit.toString());
+
+  if (trangThai) params.append("trangThai", trangThai);
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+  if (viTri) params.append("viTri", viTri);
+  if (maLoaiSuKien) params.append("maLoaiSuKien", maLoaiSuKien);
+  if (maToChuc) params.append("maToChuc", maToChuc);
+  if (tenSuKien) params.append("tenSuKien", tenSuKien);
+
+  const res = await axios.get(`${URL}events?${params.toString()}`);
   return res.data.data;
 };
 

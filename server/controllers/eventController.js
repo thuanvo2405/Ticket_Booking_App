@@ -138,11 +138,10 @@ export const getEvents = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const { trangThai, from, to, viTri, maLoaiSuKien, maToChuc } = req.query;
+    const { trangThai, from, to, viTri, maLoaiSuKien, maToChuc, tenSuKien } =
+      req.query;
 
     const role = req.user?.user?.role;
-    console.log(role);
-    console.log(maToChuc);
 
     const result = await getEventsService({
       page,
@@ -154,6 +153,7 @@ export const getEvents = async (req, res, next) => {
       maLoaiSuKien,
       role,
       maToChuc,
+      tenSuKien,
     });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", { ...result });

@@ -129,39 +129,44 @@ export const getEventsService = async ({
   maLoaiSuKien,
   role,
   maToChuc,
+  tenSuKien,
 }) => {
   const offset = (page - 1) * limit;
   const conditions = [];
   const params = [];
 
   if (role === "TO_CHUC" && maToChuc) {
-    conditions.push(`su_kien.matochuc = $${params.length + 1}`);
+    conditions.push(`sk.matochuc = $${params.length + 1}`);
     params.push(maToChuc);
   } else if (!role || role === "KHACH_HANG") {
-    conditions.push(`su_kien.trangthai = 'DA_DUYET'`);
+    conditions.push(`sk.trangthai = 'DA_DUYET'`);
   } else if (role === "QUAN_TRI") {
-    conditions.push(`su_kien.trangthai != 'NHAP'`);
+    conditions.push(`sk.trangthai != 'NHAP'`);
   }
 
   if (trangThai) {
-    conditions.push(`su_kien.trangthai = $${params.length + 1}`);
+    conditions.push(`sk.trangthai = $${params.length + 1}`);
     params.push(trangThai);
   }
   if (from) {
-    conditions.push(`su_kien.ngaytao >= $${params.length + 1}`);
+    conditions.push(`sk.ngaytao >= $${params.length + 1}`);
     params.push(from);
   }
   if (to) {
-    conditions.push(`su_kien.ngaytao <= $${params.length + 1}`);
+    conditions.push(`sk.ngaytao <= $${params.length + 1}`);
     params.push(to);
   }
   if (viTri) {
-    conditions.push(`su_kien.vitri ILIKE $${params.length + 1}`);
+    conditions.push(`sk.vitri ILIKE $${params.length + 1}`);
     params.push(`%${viTri}%`);
   }
   if (maLoaiSuKien) {
-    conditions.push(`su_kien.maloaisukien = $${params.length + 1}`);
+    conditions.push(`sk.maloaisukien = $${params.length + 1}`);
     params.push(maLoaiSuKien);
+  }
+  if (tenSuKien) {
+    conditions.push(`sk.tensukien ILIKE $${params.length + 1}`);
+    params.push(`%${tenSuKien}%`);
   }
 
   const whereClause = conditions.length
@@ -169,23 +174,49 @@ export const getEventsService = async ({
     : "";
 
   const query = `
-    SELECT 
-      su_kien.*,
-      to_chuc.tentochuc,
-      to_chuc.anhtochuc,
-      loai_su_kien.tenloaisukien
-    FROM su_kien
-    JOIN to_chuc ON to_chuc.matochuc = su_kien.matochuc
-    JOIN loai_su_kien ON loai_su_kien.maloaisukien = su_kien.maloaisukien
-    ${whereClause}
-    ORDER BY su_kien.ngaytao DESC
-    LIMIT ${limit} OFFSET ${offset}
+  SELECT 
+    sk.masukien,
+    sk.tensukien,
+    sk.anhsukiendoc,
+    sk.anhsukienngang,
+    sk.trangthai,
+    tc.tentochuc,
+    lsk.tenloaisukien,
+    (
+      SELECT json_agg(
+        json_build_object(
+          'maSuatDien', sd.masuatdien,
+          'thoigianbatdau', sd.thoigianbatdau,
+          'thoigianketthuc', sd.thoigianketthuc,
+          'loaiVe', (
+            SELECT json_agg(
+              json_build_object(
+                'maLoaiVe', lv.maloaive,
+                'tenLoaiVe', lv.tenloaive,
+                'giaTien', lv.giaTien
+              ) ORDER BY lv.giaTien ASC
+            )
+            FROM loai_ve lv
+            WHERE lv.masuatdien = sd.masuatdien
+          )
+        ) ORDER BY sd.thoigianbatdau ASC
+      )
+      FROM suat_dien sd
+      WHERE sd.masukien = sk.masukien
+    ) AS suat_dien
+  FROM su_kien sk
+  JOIN to_chuc tc ON tc.matochuc = sk.matochuc
+  JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
+  ${whereClause}
+  ORDER BY sk.ngaytao DESC
+  LIMIT ${limit} OFFSET ${offset};
   `;
 
-  const countQuery = `SELECT COUNT(*) FROM su_kien ${whereClause}`;
+  const countQuery = `
+    SELECT COUNT(*) FROM su_kien sk
+    ${whereClause};
+  `;
 
-  console.log(query);
-  console.log(params);
   const result = await pool.query(query, params);
   const totalResult = await pool.query(countQuery, params);
 
