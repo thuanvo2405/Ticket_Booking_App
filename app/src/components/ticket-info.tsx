@@ -1,51 +1,20 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  formatDateTime,
+  formatFullDateTime,
+  formatPrice,
+} from "@/utils/convert";
 
-interface Ticket {
-  name: string;
-  price: number;
-}
+export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
+  console.log(suat_dien);
+  console.log(suat_dien);
 
-interface Session {
-  id: number;
-  time: string;
-  tickets: Ticket[];
-}
-
-export default function TicketInfo() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const sessions: Session[] = [
-    {
-      id: 1,
-      time: "17:30 - 19:30, 01 Tháng 11, 2025",
-      tickets: [
-        { name: "NHÉ NHEM", price: 550000 },
-        { name: "CHẬP CHOẠNG", price: 750000 },
-        { name: "CHẠNG VẠNG", price: 1100000 },
-        { name: "VIP - CHIỀU TÀ", price: 1360000 },
-        { name: "VVIP - HOÀNG HÔN", price: 1600000 },
-      ],
-    },
-    {
-      id: 2,
-      time: "17:30 - 20:00, 01 Tháng 11, 2025",
-      tickets: [
-        { name: "NHÉ NHEM", price: 550000 },
-        { name: "CHẬP CHOẠNG", price: 750000 },
-        { name: "CHẠNG VẠNG", price: 1100000 },
-        { name: "VIP - CHIỀU TÀ", price: 1360000 },
-        { name: "VVIP - HOÀNG HÔN", price: 1600000 },
-      ],
-    },
-  ];
 
   const toggleSession = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
-
-  const formatPrice = (price: number) =>
-    price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
 
   return (
     <section className="bg-[#222] text-white rounded-2xl shadow-xl overflow-hidden mt-10">
@@ -53,9 +22,8 @@ export default function TicketInfo() {
         Thông tin vé
       </p>
 
-      {sessions.map((session, index) => (
-        <div key={session.id} className="border-b border-gray-700">
-          {/* Header */}
+      {suat_dien.map((item: any, index: number) => (
+        <div key={index} className="border-b border-gray-700">
           <div
             className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-[#2a2a2a] transition"
             onClick={() => toggleSession(index)}
@@ -66,24 +34,25 @@ export default function TicketInfo() {
               ) : (
                 <ChevronRight size={18} />
               )}
-              <span className="font-medium">{session.time}</span>
+              <span className="font-medium">
+                {formatFullDateTime(item.thoigianbatdau, item.thoigianketthuc)}
+              </span>
             </div>
             <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md">
               Mua vé ngay
             </button>
           </div>
 
-          {/* Ticket list */}
           {activeIndex === index && (
             <div className="bg-[#2b2b2b] divide-y divide-gray-700">
-              {session.tickets.map((ticket, idx) => (
+              {item.loaiVe?.map((item: any, idx: number) => (
                 <div
                   key={idx}
                   className="flex justify-between items-center px-6 py-3 text-gray-200 hover:bg-[#333] transition"
                 >
-                  <span className="font-semibold">{ticket.name}</span>
+                  <span className="font-semibold">{item.tenLoaiVe}</span>
                   <span className="text-green-500 font-medium">
-                    {formatPrice(ticket.price)}
+                    {formatPrice(item.giaTien)}
                   </span>
                 </div>
               ))}

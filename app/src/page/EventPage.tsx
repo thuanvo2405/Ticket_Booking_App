@@ -2,29 +2,58 @@ import Card from "@/components/event-card";
 import TicketInfo from "@/components/ticket-info";
 import { Button } from "@/components/ui/button";
 import TicketDescription from "@/components/ui/ticket-description";
+import { getEventByIdAPI } from "@/services/eventService";
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
+import { IMAGE_URL } from "@/constant/constant";
+import { formatPrice } from "@/utils/convert";
 
 export default function EventPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const maSuKien = searchParams.get("maSuKien");
+
+  console.log(maSuKien);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["fetchingEventById", maSuKien],
+    queryFn: () => getEventByIdAPI(maSuKien!),
+    enabled: !!maSuKien,
+  });
+
+  console.log(data);
+  console.log(data?.suat_dien?.length);
+
+  if (isLoading) return <h1>Loading</h1>;
+
   return (
     <div className="w-[1284px] mx-auto mt-4">
       <div className="flex bg-gray-900 text-white rounded-3xl overflow-hidden mx-auto shadow-xl">
-        <div className="w-1/2 p-8 flex flex-col justify-between">
+        <div className="w-2/5 p-8 flex flex-col justify-between">
           <div>
             <h2 className="text-3xl font-bold leading-snug">
-              LULULOLA THE MEN <br />
-              <span className="text-gray-300">CÓ THƯƠNG THÊM AI ĐƯỢC ĐÂU</span>
+              {data.tensukien}
             </h2>
 
             <div className="mt-6 space-y-3 text-sm">
               <p className="flex items-center gap-2 text-green-400">
                 📅 17:30 - 19:30, 01 Tháng 11, 2025
               </p>
-              <p className="text-gray-300">+ 1 ngày khác</p>
+              {data.suat_dien.length > 1 && (
+                <p className="text-gray-300">
+                  + {data.suat_dien.length - 1} ngày khác
+                </p>
+              )}
 
               <p className="flex items-start gap-2 text-gray-200">
                 📍
                 <span>
-                  Lululola, Đầu đèo Prenn, Số 32/2 Đường 3/4, Thành Phố Đà Lạt,
-                  Tỉnh Lâm Đồng
+                  {data.diachi +
+                    ", " +
+                    data.phuong +
+                    ", " +
+                    data.quan +
+                    ", " +
+                    data.thanhpho}
                 </span>
               </p>
             </div>
@@ -33,8 +62,8 @@ export default function EventPage() {
           <div className="mt-10 border-t border-gray-700 pt-6">
             <p className="text-lg">
               Giá từ
-              <span className="text-green-400 font-semibold text-xl">
-                550.000đ
+              <span className="text-green-400 font-semibold text-xl ml-2">
+                {formatPrice(data.suat_dien[0].loaiVe[0].giaTien)}
               </span>
             </p>
             <button className="mt-4 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition">
@@ -44,27 +73,29 @@ export default function EventPage() {
         </div>
 
         <div
-          className="w-1/2 h-80 md:h-auto bg-cover bg-center"
+          className="w-3/5 h-80 md:h-auto bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('https://placehold.co/800x600?text=Poster+Show')",
+            backgroundImage: `url(${IMAGE_URL + data.anhsukienngang})`,
           }}
         ></div>
       </div>
       <section>
-        <TicketDescription />
-        <TicketInfo />
+        <TicketDescription moTa={data.mota} />
+        <TicketInfo suat_dien={data.suat_dien} />
         <div className="shadow-xl border mt-10 rounded-2xl p-4">
           <p className="text-xl font-semibold text-center border-b-1 py-3">
             Ban tổ chức
           </p>
           <div className="flex gap-3 mt-2">
             <img
-              src="https://placehold.co/800x600?text=Poster+Show"
-              alt=""
+              src={IMAGE_URL + data.anhtochuc}
+              alt={`Ảnh tổ chức` + data.tentochuc}
               className="w-50 object-cover"
             />
-            <p>Giới thiệu về tổ chức</p>
+            <div className="flex flex-col gap-2">
+              <p className="font-semibold text-lg">{data.tentochuc}</p>
+              <p>{data.mota_tochuc}</p>
+            </div>
           </div>
         </div>
       </section>

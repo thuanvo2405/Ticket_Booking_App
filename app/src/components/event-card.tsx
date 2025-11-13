@@ -17,7 +17,6 @@ export default function EventCard({
   thoiGianBatDau,
   giaTien,
 }: EventCardProps) {
-  console.log(thoiGianBatDau);
   return (
     <NavLink
       to={`/event?maSuKien=${maSuKien}`}

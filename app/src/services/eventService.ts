@@ -40,9 +40,8 @@ export const getEventsAPI = async ({
   return res.data.data;
 };
 
-export const getEventById = async (maSuKien: number) => {
+export const getEventByIdAPI = async (maSuKien: string) => {
   const res = await axios.get(URL + `event?maSuKien=${maSuKien}`);
-
   return res.data.data;
 };
 

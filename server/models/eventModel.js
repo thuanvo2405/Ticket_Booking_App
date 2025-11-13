@@ -112,10 +112,59 @@ export const updateEventStatusService = async (maSuKien, trangThai) => {
   return result.rows[0];
 };
 
-export const getEventByIdService = async (maSuKien) => {
+export const isExist = async (maSuKien) => {
   const result = await pool.query(`SELECT * FROM su_kien WHERE maSuKien = $1`, [
     maSuKien,
   ]);
+  return result.rows[0];
+};
+
+export const getEventByIdService = async (maSuKien) => {
+  const result = await pool.query(
+    ` SELECT 
+    sk.masukien,
+    sk.tensukien,
+    sk.anhsukiendoc,
+    sk.anhsukienngang,
+    sk.trangthai,
+    sk.mota,
+    sk.diachi,
+    sk.phuong,
+    sk.quan,
+    sk.thanhpho,
+    tc.tentochuc,
+    tc.anhtochuc,
+    tc.mota AS mota_tochuc,
+    lsk.tenloaisukien,
+   (
+    SELECT json_agg(
+      json_build_object(
+        'maSuatDien', sd.masuatdien,
+        'thoigianbatdau', sd.thoigianbatdau,
+        'thoigianketthuc', sd.thoigianketthuc,
+        'loaiVe', (
+          SELECT json_agg(
+            json_build_object(
+              'maLoaiVe', lv.maloaive,
+              'tenLoaiVe', lv.tenloaive,
+              'giaTien', lv.giaTien,
+              'moTa', lv.moTa
+            ) ORDER BY lv.giaTien ASC
+          )
+          FROM loai_ve lv
+          WHERE lv.masuatdien = sd.masuatdien
+        )
+      ) ORDER BY sd.thoigianbatdau ASC
+    )
+    FROM suat_dien sd
+    WHERE sd.masukien = sk.masukien
+    ) AS suat_dien
+    FROM su_kien sk
+    JOIN to_chuc tc ON tc.matochuc = sk.matochuc
+    JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
+    WHERE maSuKien = $1`,
+    [maSuKien]
+  );
   return result.rows[0];
 };
 

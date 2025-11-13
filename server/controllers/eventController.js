@@ -5,6 +5,7 @@ import {
   getEventByIdService,
   updateEventStatusService,
   getEventsService,
+  isExist,
 } from "../models/eventModel.js";
 
 export const createEvent = async (req, res, next) => {
@@ -70,7 +71,7 @@ export const updateEvent = async (req, res, next) => {
 
     if (!maSuKien) throw new Error("Thiếu mã sự kiện để cập nhật");
 
-    const oldEvent = await getEventByIdService(maSuKien);
+    const oldEvent = await isExist(maSuKien);
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
     const diaChiAnhNgang = req.files?.anhSuKienNgang?.[0]?.path || undefined;
@@ -105,7 +106,7 @@ export const updateEventStatus = async (req, res, next) => {
 
     if (!maSuKien) throw new Error("Thiếu mã sự kiện để cập nhật");
 
-    const oldEvent = await getEventByIdService(maSuKien);
+    const oldEvent = await isExist(maSuKien);
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
     const result = await updateEventStatusService(maSuKien, trangThai);
@@ -126,7 +127,7 @@ export const getEventById = async (req, res, next) => {
     if (!result) throw new Error("Sự kiện không tồn tại");
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", {
-      result,
+      ...result,
     });
   } catch (error) {
     next(error);

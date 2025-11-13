@@ -28,5 +28,24 @@ export const formatDateTime = (isoString: string) => {
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
+  return `${hours}:${minutes} ${day}/${month}/${year} `;
 };
+
+export const formatFullDateTime = (ngayBatDau: string, ngayKetThuc: string) => {
+  const startDay = new Date(ngayBatDau);
+  const endDay = new Date(ngayKetThuc);
+
+  const day = startDay.getDate().toString().padStart(2, "0");
+  const month = (startDay.getMonth() + 1).toString().padStart(2, "0");
+  const year = startDay.getFullYear();
+
+  const startHours = startDay.getHours().toString().padStart(2, "0");
+  const startMinutes = startDay.getMinutes().toString().padStart(2, "0");
+  const endHours = endDay.getHours().toString().padStart(2, "0");
+  const endMinutes = endDay.getMinutes().toString().padStart(2, "0");
+
+  return `${startHours}:${startMinutes} - ${endHours}:${endMinutes} ${day}/${month}/${year} `;
+};
+
+export const formatPrice = (price: number) =>
+  price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
