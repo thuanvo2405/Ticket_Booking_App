@@ -139,7 +139,7 @@ export const getEvents = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const { trangThai, from, to, viTri, maLoaiSuKien, maToChuc, tenSuKien } =
+    const { trangThai, from, to, khuVuc, tenLoaiSuKien, maToChuc, tenSuKien } =
       req.query;
 
     const role = req.user?.user?.role;
@@ -150,8 +150,8 @@ export const getEvents = async (req, res, next) => {
       trangThai,
       from,
       to,
-      viTri,
-      maLoaiSuKien,
+      khuVuc,
+      tenLoaiSuKien,
       role,
       maToChuc,
       tenSuKien,

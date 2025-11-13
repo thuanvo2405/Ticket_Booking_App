@@ -174,8 +174,8 @@ export const getEventsService = async ({
   trangThai,
   from,
   to,
-  viTri,
-  maLoaiSuKien,
+  khuVuc,
+  tenLoaiSuKien,
   role,
   maToChuc,
   tenSuKien,
@@ -184,6 +184,7 @@ export const getEventsService = async ({
   const conditions = [];
   const params = [];
 
+  // Quyền truy cập
   if (role === "TO_CHUC" && maToChuc) {
     conditions.push(`sk.matochuc = $${params.length + 1}`);
     params.push(maToChuc);
@@ -193,26 +194,50 @@ export const getEventsService = async ({
     conditions.push(`sk.trangthai != 'NHAP'`);
   }
 
+  // Filter trạng thái
   if (trangThai) {
     conditions.push(`sk.trangthai = $${params.length + 1}`);
     params.push(trangThai);
   }
-  if (from) {
-    conditions.push(`sk.ngaytao >= $${params.length + 1}`);
-    params.push(from);
+
+  // Filter ngày theo suất diễn
+  if (from && to) {
+    conditions.push(`
+      EXISTS (
+        SELECT 1 FROM suat_dien sd
+        WHERE sd.masukien = sk.masukien
+        AND sd.thoigianbatdau::date <= $${params.length + 2}::date
+        AND sd.thoigianketthuc::date >= $${params.length + 1}::date
+      )
+    `);
+    params.push(from, to); // params[...from,to]
   }
-  if (to) {
-    conditions.push(`sk.ngaytao <= $${params.length + 1}`);
-    params.push(to);
+
+  // Filter khu vực
+  if (khuVuc && khuVuc !== "Toàn quốc") {
+    if (khuVuc === "Khác") {
+      conditions.push(
+        `sk.thanhpho NOT IN ('Thành phố Hồ Chí Minh', 'Thành phố Hà Nội', 'Thành phố Đà Nẵng')`
+      );
+    } else {
+      conditions.push(`sk.thanhpho ILIKE $${params.length + 1}`);
+      params.push(`%${khuVuc}%`);
+    }
   }
-  if (viTri) {
-    conditions.push(`sk.vitri ILIKE $${params.length + 1}`);
-    params.push(`%${viTri}%`);
+
+  // Filter loại sự kiện theo tenLoaiSuKien
+  if (tenLoaiSuKien) {
+    if (tenLoaiSuKien === "Khác") {
+      conditions.push(
+        `lsk.tenloaisukien NOT IN ('Âm Nhạc', 'Sân Khấu và Nghệ Thuật', 'Thể Thao')`
+      );
+    } else {
+      conditions.push(`lsk.tenloaisukien = $${params.length + 1}`);
+      params.push(tenLoaiSuKien);
+    }
   }
-  if (maLoaiSuKien) {
-    conditions.push(`sk.maloaisukien = $${params.length + 1}`);
-    params.push(maLoaiSuKien);
-  }
+
+  // Filter tên sự kiện
   if (tenSuKien) {
     conditions.push(`sk.tensukien ILIKE $${params.length + 1}`);
     params.push(`%${tenSuKien}%`);
@@ -222,47 +247,50 @@ export const getEventsService = async ({
     ? `WHERE ${conditions.join(" AND ")}`
     : "";
 
+  // Query chính
   const query = `
-  SELECT 
-    sk.masukien,
-    sk.tensukien,
-    sk.anhsukiendoc,
-    sk.anhsukienngang,
-    sk.trangthai,
-    tc.tentochuc,
-    lsk.tenloaisukien,
-    (
-      SELECT json_agg(
-        json_build_object(
-          'maSuatDien', sd.masuatdien,
-          'thoigianbatdau', sd.thoigianbatdau,
-          'thoigianketthuc', sd.thoigianketthuc,
-          'loaiVe', (
-            SELECT json_agg(
-              json_build_object(
-                'maLoaiVe', lv.maloaive,
-                'tenLoaiVe', lv.tenloaive,
-                'giaTien', lv.giaTien
-              ) ORDER BY lv.giaTien ASC
+    SELECT 
+      sk.masukien,
+      sk.tensukien,
+      sk.anhsukiendoc,
+      sk.anhsukienngang,
+      sk.trangthai,
+      tc.tentochuc,
+      lsk.tenloaisukien,
+      (
+        SELECT json_agg(
+          json_build_object(
+            'maSuatDien', sd.masuatdien,
+            'thoigianbatdau', sd.thoigianbatdau,
+            'thoigianketthuc', sd.thoigianketthuc,
+            'loaiVe', (
+              SELECT json_agg(
+                json_build_object(
+                  'maLoaiVe', lv.maloaive,
+                  'tenLoaiVe', lv.tenloaive,
+                  'giaTien', lv.giaTien
+                ) ORDER BY lv.giaTien ASC
+              )
+              FROM loai_ve lv
+              WHERE lv.masuatdien = sd.masuatdien
             )
-            FROM loai_ve lv
-            WHERE lv.masuatdien = sd.masuatdien
-          )
-        ) ORDER BY sd.thoigianbatdau ASC
-      )
-      FROM suat_dien sd
-      WHERE sd.masukien = sk.masukien
-    ) AS suat_dien
-  FROM su_kien sk
-  JOIN to_chuc tc ON tc.matochuc = sk.matochuc
-  JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
-  ${whereClause}
-  ORDER BY sk.ngaytao DESC
-  LIMIT ${limit} OFFSET ${offset};
+          ) ORDER BY sd.thoigianbatdau ASC
+        )
+        FROM suat_dien sd
+        WHERE sd.masukien = sk.masukien
+      ) AS suat_dien
+    FROM su_kien sk
+    JOIN to_chuc tc ON tc.matochuc = sk.matochuc
+    JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
+    ${whereClause}
+    ORDER BY sk.ngaytao DESC
+    LIMIT ${limit} OFFSET ${offset};
   `;
 
   const countQuery = `
-    SELECT COUNT(*) FROM su_kien sk
+    SELECT COUNT(*) 
+    FROM su_kien sk
+    JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
     ${whereClause};
   `;
 

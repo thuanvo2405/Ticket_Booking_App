@@ -22,7 +22,7 @@ export interface PromotionData {
   // fields khuyến mãi
 }
 
-type Store = {
+type EventStore = {
   step: number;
   eventID: number | null;
   eventData: EventData | null;
@@ -39,7 +39,7 @@ type Store = {
   resetAll: () => void;
 };
 
-export const useEventStore = create<Store>()((set) => ({
+export const useEventStore = create<EventStore>()((set) => ({
   step: 1,
   eventID: null,
   eventData: null,

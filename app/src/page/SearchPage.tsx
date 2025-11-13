@@ -1,12 +1,9 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EventCard from "@/components/event-card";
 import OptionPicker from "@/components/option-picker";
 import TimePicker from "@/components/time-picker";
 import { X } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getEventsAPI } from "@/services/eventService";
+import { useSearchStore } from "@/store/useSearchStore";
 
 interface FilterData {
   area?: string;
@@ -16,15 +13,14 @@ interface FilterData {
 
 export default function SearchPage() {
   const [filters, setFilters] = useState<FilterData>({});
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const events = useSearchStore((state) => state.events);
+  const searchEvents = useSearchStore((state) => state.searchEvents);
 
-  const { data } = useQuery({
-    queryKey: ["fetchingEvents", page, limit],
-    queryFn: () => getEventsAPI({ page, limit, trangThai: "DA_DUYET" }),
-  });
+  useEffect(() => {
+    searchEvents();
+  }, []);
 
-  console.log(data);
+  console.log("events changed", events);
 
   const handleApplyFilter = (data: FilterData) => setFilters(data);
 
@@ -66,7 +62,7 @@ export default function SearchPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-3">
-        {data?.data.map((item: any) => (
+        {events?.map((item: any) => (
           <EventCard
             key={item.masukien}
             maSuKien={item.masukien}

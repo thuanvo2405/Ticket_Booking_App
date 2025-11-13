@@ -9,19 +9,24 @@ import type { DateRange } from "react-day-picker";
 import { ChevronDownIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
+import { useSearchStore } from "@/store/useSearchStore";
 
 export default function TimePicker() {
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: new Date(2025, 5, 12),
-    to: new Date(2025, 6, 15),
-  });
+  const { fromDate, toDate, setFromDate, setToDate } = useSearchStore();
   const [open, setOpen] = React.useState(false);
 
   const getDateLabel = () => {
-    if (!dateRange?.from) return "Chọn ngày";
-    if (!dateRange.to) return format(dateRange.from, "PPP");
+    if (!fromDate) return "Chọn ngày";
+    if (!toDate) return format(fromDate, "yyyy-MM-dd");
+    return `${format(fromDate, "dd-MM-yyyy")} - ${format(
+      toDate,
+      "yyyy-MM-dd"
+    )}`;
+  };
 
-    return `${format(dateRange.from, "PPP")} - ${format(dateRange.to, "PPP")}`;
+  const handleSelect = (range: DateRange | undefined) => {
+    setFromDate(range?.from);
+    setToDate(range?.to);
   };
 
   return (
@@ -30,8 +35,7 @@ export default function TimePicker() {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            id="date"
-            className="w-80 justify-between font-normal text-left hover:bg-gray-50 transition-all"
+            className="w-full justify-between font-normal text-left hover:bg-gray-50 transition-all"
           >
             <div className="flex items-center gap-2">
               <svg
@@ -67,7 +71,6 @@ export default function TimePicker() {
           className="w-auto overflow-hidden p-4 bg-white rounded-xl shadow-lg border"
           align="start"
         >
-          {/* Quick filter buttons */}
           <div className="flex flex-wrap gap-2 mb-4">
             {[
               "Tất cả các ngày",
@@ -87,22 +90,23 @@ export default function TimePicker() {
             ))}
           </div>
 
-          {/* Calendar */}
           <Calendar
             mode="range"
-            defaultMonth={dateRange?.from}
-            selected={dateRange}
-            onSelect={setDateRange}
+            defaultMonth={fromDate || new Date()}
+            selected={{ from: fromDate, to: toDate }}
+            onSelect={handleSelect}
             numberOfMonths={2}
-            className="rounded-lg border shadow-sm mx-auto"
+            className="rounded-lg border shadow-sm mx-auto w-full"
           />
 
-          {/* Action buttons */}
           <div className="flex gap-3 p-3 mt-2 border-t">
             <Button
               variant="outline"
               className="flex-1 border-green-400 text-green-600 hover:bg-green-50"
-              onClick={() => setDateRange(undefined)}
+              onClick={() => {
+                setFromDate(undefined);
+                setToDate(undefined);
+              }}
             >
               Thiết lập lại
             </Button>

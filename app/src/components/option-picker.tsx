@@ -9,13 +9,12 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Slider } from "@/components/ui/slider";
-import { Filter, X } from "lucide-react";
+import { Filter } from "lucide-react";
+import { useSearchStore } from "@/store/useSearchStore";
 
 type FilterData = {
   area?: string;
   type?: string;
-  price?: number[];
 };
 
 interface OptionPickerProps {
@@ -24,21 +23,22 @@ interface OptionPickerProps {
 
 export default function OptionPicker({ onApply }: OptionPickerProps) {
   const [open, setOpen] = useState(false);
-  const [selectedArea, setSelectedArea] = useState<string>("");
-  const [selectedType, setSelectedType] = useState<string>("");
-  const [price, setPrice] = useState<number[]>([100]);
-
+  const area = useSearchStore((state) => state.area);
+  const eventType = useSearchStore((state) => state.eventType);
+  const setEventType = useSearchStore((state) => state.setEventType);
+  const setArea = useSearchStore((state) => state.setArea);
   const handleReset = () => {
-    setSelectedArea("");
-    setSelectedType("");
-    setPrice([100]);
+    setArea("");
+    setEventType("");
   };
+
+  console.log(area);
+  console.log(eventType);
 
   const handleApply = () => {
     onApply?.({
-      area: selectedArea,
-      type: selectedType,
-      price,
+      area: area,
+      type: eventType,
     });
     setOpen(false);
   };
@@ -53,10 +53,9 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
       </PopoverTrigger>
 
       <PopoverContent className="w-80 space-y-5">
-        {/* --- KHU VỰC --- */}
         <div>
           <p className="font-semibold mb-2">Khu vực</p>
-          <RadioGroup value={selectedArea} onValueChange={setSelectedArea}>
+          <RadioGroup value={area} onValueChange={setArea}>
             {[
               "Toàn quốc",
               "Hồ Chí Minh",
@@ -65,34 +64,31 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
               "Khu vực khác",
             ].map((item, i) => (
               <div key={i} className="flex items-center space-x-2">
-                <RadioGroupItem value={item} id={`area-${i}`} />
+                <RadioGroupItem
+                  value={item}
+                  defaultValue={area}
+                  id={`area-${i}`}
+                />
                 <Label htmlFor={`area-${i}`}>{item}</Label>
               </div>
             ))}
           </RadioGroup>
         </div>
 
-        {/* --- THỂ LOẠI --- */}
         <div>
           <p className="font-semibold mb-2">Thể loại</p>
-          <RadioGroup value={selectedType} onValueChange={setSelectedType}>
-            {["Âm nhạc", "Sân khấu", "Thể thao", "Khác"].map((item, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <RadioGroupItem value={item} id={`type-${i}`} />
-                <Label htmlFor={`type-${i}`}>{item}</Label>
-              </div>
-            ))}
+          <RadioGroup value={eventType} onValueChange={setEventType}>
+            {["Âm Nhạc", "Sân Khấu Và Nghệ Thuật", "Thể Thao", "Khác"].map(
+              (item, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <RadioGroupItem value={item} id={`type-${i}`} />
+                  <Label htmlFor={`type-${i}`}>{item}</Label>
+                </div>
+              )
+            )}
           </RadioGroup>
         </div>
 
-        {/* --- GIÁ --- */}
-        <div>
-          <p className="font-semibold mb-2">Giá tối đa (nghìn đồng)</p>
-          <Slider value={price} onValueChange={setPrice} max={1000} step={50} />
-          <p className="text-sm text-muted-foreground mt-1">{price[0]}k</p>
-        </div>
-
-        {/* --- BUTTON --- */}
         <div className="flex justify-between pt-3 border-t">
           <Button variant="outline" onClick={handleReset}>
             Thiết lập lại
