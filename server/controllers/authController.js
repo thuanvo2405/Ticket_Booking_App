@@ -38,7 +38,6 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, matKhau } = req.body;
-    console.log(email, matKhau);
 
     const user = await logInService(email);
 
@@ -208,3 +207,18 @@ export const getCurrentUser = async (req, res, next) => {
   }
 };
 
+export const resetPasswordByUserId = async (req, res, next) => {
+  try {
+    const userId = req.user.user.id;
+    const { matkhaumoi } = req.body;
+    const hashedPassword = await bcrypt.hash(matkhaumoi, 10);
+
+    await pool.query(
+      "UPDATE nguoi_dung SET matkhau = $1 WHERE manguoidung = $2",
+      [hashedPassword, userId]
+    );
+    handleResponse(res, 201, "Cập nhật mật khẩu thành công");
+  } catch (err) {
+    next(err);
+  }
+};

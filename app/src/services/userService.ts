@@ -26,3 +26,8 @@ export const updateProfileUserAPI = async (
 
   return res.data.data;
 };
+
+export const getProfileUserAPI = async () => {
+  const res = await axiosInstance.get(`${URL}profile`);
+  return res.data.data;
+};

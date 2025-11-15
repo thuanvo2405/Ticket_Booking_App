@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getProfileUserAPI } from "@/services/authService";
+import { getProfileUserAPI } from "@/services/userService";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Camera } from "lucide-react";
 import { IMAGE_URL } from "@/constant/constant";
 import { useEffect, useState } from "react";
 import { updateProfileUserAPI } from "@/services/userService";
 import toast from "react-hot-toast";
+import { ResetPasswordModal } from "@/components/ResetPasswordModal";
 
 export default function ProfilePage() {
   const [tennguoidung, setTenNguoiDung] = useState("");
@@ -41,15 +42,8 @@ export default function ProfilePage() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmitProfile = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const phoneDigits = sodienthoai.replace(/\D/g, "");
-
-    if (phoneDigits.length !== 10) {
-      toast.error("Số điện thoại phải là 10 chữ số");
-      return;
-    }
 
     const isNameChanged = tennguoidung !== data.tennguoidung;
     const isPhoneChanged = sodienthoai !== (data.sodienthoai || "");
@@ -109,7 +103,7 @@ export default function ProfilePage() {
 
       <form
         className="max-w-xl mx-auto mt-10 space-y-6"
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmitProfile}
       >
         <div className="grid gap-2">
           <Label htmlFor="name" className="text-gray-700 font-medium">
@@ -153,13 +147,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="pt-6 grid grid-cols-2 gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 w-full hover:bg-green-600 text-green-500 text-base rounded-lg"
-          >
-            Đổi mật khẩu
-          </Button>
+          <ResetPasswordModal triggerText="Đổi mật khẩu" />
 
           <Button
             type="submit"

@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   getCurrentUser,
+  resetPasswordByUserId,
 } from "../controllers/authController.js";
 import {
   getProfileUser,
@@ -26,6 +27,8 @@ router.post("/refresh_token", getRefreshToken);
 router.delete("/refresh_token", deleteRefreshToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.patch("/password", authenticateToken, resetPasswordByUserId);
+
 router.post("/resend-verification", resendVerificationEmail);
 router.get("/verify-email", verifyEmail);
 
