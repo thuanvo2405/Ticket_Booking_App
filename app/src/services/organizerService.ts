@@ -25,3 +25,28 @@ export const createOrganizerProfileAPI = async (
 
   return res.data;
 };
+
+export const updateOrganizerProfileAPI = async (
+  tentochuc?: string,
+  mota?: string,
+  anhtochuc?: File
+) => {
+  const formData = new FormData();
+  if (tentochuc) {
+    formData.append("tentochuc", tentochuc);
+  }
+  if (mota) {
+    formData.append("mota", mota);
+  }
+  if (anhtochuc) {
+    formData.append("anhtochuc", anhtochuc);
+  }
+
+  const res = await axiosInstance.patch(URL + "organizer-profile", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data.data;
+};

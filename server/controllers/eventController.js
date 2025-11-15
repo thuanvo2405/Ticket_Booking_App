@@ -6,7 +6,9 @@ import {
   updateEventStatusService,
   getEventsService,
   isExist,
+  getEventByOrganizerIdService,
 } from "../models/eventModel.js";
+import pool from "../config/db.js";
 
 export const createEvent = async (req, res, next) => {
   try {
@@ -158,6 +160,22 @@ export const getEvents = async (req, res, next) => {
     });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", { ...result });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventByOrganizerId = async (req, res, next) => {
+  try {
+    const userId = req.user.user.id;
+    const query = await pool.query(
+      "Select matochuc From to_chuc where manguoidung = $1",
+      [userId]
+    );
+    const { matochuc } = query.rows[0];
+    const result = await getEventByOrganizerIdService(matochuc);
+    console.log(result);
+    handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", result);
   } catch (error) {
     next(error);
   }

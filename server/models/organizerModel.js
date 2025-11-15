@@ -40,3 +40,47 @@ export const getOrganizerProfileService = async (maNguoiDung) => {
 
   return result.rows[0];
 };
+
+export const updateOrganizerProfileService = async (
+  userId,
+  tentochuc,
+  mota,
+  anhtochuc
+) => {
+  console.log(tentochuc);
+  console.log(mota);
+  console.log(anhtochuc);
+  let fields = [];
+  let values = [];
+  let index = 1;
+
+  if (tentochuc) {
+    fields.push(`tentochuc = $${index++}`);
+    values.push(tentochuc);
+  }
+
+  if (mota) {
+    fields.push(`mota = $${index++}`);
+    values.push(mota);
+  }
+
+  if (anhtochuc) {
+    fields.push(`anhtochuc = $${index++}`);
+    values.push(anhtochuc);
+  }
+
+  if (fields.length === 0) {
+    throw new Error("Không có dữ liệu để cập nhật");
+  }
+
+  values.push(userId);
+  const query = `
+    UPDATE to_chuc
+    SET ${fields.join(", ")}
+    WHERE manguoidung = $${index}
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};

@@ -1,5 +1,5 @@
 import CreateOrganizer from "@/components/OrganizerPage/CreateOrganizer";
-import { Button } from "@/components/ui/button";
+import EditOrganizer from "@/components/OrganizerPage/EditOrganizer";
 import { IMAGE_URL } from "@/constant/constant";
 import { useAuth } from "@/context/AuthProvider";
 import { getOrganizerProfileAPI } from "@/services/organizerService";
@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 export default function OrganizerPage() {
   const { user } = useAuth();
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ["fetchProfile"],
     queryFn: getOrganizerProfileAPI,
     enabled: user?.vaitro === "TO_CHUC",
@@ -29,7 +29,7 @@ export default function OrganizerPage() {
         <div className="flex flex-col justify-center flex-1">
           <p className="text-3xl font-bold">{data.tentochuc}</p>
           <div className="mt-3">
-            <Button>Chỉnh sửa hồ sơ</Button>
+            <EditOrganizer data={data} refetch={refetch} />
           </div>
         </div>
       </div>

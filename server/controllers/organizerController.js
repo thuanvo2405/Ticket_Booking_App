@@ -2,6 +2,7 @@ import handleResponse from "../utils/handleResponse.js";
 import {
   createOrganizerProfileService,
   getOrganizerProfileService,
+  updateOrganizerProfileService,
 } from "../models/organizerModel.js";
 import { jwtTokens } from "../utils/jwtHelper.js";
 
@@ -58,5 +59,21 @@ export const getOrganizerProfile = async (req, res, next) => {
     handleResponse(res, 200, "Get profile successful", result);
   } catch (error) {
     next(error);
+  }
+};
+
+export const updateOrganizerProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.user.id;
+
+    const anhtochuc = req.file ? req.file.path : null;
+
+    const { tentochuc, mota } = req.body;
+
+    await updateOrganizerProfileService(userId, tentochuc, mota, anhtochuc);
+
+    handleResponse(res, 200, "Cập nhật thành công");
+  } catch (err) {
+    next(err);
   }
 };

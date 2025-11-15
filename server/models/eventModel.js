@@ -184,7 +184,6 @@ export const getEventsService = async ({
   const conditions = [];
   const params = [];
 
-  // Quyền truy cập
   if (role === "TO_CHUC" && maToChuc) {
     conditions.push(`sk.matochuc = $${params.length + 1}`);
     params.push(maToChuc);
@@ -194,13 +193,11 @@ export const getEventsService = async ({
     conditions.push(`sk.trangthai != 'NHAP'`);
   }
 
-  // Filter trạng thái
   if (trangThai) {
     conditions.push(`sk.trangthai = $${params.length + 1}`);
     params.push(trangThai);
   }
 
-  // Filter ngày theo suất diễn
   if (from && to) {
     conditions.push(`
       EXISTS (
@@ -213,7 +210,6 @@ export const getEventsService = async ({
     params.push(from, to); // params[...from,to]
   }
 
-  // Filter khu vực
   if (khuVuc && khuVuc !== "Toàn quốc") {
     if (khuVuc === "Khác") {
       conditions.push(
@@ -225,7 +221,6 @@ export const getEventsService = async ({
     }
   }
 
-  // Filter loại sự kiện theo tenLoaiSuKien
   if (tenLoaiSuKien) {
     if (tenLoaiSuKien === "Khác") {
       conditions.push(
@@ -237,7 +232,6 @@ export const getEventsService = async ({
     }
   }
 
-  // Filter tên sự kiện
   if (tenSuKien) {
     conditions.push(`sk.tensukien ILIKE $${params.length + 1}`);
     params.push(`%${tenSuKien}%`);
@@ -247,7 +241,6 @@ export const getEventsService = async ({
     ? `WHERE ${conditions.join(" AND ")}`
     : "";
 
-  // Query chính
   const query = `
     SELECT 
       sk.masukien,
@@ -303,4 +296,11 @@ export const getEventsService = async ({
     limit,
     total: parseInt(totalResult.rows[0].count, 10),
   };
+};
+
+export const getEventByOrganizerIdService = async (matochuc) => {
+  const result = await pool.query("Select * from su_kien where matochuc = $1", [
+    matochuc,
+  ]);
+  return result.rows;
 };

@@ -5,6 +5,7 @@ import {
   updateEventStatus,
   getEventById,
   getEvents,
+  getEventByOrganizerId,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -17,6 +18,7 @@ const router = express.Router();
 
 router.get("/event", getEventById);
 router.get("/events", parseTokenIfExists, getEvents);
+router.get("/organizer/events", authenticateToken, getEventByOrganizerId);
 
 router.post(
   "/event",
