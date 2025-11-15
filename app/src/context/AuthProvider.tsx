@@ -20,7 +20,10 @@ export interface AuthContextProps {
   logout: () => void;
   isLoggedIn: () => boolean;
   resetPassword: () => void;
-  refreshUserInfo: () => Promise<void>;
+  updateUserAndToken: (
+    newUser: { manguoidung: number; vaitro: string },
+    newTokens: { accessToken: string; refreshToken: string }
+  ) => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -132,17 +135,22 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log("Hi");
   };
 
-  const refreshUserInfo = async () => {
-    try {
-      const res = await axiosInstance.get("/auth/me");
-      if (res.data) {
-        setUser(res.data);
-        localStorage.setItem("user", JSON.stringify(res.data));
-        toast.success("Cập nhật quyền người dùng thành công!");
-      }
-    } catch (error) {
-      toast.error("Không thể cập nhật thông tin người dùng.");
-    }
+  const updateUserAndToken = (
+    newUser: { manguoidung: number; vaitro: string },
+    newTokens: { accessToken: string; refreshToken: string }
+  ) => {
+    setUser(newUser);
+    setToken(newTokens);
+
+    localStorage.setItem("user", JSON.stringify(newUser));
+    localStorage.setItem("tokens", JSON.stringify(newTokens));
+
+    axios.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${newTokens.accessToken}`;
+    axiosInstance.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${newTokens.accessToken}`;
   };
 
   return (
@@ -155,7 +163,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         token,
         isLoggedIn,
         resetPassword,
-        refreshUserInfo,
+        updateUserAndToken,
       }}
     >
       {isReady ? children : null}

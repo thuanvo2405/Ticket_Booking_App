@@ -8,7 +8,6 @@ import {
   verifyEmail,
   forgotPassword,
   resetPassword,
-  getCurrentUser,
   resetPasswordByUserId,
 } from "../controllers/authController.js";
 import {
@@ -36,7 +35,6 @@ router.get("/test", checkRole(["KHACH_HANG"]), (req, res) => {
   res.send("hello 123");
 });
 
-router.get("/auth/me", authenticateToken, getCurrentUser);
 router.get("/profile", authenticateToken, getProfileUser);
 router.patch(
   "/profile",

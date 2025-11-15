@@ -194,19 +194,6 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
-export const getCurrentUser = async (req, res, next) => {
-  try {
-    const userId = req.user.user.id;
-    const result = await pool.query(
-      "SELECT maNguoiDung, vaiTro FROM nguoi_dung WHERE maNguoiDung = $1",
-      [userId]
-    );
-    res.json(result.rows[0]);
-  } catch (err) {
-    next(err);
-  }
-};
-
 export const resetPasswordByUserId = async (req, res, next) => {
   try {
     const userId = req.user.user.id;

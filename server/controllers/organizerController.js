@@ -3,6 +3,7 @@ import {
   createOrganizerProfileService,
   getOrganizerProfileService,
 } from "../models/organizerModel.js";
+import { jwtTokens } from "../utils/jwtHelper.js";
 
 export const createOrganizerProfile = async (req, res, next) => {
   try {
@@ -26,6 +27,19 @@ export const createOrganizerProfile = async (req, res, next) => {
       diaChiAnh: file.path,
     });
 
+    const updatedUser = {
+      manguoidung: userID,
+      vaitro: "TO_CHUC",
+    };
+
+    const tokens = jwtTokens(updatedUser);
+
+    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+    handleResponse(res, 201, "Tạo hồ sơ tổ chức thành công", {
+      profile: newProfile,
+      user: updatedUser,
+      tokens,
+    });
     handleResponse(res, 201, "Tạo hồ sơ tổ chức thành công", newProfile);
   } catch (error) {
     next(error);

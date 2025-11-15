@@ -23,5 +23,5 @@ export const createOrganizerProfileAPI = async (
     },
   });
 
-  return res.data.data;
+  return res.data;
 };

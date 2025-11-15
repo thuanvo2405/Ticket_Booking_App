@@ -33,7 +33,8 @@ const formSchema = z.object({
 
 export default function CreateOrganizer() {
   const [preview, setPreview] = useState<string | null>(null);
-  const { refreshUserInfo } = useAuth();
+  const { updateUserAndToken } = useAuth();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
@@ -42,10 +43,12 @@ export default function CreateOrganizer() {
     mutationFn: ({ tenToChuc, moTa, anhToChuc }: z.infer<typeof formSchema>) =>
       createOrganizerProfileAPI(moTa, anhToChuc, tenToChuc),
 
-    onSuccess: async () => {
+    onSuccess: ({ data }: any) => {
+      const { user, tokens } = data;
+      updateUserAndToken(user, tokens);
       toast.success("Tạo hồ sơ tổ chức thành công 🎉");
-      await refreshUserInfo();
     },
+
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || "Tạo hồ sơ thất bại 😢");
     },
