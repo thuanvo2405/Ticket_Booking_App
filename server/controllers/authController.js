@@ -18,7 +18,6 @@ export const signup = async (req, res, next) => {
   try {
     const hashedPassword = await bcrypt.hash(matkhau, 10);
     const user = await signUpService(tennguoidung, email, hashedPassword);
-    console.log(user);
     const verifyToken = jwt.sign(
       { userId: user.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
@@ -47,15 +46,15 @@ export const login = async (req, res, next) => {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
     }
 
-    const validPassword = await bcrypt.compare(matKhau, user.matkhau);
-    if (!validPassword) {
-      return res.status(401).json({ error: "Mật khẩu không chính xác!" });
-    }
-
     if (!user.isverified) {
       return res.status(403).json({
         error: "Email chưa xác thực. Vui lòng kiểm tra email.",
       });
+    }
+
+    const validPassword = await bcrypt.compare(matKhau, user.matkhau);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Mật khẩu không chính xác!" });
     }
 
     const tokens = jwtTokens(user);
@@ -208,3 +207,4 @@ export const getCurrentUser = async (req, res, next) => {
     next(err);
   }
 };
+

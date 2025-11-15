@@ -27,3 +27,44 @@ export const logInService = async (email) => {
   ]);
   return result.rows[0];
 };
+
+export const updateProfileUserService = async (
+  userId,
+  tennguoidung,
+  sodienthoai,
+  avatar
+) => {
+  let fields = [];
+  let values = [];
+  let index = 1;
+
+  if (tennguoidung) {
+    fields.push(`tennguoidung = $${index++}`);
+    values.push(tennguoidung);
+  }
+
+  if (sodienthoai) {
+    fields.push(`sodienthoai = $${index++}`);
+    values.push(sodienthoai);
+  }
+
+  if (avatar) {
+    fields.push(`anhdaidien  = $${index++}`);
+    values.push(avatar);
+  }
+
+  if (fields.length === 0) {
+    throw new Error("Không có dữ liệu để cập nhật");
+  }
+
+  values.push(userId);
+  const query = `
+    UPDATE nguoi_dung
+    SET ${fields.join(", ")}
+    WHERE manguoidung = $${index}
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};

@@ -86,7 +86,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await loginAPI(email, password);
-
       if (res && res.tokens && res.user) {
         localStorage.setItem("tokens", JSON.stringify(res.tokens));
         localStorage.setItem("user", JSON.stringify(res.user));
@@ -108,7 +107,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Sai email hoặc mật khẩu");
+      console.log(error);
+      toast.error(error.response?.data?.error || "Sai email hoặc mật khẩu");
       return false;
     }
   };

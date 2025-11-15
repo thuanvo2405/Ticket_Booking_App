@@ -17,12 +17,12 @@ export default function Header() {
     <>
       <header className="w-full bg-green-500 shadow-md">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between h-[76px] px-6">
-          <div
+          <NavLink
+            to="/"
             className="text-3xl font-bold text-white tracking-wide cursor-pointer select-none hover:opacity-90 transition"
-            onClick={() => navigate("/")}
           >
             Eventify
-          </div>
+          </NavLink>
 
           <div className="flex items-center gap-3">
             <div className="bg-white flex items-center rounded-full shadow-sm overflow-hidden border border-gray-200">
