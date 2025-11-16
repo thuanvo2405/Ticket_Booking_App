@@ -207,7 +207,7 @@ export const getEventsService = async ({
         AND sd.thoigianketthuc::date >= $${params.length + 1}::date
       )
     `);
-    params.push(from, to); // params[...from,to]
+    params.push(from, to);
   }
 
   if (khuVuc && khuVuc !== "Toàn quốc") {
@@ -298,9 +298,21 @@ export const getEventsService = async ({
   };
 };
 
-export const getEventByOrganizerIdService = async (matochuc) => {
-  const result = await pool.query("Select * from su_kien where matochuc = $1", [
-    matochuc,
-  ]);
+export const getEventByOrganizerIdService = async (matochuc, trangThai) => {
+  let conditions = ["matochuc = $1"];
+  let params = [matochuc];
+
+  if (trangThai) {
+    conditions.push(`trangthai = $2`);
+    params.push(trangThai);
+  }
+
+  const sql = `
+    SELECT anhsukienngang, tensukien, diachi, phuong, quan, thanhpho
+    FROM su_kien
+    WHERE ${conditions.join(" AND ")}
+  `;
+
+  const result = await pool.query(sql, params);
   return result.rows;
 };

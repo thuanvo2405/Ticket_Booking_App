@@ -168,14 +168,18 @@ export const getEvents = async (req, res, next) => {
 export const getEventByOrganizerId = async (req, res, next) => {
   try {
     const userId = req.user.user.id;
-    const query = await pool.query(
-      "Select matochuc From to_chuc where manguoidung = $1",
+    const { trangThai } = req.query;
+
+    const orgQuery = await pool.query(
+      "SELECT matochuc FROM to_chuc WHERE manguoidung = $1",
       [userId]
     );
-    const { matochuc } = query.rows[0];
-    const result = await getEventByOrganizerIdService(matochuc);
-    console.log(result);
-    handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", result);
+
+    const { matochuc } = orgQuery.rows[0];
+
+    const events = await getEventByOrganizerIdService(matochuc, trangThai);
+
+    handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", events);
   } catch (error) {
     next(error);
   }

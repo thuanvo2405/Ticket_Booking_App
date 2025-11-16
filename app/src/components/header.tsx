@@ -47,8 +47,17 @@ export default function Header() {
               </Button>
             </div>
 
-            <Button className="bg-white text-green-600 hover:bg-green-50">
-              <NavLink to="organizer">Tạo sự kiện</NavLink>
+            <Button
+              className="bg-white text-green-600 hover:bg-green-50"
+              onClick={() => {
+                if (!isLoggedIn()) {
+                  setModalOpen("login");
+                  return;
+                }
+                navigate("/organizer");
+              }}
+            >
+              Tạo sự kiện
             </Button>
           </div>
 

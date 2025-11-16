@@ -125,3 +125,9 @@ export const updateEventStatusAPI = async (
 
   return res.data.data;
 };
+
+export const fetchProfileEventsByOrganizerID = async (trangThai?: string) => {
+  const params = trangThai ? { trangThai } : {}; 
+  const res = await axios.get(URL + "organizer/events", { params });
+  return res.data.data;
+};

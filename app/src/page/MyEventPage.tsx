@@ -4,9 +4,27 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProfileEventsByOrganizerID } from "@/services/eventService";
+import EventProfileCard from "@/components/MyEventPage.tsx/EventProfileCard";
 
 export default function MyEventPage() {
-  const [tab, setTab] = useState("upcoming");
+  const [tab, setTab] = useState("all");
+  const { data: events, isFetching } = useQuery({
+    queryKey: ["fetchProfileEventByOrganizerID", tab],
+    queryFn: () => {
+      let status: string | undefined;
+      if (tab === "wait") status = "DA_DUYET";
+      else if (tab === "pending") status = "NHAP";
+      else status = undefined;
+
+      return fetchProfileEventsByOrganizerID(status);
+    },
+  });
+
+  console.log(events);
+
+  if (isFetching) return <h1>Loading</h1>;
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -30,34 +48,44 @@ export default function MyEventPage() {
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="bg-gray-100 rounded-xl">
             <TabsTrigger
-              value="upcoming"
+              value="all"
               className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
             >
-              Sắp tới
+              Tất cả
             </TabsTrigger>
 
             <TabsTrigger
-              value="past"
+              value="wait"
               className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
             >
-              Đã qua
+              Chờ duyệt
             </TabsTrigger>
 
             <TabsTrigger
               value="pending"
               className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
             >
-              Chờ duyệt
+              Nháp
             </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      <div className="flex flex-col items-center justify-center h-[60vh] text-gray-500">
-        <div className="bg-gray-100 rounded-full p-6 shadow-sm">
-          <CalendarIcon size={48} />
-        </div>
-        <p className="mt-4 text-sm">Hiện chưa có sự kiện nào</p>
+      <div className="flex flex-col w-full items-center gap-4">
+        {events && events.length > 0 ? (
+          <div className="flex flex-col w-full items-center">
+            {events.map((event: any, index: number) => (
+              <EventProfileCard key={index} event={event} />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-[40vh] text-gray-500">
+            <div className="bg-gray-100 rounded-full p-6 shadow-sm">
+              <CalendarIcon size={48} />
+            </div>
+            <p className="mt-4 text-sm">Hiện chưa có sự kiện nào</p>
+          </div>
+        )}
       </div>
     </div>
   );
