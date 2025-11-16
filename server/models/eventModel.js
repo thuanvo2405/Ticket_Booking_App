@@ -316,3 +316,8 @@ export const getEventByOrganizerIdService = async (matochuc, trangThai) => {
   const result = await pool.query(sql, params);
   return result.rows;
 };
+
+export const getEventTypesService = async () => {
+  const result = await pool.query("Select * from loai_su_kien");
+  return result.rows;
+};

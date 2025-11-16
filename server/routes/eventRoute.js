@@ -6,6 +6,7 @@ import {
   getEventById,
   getEvents,
   getEventByOrganizerId,
+  getEventTypes,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -19,6 +20,7 @@ const router = express.Router();
 router.get("/event", getEventById);
 router.get("/events", parseTokenIfExists, getEvents);
 router.get("/organizer/events", authenticateToken, getEventByOrganizerId);
+router.get("/event-types", getEventTypes);
 
 router.post(
   "/event",

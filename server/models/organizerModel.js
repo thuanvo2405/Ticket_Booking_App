@@ -41,6 +41,14 @@ export const getOrganizerProfileService = async (maNguoiDung) => {
   return result.rows[0];
 };
 
+export const getOrganizerID = async (maNguoiDung) => {
+  const result = await pool.query(
+    "Select matochuc from to_chuc where manguoidung = $1",
+    [maNguoiDung]
+  );
+  return result.rows[0];
+};
+
 export const updateOrganizerProfileService = async (
   userId,
   tentochuc,

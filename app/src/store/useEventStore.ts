@@ -1,8 +1,9 @@
+import { getEventTypesAPI } from "@/services/eventService";
 import { create } from "zustand";
 
 export interface EventData {
   tenSuKien: string;
-  loaiSuKien: string;
+  maloaisukien: string;
   tinhThanh: string;
   quanHuyen: string;
   phuongXa: string;
@@ -12,6 +13,11 @@ export interface EventData {
   bannerFile?: File;
   posterUrl?: string;
   bannerUrl?: string;
+}
+
+export interface EventType {
+  maloaisukien: string;
+  tenloaisukien: string;
 }
 
 export interface TicketTypes {
@@ -28,6 +34,7 @@ type EventStore = {
   eventData: EventData | null;
   ticketTypes: TicketTypes[];
   promotions: PromotionData[];
+  eventTypes: EventType[];
 
   setStep: (step: number) => void;
   setNextStep: () => void;
@@ -36,6 +43,8 @@ type EventStore = {
   setEventData: (data: EventData) => void;
   addTicketType: (ticket: TicketTypes) => void;
   addPromotion: (promotion: PromotionData) => void;
+  setEventTypes: (types: EventType[]) => void;
+  fetchEventTypes: () => Promise<void>;
   resetAll: () => void;
 };
 
@@ -45,6 +54,7 @@ export const useEventStore = create<EventStore>()((set) => ({
   eventData: null,
   ticketTypes: [],
   promotions: [],
+  eventTypes: [],
 
   setStep: (step) => set({ step }),
   setNextStep: () =>
@@ -67,6 +77,15 @@ export const useEventStore = create<EventStore>()((set) => ({
     set((state) => ({ ticketTypes: [...state.ticketTypes, ticket] })),
   addPromotion: (promotion) =>
     set((state) => ({ promotions: [...state.promotions, promotion] })),
+  setEventTypes: (types) => set({ eventTypes: types }),
+  fetchEventTypes: async () => {
+    try {
+      const types = await getEventTypesAPI();
+      set({ eventTypes: types });
+    } catch (err) {
+      console.error("Không tải được loại sự kiện", err);
+    }
+  },
 
   resetAll: () =>
     set({

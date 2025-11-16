@@ -7,24 +7,20 @@ import {
   getEventsService,
   isExist,
   getEventByOrganizerIdService,
+  getEventTypesService,
 } from "../models/eventModel.js";
+import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 
 export const createEvent = async (req, res, next) => {
   try {
-    const {
-      tenSuKien,
-      moTa,
-      diaChi,
-      phuong,
-      quan,
-      thanhPho,
-      maToChuc,
-      maLoaiSuKien,
-    } = req.body;
+    const userID = req.user.user.id;
+    const { tenSuKien, moTa, diaChi, phuong, quan, thanhPho, maLoaiSuKien } =
+      req.body;
     const { anhSuKienNgang, anhSuKienDoc } = req.files;
     const diaChiAnhNgang = anhSuKienNgang[0].path;
     const diaChiAnhDoc = anhSuKienDoc[0].path;
+    const { matochuc } = await getOrganizerID(userID);
     if (
       !tenSuKien ||
       !diaChi ||
@@ -42,7 +38,7 @@ export const createEvent = async (req, res, next) => {
       phuong,
       quan,
       thanhPho,
-      maToChuc,
+      matochuc,
       maLoaiSuKien,
       diaChiAnhNgang,
       diaChiAnhDoc
@@ -59,23 +55,17 @@ export const createEvent = async (req, res, next) => {
 
 export const updateEvent = async (req, res, next) => {
   try {
+    const userID = req.user.user.id;
     const { maSuKien } = req.query;
-    const {
-      tenSuKien,
-      moTa,
-      diaChi,
-      phuong,
-      quan,
-      thanhPho,
-      maToChuc,
-      maLoaiSuKien,
-    } = req.body;
+    const { tenSuKien, moTa, diaChi, phuong, quan, thanhPho, maLoaiSuKien } =
+      req.body;
 
     if (!maSuKien) throw new Error("Thiếu mã sự kiện để cập nhật");
 
     const oldEvent = await isExist(maSuKien);
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
+    const { matochuc } = await getOrganizerID(userID);
     const diaChiAnhNgang = req.files?.anhSuKienNgang?.[0]?.path || undefined;
     const diaChiAnhDoc = req.files?.anhSuKienDoc?.[0]?.path || undefined;
 
@@ -87,7 +77,7 @@ export const updateEvent = async (req, res, next) => {
       phuong,
       quan,
       thanhPho,
-      maToChuc,
+      matochuc,
       maLoaiSuKien,
       diaChiAnhNgang,
       diaChiAnhDoc
@@ -180,6 +170,15 @@ export const getEventByOrganizerId = async (req, res, next) => {
     const events = await getEventByOrganizerIdService(matochuc, trangThai);
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", events);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventTypes = async (req, res, next) => {
+  try {
+    const result = await getEventTypesService();
+    handleResponse(res, 201, "Lấy loại sự kiện thành công", result);
   } catch (error) {
     next(error);
   }

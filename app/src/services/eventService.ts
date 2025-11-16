@@ -53,7 +53,8 @@ export const createEventAPI = async (
   diaChi: string,
   phuong: string,
   quan: string,
-  thanhPho: string
+  thanhPho: string,
+  maLoaiSuKien: string
 ) => {
   const formData = new FormData();
   formData.append("tenSuKien", tenSuKien);
@@ -64,8 +65,7 @@ export const createEventAPI = async (
   formData.append("phuong", phuong);
   formData.append("quan", quan);
   formData.append("thanhPho", thanhPho);
-  formData.append("maToChuc", "b1c52b15-1fae-430b-afcf-c34a43c3d4e1");
-  formData.append("maLoaiSuKien", "4596a40f-b4b0-45d4-88f4-29b638d11e4f");
+  formData.append("maLoaiSuKien", maLoaiSuKien);
 
   const res = await axiosInstance.post(URL + "event", formData, {
     headers: {
@@ -85,7 +85,8 @@ export const updateEventAPI = async (
   diaChi: string,
   phuong: string,
   quan: string,
-  thanhPho: string
+  thanhPho: string,
+  maloaisukien: string
 ) => {
   const formData = new FormData();
   formData.append("tenSuKien", tenSuKien);
@@ -96,17 +97,12 @@ export const updateEventAPI = async (
   formData.append("phuong", phuong);
   formData.append("quan", quan);
   formData.append("thanhPho", thanhPho);
-  formData.append("maToChuc", "b1c52b15-1fae-430b-afcf-c34a43c3d4e1");
-  formData.append("maLoaiSuKien", "4596a40f-b4b0-45d4-88f4-29b638d11e4f");
+  formData.append("maLoaiSuKien", maloaisukien);
 
   const res = await axiosInstance.patch(
     URL + `event?maSuKien=${maSuKien}`,
     formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    { headers: { "Content-Type": "multipart/form-data" } }
   );
 
   return res.data.data;
@@ -127,7 +123,12 @@ export const updateEventStatusAPI = async (
 };
 
 export const fetchProfileEventsByOrganizerID = async (trangThai?: string) => {
-  const params = trangThai ? { trangThai } : {}; 
+  const params = trangThai ? { trangThai } : {};
   const res = await axios.get(URL + "organizer/events", { params });
+  return res.data.data;
+};
+
+export const getEventTypesAPI = async () => {
+  const res = await axios.get(URL + `event-types`);
   return res.data.data;
 };

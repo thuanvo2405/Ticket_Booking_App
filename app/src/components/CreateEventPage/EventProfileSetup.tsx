@@ -31,7 +31,7 @@ import { useEventStore, type EventData } from "@/store/useEventStore";
 
 const eventSchema = z.object({
   tenSuKien: z.string().min(1, "Vui lòng nhập tên sự kiện"),
-  loaiSuKien: z.string().min(1, "Vui lòng chọn loại sự kiện"),
+  maloaisukien: z.string().min(1, "Vui lòng chọn loại sự kiện"),
   tinhThanh: z.string().min(1, "Vui lòng chọn Tỉnh/Thành"),
   quanHuyen: z.string().min(1, "Vui lòng chọn Quận/Huyện"),
   phuongXa: z.string().min(1, "Vui lòng chọn Phường/Xã"),
@@ -106,7 +106,7 @@ export default function CreateEventInfoStep() {
     resolver: zodResolver(eventSchema),
     defaultValues: {
       tenSuKien: "",
-      loaiSuKien: "",
+      maloaisukien: "",
       tinhThanh: "",
       quanHuyen: "",
       phuongXa: "",
@@ -114,12 +114,19 @@ export default function CreateEventInfoStep() {
       moTa: "",
     },
   });
+  const { eventTypes, fetchEventTypes } = useEventStore();
+
+  useEffect(() => {
+    if (eventTypes.length === 0) {
+      fetchEventTypes();
+    }
+  }, []);
 
   useEffect(() => {
     if (eventData) {
       form.reset({
         tenSuKien: eventData.tenSuKien,
-        loaiSuKien: eventData.loaiSuKien,
+        maloaisukien: eventData.maloaisukien,
         tinhThanh: eventData.tinhThanh,
         quanHuyen: eventData.quanHuyen,
         phuongXa: eventData.phuongXa,
@@ -135,7 +142,7 @@ export default function CreateEventInfoStep() {
   const city = form.watch("tinhThanh");
   const district = form.watch("quanHuyen");
   const ward = form.watch("phuongXa");
-  const eventType = form.watch("loaiSuKien");
+  const eventType = form.watch("maloaisukien");
 
   const selectedCity = province.find((c) => c.name === city);
   const districts = selectedCity?.districts || [];
@@ -149,6 +156,14 @@ export default function CreateEventInfoStep() {
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Chỉ chấp nhận ảnh JPG, JPEG hoặc PNG!");
+      return;
+    }
+
     type === "poster" ? setPoster(file) : setBanner(file);
   };
 
@@ -174,7 +189,8 @@ export default function CreateEventInfoStep() {
           data.soNha,
           data.phuongXa,
           data.quanHuyen,
-          data.tinhThanh
+          data.tinhThanh,
+          data.maloaisukien
         );
 
         setEventID(res.maSuKien);
@@ -208,7 +224,8 @@ export default function CreateEventInfoStep() {
           data.soNha,
           data.phuongXa,
           data.quanHuyen,
-          data.tinhThanh
+          data.tinhThanh,
+          data.maloaisukien
         );
 
         setEventData(eventDataToStore);
@@ -263,7 +280,6 @@ export default function CreateEventInfoStep() {
                 />
               </div>
 
-              {/* Banner */}
               <div className="col-span-5 relative border-2 border-dashed border-gray-400 rounded-2xl h-[360px] flex items-center justify-center bg-muted/10 hover:bg-muted/20 transition cursor-pointer overflow-hidden">
                 <Label
                   htmlFor="banner-upload"
@@ -299,7 +315,6 @@ export default function CreateEventInfoStep() {
             </div>
           </div>
 
-          {/* Event name & type */}
           <div className="grid grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -314,11 +329,10 @@ export default function CreateEventInfoStep() {
                 </FormItem>
               )}
             />
-
             <FormField
-              key={eventType}
+              key={form.watch("maloaisukien")}
               control={form.control}
-              name="loaiSuKien"
+              name="maloaisukien"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Thể loại sự kiện</FormLabel>
@@ -327,9 +341,14 @@ export default function CreateEventInfoStep() {
                       <SelectValue placeholder="Chọn loại sự kiện" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="amnhac">Âm nhạc</SelectItem>
-                      <SelectItem value="hoithao">Hội thảo</SelectItem>
-                      <SelectItem value="trienlam">Triển lãm</SelectItem>
+                      {eventTypes.map((type) => (
+                        <SelectItem
+                          key={type.maloaisukien}
+                          value={type.maloaisukien}
+                        >
+                          {type.tenloaisukien}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -338,11 +357,9 @@ export default function CreateEventInfoStep() {
             />
           </div>
 
-          {/* Location Selects */}
           <div className="space-y-3">
             <FormLabel>Địa chỉ sự kiện</FormLabel>
             <div className="grid grid-cols-2 gap-4">
-              {/* City */}
               <FormField
                 control={form.control}
                 name="tinhThanh"
@@ -374,7 +391,6 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
-              {/* District */}
               <FormField
                 control={form.control}
                 name="quanHuyen"
@@ -435,7 +451,6 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
-              {/* House Number */}
               <FormField
                 control={form.control}
                 name="soNha"
@@ -452,7 +467,6 @@ export default function CreateEventInfoStep() {
             </div>
           </div>
 
-          {/* Description */}
           <div className="space-y-3">
             <FormLabel>Giới thiệu sự kiện</FormLabel>
             <Controller
@@ -471,11 +485,7 @@ export default function CreateEventInfoStep() {
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-between pt-6 border-t mt-10">
-            <Button type="button" variant="outline" className="w-32">
-              Lưu
-            </Button>
             <Button type="submit" className="w-32">
               Tiếp tục
             </Button>
