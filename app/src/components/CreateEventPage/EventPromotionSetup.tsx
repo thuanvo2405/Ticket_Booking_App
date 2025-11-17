@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -32,56 +29,70 @@ import {
 } from "@/components/ui/table";
 import { ChevronDown } from "lucide-react";
 import EventProMotioModal from "./EventPromotionModal";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  deletePromotionAPI,
+  getPromotionAPI,
+} from "@/services/promotionService";
+import { useSearchParams } from "react-router-dom";
 
 type Promotion = {
-  id: string;
-  maGiamGia: string;
-  giaTriGiam: number;
-  loaiGiam: "PHAN_TRAM" | "SO_TIEN";
-  ngayBatDau: string;
-  ngayKetThuc: string;
-  soLuongPhatHanh: number;
-  giaTriToiThieu: number;
+  makhuyenmai: string;
+  magiamgia: string;
+  giatrigiam: number;
+  loaigiam: "PHAN_TRAM" | "SO_TIEN";
+  ngaybatdau: string;
+  ngayketthuc: string;
+  soluongphathanh: number;
+  giatritoithieu: number;
 };
 
-const initialData: Promotion[] = [
-  {
-    id: "1",
-    maGiamGia: "Giam20K",
-    giaTriGiam: 102,
-    loaiGiam: "SO_TIEN",
-    ngayBatDau: "2025-11-05T12:30",
-    ngayKetThuc: "2025-11-10T12:30",
-    soLuongPhatHanh: 50,
-    giaTriToiThieu: 101,
-  },
-];
-
 export default function EventPromotionSetup() {
-  const [data, setData] = React.useState<Promotion[]>(initialData);
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [searchParams] = useSearchParams();
+  const maSuKien = searchParams.get("eventId");
+  const queryClient = useQueryClient();
+
+  const { data = [] } = useQuery<Promotion[]>({
+    queryKey: ["fetchPromotions", maSuKien],
+    queryFn: () => getPromotionAPI(maSuKien!),
+    enabled: !!maSuKien,
+  });
+
+  const handleEdit = (row: Promotion) => {
+    console.log("Edit", row);
+  };
+
+  const handleDelete = useMutation({
+    mutationFn: async (row: Promotion) => {
+      await deletePromotionAPI(row.magiamgia);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetchPromotions", maSuKien],
+      });
+    },
+  });
 
   const columns: ColumnDef<Promotion>[] = [
-    { accessorKey: "maGiamGia", header: "Mã giảm giá" },
-    { accessorKey: "loaiGiam", header: "Loại giảm" },
-    { accessorKey: "giaTriGiam", header: "Giá trị giảm" },
-    { accessorKey: "giaTriToiThieu", header: "Giá trị tối thiểu" },
+    { accessorKey: "magiamgia", header: "Mã giảm giá" },
+    { accessorKey: "loaigiam", header: "Loại giảm" },
+    { accessorKey: "giatrigiam", header: "Giá trị giảm" },
+    { accessorKey: "giatritoithieu", header: "Giá trị tối thiểu" },
     {
-      accessorKey: "ngayBatDau",
+      accessorKey: "ngaybatdau",
       header: "Ngày bắt đầu",
       cell: (info) => new Date(info.getValue() as string).toLocaleString(),
     },
     {
-      accessorKey: "ngayKetThuc",
+      accessorKey: "ngayketthuc",
       header: "Ngày kết thúc",
       cell: (info) => new Date(info.getValue() as string).toLocaleString(),
     },
-    { accessorKey: "soLuongPhatHanh", header: "Số lượng phát hành" },
+    { accessorKey: "soluongphathanh", header: "Số lượng phát hành" },
     {
       id: "actions",
       header: "Hoạt động",
@@ -97,7 +108,7 @@ export default function EventPromotionSetup() {
           <Button
             size="sm"
             variant="destructive"
-            onClick={() => handleDelete(row.original.id)}
+            onClick={() => handleDelete.mutate(row.original)}
           >
             Xóa
           </Button>
@@ -119,15 +130,6 @@ export default function EventPromotionSetup() {
     state: { sorting, columnFilters, columnVisibility },
   });
 
-  const handleEdit = (rowData: Promotion) => {
-    console.log("Edit", rowData);
-    // TODO: open modal form with data
-  };
-
-  const handleDelete = (id: string) => {
-    setData((prev) => prev.filter((d) => d.id !== id));
-  };
-
   return (
     <div className="w-full p-4 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4">
@@ -138,10 +140,10 @@ export default function EventPromotionSetup() {
         <Input
           placeholder="Filter mã giảm giá..."
           value={
-            (table.getColumn("maGiamGia")?.getFilterValue() as string) ?? ""
+            (table.getColumn("magiamgia")?.getFilterValue() as string) ?? ""
           }
           onChange={(e) =>
-            table.getColumn("maGiamGia")?.setFilterValue(e.target.value)
+            table.getColumn("magiamgia")?.setFilterValue(e.target.value)
           }
           className="max-w-xs"
         />

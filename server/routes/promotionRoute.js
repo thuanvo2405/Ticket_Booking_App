@@ -1,8 +1,15 @@
 import express from "express";
-import { createPromotion } from "../controllers/promotionController.js";
+import {
+  createPromotion,
+  getPromotions,
+  deletePromotion,
+} from "../controllers/promotionController.js";
+import { authenticateToken } from "../middleware/authorization.js";
 
 const router = express.Router();
 
-router.post("/promotion", createPromotion);
+router.get("/promotion", getPromotions);
+router.post("/promotion", authenticateToken, createPromotion);
+router.delete("/promotion", authenticateToken, deletePromotion);
 
 export default router;

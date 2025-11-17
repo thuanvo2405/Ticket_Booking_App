@@ -29,27 +29,50 @@ import {
   SelectValue,
 } from "../ui/select";
 import { DateTimePicker24h } from "../date-time-picker";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { CreatePromotionAPI } from "@/services/ticketService";
 import { useEventStore } from "@/store/useEventStore";
 import { useState } from "react";
+import { CreatePromotionAPI } from "@/services/promotionService";
 
-export const PromotionFormSchema = z.object({
-  maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
-  giaTriGiam: z.number().min(1, "Giá trị giảm phải lớn hơn 0"),
-  loaiGiam: z.enum(["PHAN_TRAM", "SO_TIEN"]),
-  ngayBatDau: z.date(),
-  ngayKetThuc: z.date(),
-  soLuongPhatHanh: z.number().min(1, "Số lượng phải lớn hơn 0"),
-  giaTriToiThieu: z.number().min(1, "Giá trị tối thiểu phải lớn hơn 0"),
-});
+export const PromotionFormSchema = z
+  .object({
+    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+    giaTriGiam: z.number().min(1, "Giá trị giảm phải lớn hơn 0"),
+    loaiGiam: z.enum(["PHAN_TRAM", "SO_TIEN"]),
+    ngayBatDau: z.date(),
+    ngayKetThuc: z.date(),
+    soLuongPhatHanh: z.number().min(1, "Số lượng phải lớn hơn 0"),
+    giaTriToiThieu: z.number().min(1, "Giá trị tối thiểu phải lớn hơn 0"),
+  })
+  .refine((data) => data.ngayKetThuc > data.ngayBatDau, {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["ngayKetThuc"],
+  })
+  .refine(
+    (data) => (data.loaiGiam === "PHAN_TRAM" ? data.giaTriGiam <= 100 : true),
+    {
+      message: "Giảm theo phần trăm phải ≤ 100%",
+      path: ["giaTriGiam"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.loaiGiam === "SO_TIEN"
+        ? data.giaTriGiam <= data.giaTriToiThieu
+        : true,
+    {
+      message: "Giá trị giảm không thể lớn hơn giá trị tối thiểu áp dụng",
+      path: ["giaTriGiam"],
+    }
+  );
 
 export type PromotionFormValues = z.infer<typeof PromotionFormSchema>;
 
 export default function EventPromotionModal() {
   const { maSuKien } = useEventStore();
   const [open, setOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<PromotionFormValues>({
     resolver: zodResolver(PromotionFormSchema),
@@ -88,6 +111,9 @@ export default function EventPromotionModal() {
     onSuccess: () => {
       toast.success("Tạo khuyến mãi thành công");
       form.reset();
+      queryClient.invalidateQueries({
+        queryKey: ["fetchPromotions", maSuKien],
+      });
       setOpen(false);
     },
     onError: (error: any) => {

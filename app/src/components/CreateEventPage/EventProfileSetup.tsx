@@ -137,10 +137,6 @@ export default function CreateEventInfoStep() {
     enabled: !!maSuKien,
   });
 
-  console.log("hi");
-  console.log(maSuKien);
-  console.log(data);
-
   isLoading && <div>Loading...</div>;
 
   useEffect(() => {

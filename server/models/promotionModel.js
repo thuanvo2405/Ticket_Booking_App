@@ -1,4 +1,14 @@
+import e from "express";
 import pool from "../config/db.js";
+
+export const getPromotionsService = async (maSuKien) => {
+  console.log(maSuKien);
+  const result = await pool.query(
+    "SELECT * FROM khuyen_mai wHERE maSuKien = $1",
+    [maSuKien]
+  );
+  return result.rows;
+};
 
 export const createPromotionService = async (
   maGiamGia,
@@ -24,4 +34,10 @@ export const createPromotionService = async (
     ]
   );
   return result.rows[0];
+};
+
+export const deletePromotionService = async (maKhuyenMai) => {
+  await pool.query("DELETE FROM khuyen_mai WHERE maGiamGia = $1", [
+    maKhuyenMai,
+  ]);
 };
