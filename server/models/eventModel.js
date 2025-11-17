@@ -14,24 +14,24 @@ export const createEventService = async (
 ) => {
   const result = await pool.query(
     `
-    INSERT INTO su_kien (
-      tenSuKien,
-      moTa,
-      diaChi,
-      phuong,
-      quan,
-      thanhPho,
-      anhSuKienDoc,
-      anhSuKienNgang,
-      maToChuc,
-      maLoaiSuKien
-    ) VALUES (
-      $1, $2, $3, $4,
-      $5, $6, $7, $8,
-      $9, $10
-    )
-    RETURNING masukien;
-  `,
+      INSERT INTO su_kien (
+        tenSuKien,
+        moTa,
+        diaChi,
+        phuong,
+        quan,
+        thanhPho,
+        anhSuKienDoc,
+        anhSuKienNgang,
+        maToChuc,
+        maLoaiSuKien
+      ) VALUES (
+        $1, $2, $3, $4,
+        $5, $6, $7, $8,
+        $9, $10
+      )
+      RETURNING masukien;
+    `,
     [
       tenSuKien,
       moTa,

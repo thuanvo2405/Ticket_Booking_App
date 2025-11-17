@@ -11,29 +11,32 @@ import {
 } from "../models/eventModel.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
+import { z } from "zod";
+import { EventSchema } from "../utils/validate.js";
 
 export const createEvent = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
+
     const { tenSuKien, moTa, diaChi, phuong, quan, thanhPho, maLoaiSuKien } =
-      req.body;
-    const { anhSuKienNgang, anhSuKienDoc } = req.files;
+      EventSchema.parse(req.body);
+
+    const { anhSuKienNgang, anhSuKienDoc } = req.files || {};
+    if (!Array.isArray(anhSuKienNgang) || anhSuKienNgang.length === 0)
+      throw new Error("Ảnh sự kiện ngang là bắt buộc");
+    if (!Array.isArray(anhSuKienDoc) || anhSuKienDoc.length === 0)
+      throw new Error("Ảnh sự kiện dọc là bắt buộc");
+
     const diaChiAnhNgang = anhSuKienNgang[0].path;
     const diaChiAnhDoc = anhSuKienDoc[0].path;
+
     const { matochuc } = await getOrganizerID(userID);
-    if (
-      !tenSuKien ||
-      !diaChi ||
-      !phuong ||
-      !quan ||
-      !thanhPho ||
-      !anhSuKienDoc ||
-      !anhSuKienNgang
-    )
-      throw new Error("Vui lòng nhập đầy đủ trường");
+    if (!matochuc)
+      throw new Error("Không tìm thấy thông tin tổ chức của người dùng");
+
     const result = await createEventService(
       tenSuKien,
-      moTa,
+      moTa || null,
       diaChi,
       phuong,
       quan,
@@ -43,7 +46,6 @@ export const createEvent = async (req, res, next) => {
       diaChiAnhNgang,
       diaChiAnhDoc
     );
-    console.log(result);
 
     handleResponse(res, 201, "Tạo sự kiện thành công", {
       maSuKien: result.masukien,

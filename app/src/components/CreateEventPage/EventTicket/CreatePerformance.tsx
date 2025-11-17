@@ -44,7 +44,22 @@ export default function CreatePerformance({ close }: CreatePerformance) {
       close();
     },
     onError: (error: any) => {
-      toast.error("Lỗi tạo performance: " + (error.message || error));
+      if (error.response?.data?.message) {
+        const backendMessage = error.response.data.message;
+        if (backendMessage.includes("kết thúc phải sau thời gian bắt đầu")) {
+          form.setError("thoiGianKetThuc", {
+            type: "server",
+            message: backendMessage,
+          });
+        } else {
+          form.setError("thoiGianBatDau", {
+            type: "server",
+            message: backendMessage,
+          });
+        }
+      } else {
+        toast.error("Lỗi tạo performance: " + (error.message || error));
+      }
     },
   });
 
@@ -64,7 +79,7 @@ export default function CreatePerformance({ close }: CreatePerformance) {
     <div className="w-11/12">
       <Card>
         <CardHeader>
-          <CardTitle>Tạo loại vé mới</CardTitle>
+          <CardTitle>Tạo suất diễn mới</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <Form {...form}>

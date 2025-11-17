@@ -6,18 +6,26 @@ import {
   deletePerformanceService,
   getTicketTypeService,
 } from "../models/ticketModel.js";
+import { z } from "zod";
+import { TicketTypeSchema, PerformanceSchema } from "../utils/validate.js";
 
 export const createTicketType = async (req, res, next) => {
   try {
-    const { tenLoaiVe, moTa, giaTien, soLuongPhatHanh, maSuatDien } = req.body;
-    await createTicketTypeService(
-      tenLoaiVe,
-      moTa,
-      giaTien,
-      soLuongPhatHanh,
-      maSuatDien
+    const data = TicketTypeSchema.parse({
+      ...req.body,
+      giaTien: Number(req.body.giaTien),
+      soLuongPhatHanh: Number(req.body.soLuongPhatHanh),
+    });
+
+    const result = await createTicketTypeService(
+      data.tenLoaiVe,
+      data.moTa || null,
+      data.giaTien,
+      data.soLuongPhatHanh,
+      data.maSuatDien
     );
-    handleResponse(res, 201, "Tạo loại vé thành công");
+
+    handleResponse(res, 201, "Tạo loại vé thành công", result);
   } catch (error) {
     next(error);
   }
@@ -25,9 +33,15 @@ export const createTicketType = async (req, res, next) => {
 
 export const createPerformance = async (req, res, next) => {
   try {
-    const { thoiGianBatDau, thoiGianKetThuc, maSuKien } = req.body;
-    await createPerformanceService(thoiGianBatDau, thoiGianKetThuc, maSuKien);
-    handleResponse(res, 201, "Tạo suất diễn thành công");
+    const data = PerformanceSchema.parse(req.body);
+
+    const result = await createPerformanceService(
+      data.thoiGianBatDau,
+      data.thoiGianKetThuc,
+      data.maSuKien
+    );
+
+    handleResponse(res, 201, "Tạo suất diễn thành công", result);
   } catch (error) {
     next(error);
   }
