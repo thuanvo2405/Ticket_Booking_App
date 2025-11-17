@@ -8,6 +8,7 @@ import {
   isExist,
   getEventByOrganizerIdService,
   getEventTypesService,
+  deleteEventService,
 } from "../models/eventModel.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
@@ -181,6 +182,21 @@ export const getEventTypes = async (req, res, next) => {
   try {
     const result = await getEventTypesService();
     handleResponse(res, 201, "Lấy loại sự kiện thành công", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteEvent = async (req, res, next) => {
+  try {
+    const { maSuKien } = req.query;
+
+    const oldEvent = await isExist(maSuKien);
+    if (!oldEvent) throw new Error("Sự kiện không tồn tại");
+
+    await deleteEventService(maSuKien);
+
+    handleResponse(res, 200, "Xóa sự kiện thành công");
   } catch (error) {
     next(error);
   }

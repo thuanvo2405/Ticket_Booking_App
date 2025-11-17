@@ -132,3 +132,8 @@ export const getEventTypesAPI = async () => {
   const res = await axios.get(URL + `event-types`);
   return res.data.data;
 };
+
+export const deleteEventAPI = async (maSuKien: string) => {
+  const res = await axiosInstance.delete(URL + `event?maSuKien=` + maSuKien);
+  return res.data.data;
+};

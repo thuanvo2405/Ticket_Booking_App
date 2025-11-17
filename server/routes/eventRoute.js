@@ -7,6 +7,7 @@ import {
   getEvents,
   getEventByOrganizerId,
   getEventTypes,
+  deleteEvent,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -44,5 +45,7 @@ router.patch(
   updateEvent
 );
 router.patch("/event-status", authenticateToken, updateEventStatus);
+
+router.delete("/event/", authenticateToken, deleteEvent);
 
 export default router;

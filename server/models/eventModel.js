@@ -322,3 +322,11 @@ export const getEventTypesService = async () => {
   const result = await pool.query("Select * from loai_su_kien");
   return result.rows;
 };
+
+export const deleteEventService = async (maSuKien) => {
+  const result = await pool.query(
+    `DELETE FROM su_kien WHERE maSuKien = $1 RETURNING maSuKien;`,
+    [maSuKien]
+  );
+  return result.rows[0];
+};

@@ -1,11 +1,31 @@
 import { MapPin, Calendar } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { Button } from "../ui/button";
+import { deleteEventAPI } from "@/services/eventService";
+import toast from "react-hot-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function EventProfileCard({ event }: { event: any }) {
-  console.log(event);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (maSuKien: string) => deleteEventAPI(maSuKien),
+
+    onSuccess: () => {
+      toast.success("Xóa sự kiện thành công!");
+      queryClient.invalidateQueries({
+        queryKey: ["fetchProfileEventByOrganizerID"],
+        exact: false,
+      });
+    },
+
+    onError: () => {
+      toast.error("Xóa sự kiện thất bại!");
+    },
+  });
+
   return (
-    <NavLink
-      to={`/organizer/create-event?eventId=${event.masukien}`}
+    <div
       className="
         w-full bg-white 
         rounded-xl border border-green-500 
@@ -46,20 +66,26 @@ export default function EventProfileCard({ event }: { event: any }) {
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <button
-              className="
-                px-4 py-1.5 
-                bg-green-600 text-white 
-                rounded-lg text-sm 
-                hover:bg-green-700 transition
-              "
+          <div className="flex justify-end gap-2">
+            <NavLink to={`/organizer/create-event?eventId=${event.masukien}`}>
+              <Button className="bg-green-600 text-white hover:bg-green-700">
+                Quản lý sự kiện
+              </Button>
+            </NavLink>
+
+            <Button
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                deleteMutation.mutate(event.masukien);
+              }}
             >
-              Quản lý sự kiện
-            </button>
+              Xóa sự kiện
+            </Button>
           </div>
         </div>
       </div>
-    </NavLink>
+    </div>
   );
 }
