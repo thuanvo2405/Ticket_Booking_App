@@ -7,10 +7,11 @@ export const createPromotionService = async (
   ngayBatDau,
   ngayKetThuc,
   soLuongPhatHanh,
-  maSuKien
+  maSuKien,
+  giaTriToiThieu
 ) => {
   const result = await pool.query(
-    "INSERT INTO khuyen_mai (maGiamGia,giaTriGiam,loaiGiam,ngayBatDau,ngayKetThuc,soLuongPhatHanh,maSuKien) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *",
+    "INSERT INTO khuyen_mai (maGiamGia,giaTriGiam,loaiGiam,ngayBatDau,ngayKetThuc,soLuongPhatHanh,maSuKien,giaTriToiThieu) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",
     [
       maGiamGia,
       giaTriGiam,
@@ -19,6 +20,7 @@ export const createPromotionService = async (
       ngayKetThuc,
       soLuongPhatHanh,
       maSuKien,
+      giaTriToiThieu,
     ]
   );
   return result.rows[0];

@@ -41,7 +41,7 @@ export default function EventTicketSetup() {
         <Button
           variant="ghost"
           size="lg"
-          className="text-green-500 text-xl"
+          className="text-green-500 text-xl mb-3"
           onClick={() => setOpenCreatePerformance((prev) => !prev)}
         >
           <Plus />

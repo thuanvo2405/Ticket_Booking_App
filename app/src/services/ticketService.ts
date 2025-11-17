@@ -50,3 +50,27 @@ export const getTicketTypeAPI = async (maSuatDien: number) => {
   const res = await axios.get(URL + "ticket-type", { params: { maSuatDien } });
   return res.data.data.result;
 };
+
+export const CreatePromotionAPI = async (
+  maGiamGia: string,
+  giaTriGiam: number,
+  loaiGiam: string,
+  ngayBatDau: string,
+  ngayKetThuc: string,
+  soLuongPhatHanh: number,
+  giaTriToiThieu: number,
+  maSuKien: string
+) => {
+  const res = await axiosInstance.post(URL + "promotion", {
+    maGiamGia,
+    giaTriGiam,
+    loaiGiam,
+    ngayBatDau,
+    ngayKetThuc,
+    soLuongPhatHanh,
+    giaTriToiThieu,
+    maSuKien,
+  });
+
+  return res.data.data;
+};

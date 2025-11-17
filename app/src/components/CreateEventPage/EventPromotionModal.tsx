@@ -1,0 +1,275 @@
+import { Button } from "@/components/ui/button";
+import {
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Dialog,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { formatDate } from "@/utils/convert";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { DateTimePicker24h } from "../date-time-picker";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { CreatePromotionAPI } from "@/services/ticketService";
+import { useEventStore } from "@/store/useEventStore";
+import { useState } from "react";
+
+export const PromotionFormSchema = z.object({
+  maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+  giaTriGiam: z.number().min(1, "Giá trị giảm phải lớn hơn 0"),
+  loaiGiam: z.enum(["PHAN_TRAM", "SO_TIEN"]),
+  ngayBatDau: z.date(),
+  ngayKetThuc: z.date(),
+  soLuongPhatHanh: z.number().min(1, "Số lượng phải lớn hơn 0"),
+  giaTriToiThieu: z.number().min(1, "Giá trị tối thiểu phải lớn hơn 0"),
+});
+
+export type PromotionFormValues = z.infer<typeof PromotionFormSchema>;
+
+export default function EventPromotionModal() {
+  const { eventID } = useEventStore();
+  const [open, setOpen] = useState(false);
+
+  const form = useForm<PromotionFormValues>({
+    resolver: zodResolver(PromotionFormSchema),
+    defaultValues: {
+      maGiamGia: "",
+      giaTriGiam: 10000,
+      loaiGiam: "SO_TIEN",
+      ngayBatDau: new Date(),
+      ngayKetThuc: new Date(),
+      soLuongPhatHanh: 1,
+      giaTriToiThieu: 10000,
+    },
+  });
+
+  const createPromotionMutation = useMutation({
+    mutationFn: ({
+      maGiamGia,
+      giaTriGiam,
+      loaiGiam,
+      ngayBatDau,
+      ngayKetThuc,
+      soLuongPhatHanh,
+      giaTriToiThieu,
+      maSuKien,
+    }: any) =>
+      CreatePromotionAPI(
+        maGiamGia,
+        giaTriGiam,
+        loaiGiam,
+        ngayBatDau,
+        ngayKetThuc,
+        soLuongPhatHanh,
+        giaTriToiThieu,
+        maSuKien
+      ),
+    onSuccess: () => {
+      toast.success("Tạo khuyến mãi thành công");
+      form.reset();
+      setOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error("Lỗi tạo khuyến mãi: " + (error.message || error));
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof PromotionFormSchema>) {
+    createPromotionMutation.mutate({
+      maGiamGia: values.maGiamGia,
+      giaTriGiam: values.giaTriGiam,
+      loaiGiam: values.loaiGiam,
+      soLuongPhatHanh: values.soLuongPhatHanh,
+      giaTriToiThieu: values.giaTriToiThieu,
+      ngayBatDau: formatDate(values.ngayBatDau),
+      ngayKetThuc: formatDate(values.ngayKetThuc),
+      maSuKien: eventID?.toString()!,
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Thêm khuyến mãi</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle>Thêm khuyến mãi</DialogTitle>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="maGiamGia"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mã giảm giá</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Nhập mã giảm giá" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="loaiGiam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Loại giảm</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Chọn loại giảm" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PHAN_TRAM">Phần trăm</SelectItem>
+                          <SelectItem value="SO_TIEN">Số tiền</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="soLuongPhatHanh"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Số lượng phát hành</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={1}
+                        {...field}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="giaTriGiam"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giá trị giảm</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        {...field}
+                        value={field.value.toLocaleString("vi-VN")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          field.onChange(Number(raw));
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="giaTriToiThieu"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Giá trị tối thiểu áp dụng</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        {...field}
+                        value={field.value.toLocaleString("vi-VN")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          field.onChange(Number(raw));
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="ngayBatDau"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ngày bắt đầu</FormLabel>
+                    <FormControl>
+                      <DateTimePicker24h
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ngayKetThuc"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ngày kết thúc</FormLabel>
+                    <FormControl>
+                      <DateTimePicker24h
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Hủy</Button>
+              </DialogClose>
+              <Button type="submit">Tạo</Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
