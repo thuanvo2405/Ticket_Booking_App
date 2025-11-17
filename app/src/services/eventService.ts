@@ -77,7 +77,7 @@ export const createEventAPI = async (
 };
 
 export const updateEventAPI = async (
-  maSuKien: number,
+  maSuKien: string,
   tenSuKien: string,
   anhSuKienNgang: File,
   anhSuKienDoc: File,

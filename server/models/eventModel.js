@@ -132,6 +132,7 @@ export const getEventByIdService = async (maSuKien) => {
     sk.phuong,
     sk.quan,
     sk.thanhpho,
+    sk.maloaisukien,
     tc.tentochuc,
     tc.anhtochuc,
     tc.mota AS mota_tochuc,
@@ -308,7 +309,7 @@ export const getEventByOrganizerIdService = async (matochuc, trangThai) => {
   }
 
   const sql = `
-    SELECT anhsukienngang, tensukien, diachi, phuong, quan, thanhpho
+    SELECT masukien, anhsukienngang, tensukien, diachi, phuong, quan, thanhpho
     FROM su_kien
     WHERE ${conditions.join(" AND ")}
   `;

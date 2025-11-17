@@ -48,7 +48,7 @@ export const PromotionFormSchema = z.object({
 export type PromotionFormValues = z.infer<typeof PromotionFormSchema>;
 
 export default function EventPromotionModal() {
-  const { eventID } = useEventStore();
+  const { maSuKien } = useEventStore();
   const [open, setOpen] = useState(false);
 
   const form = useForm<PromotionFormValues>({
@@ -104,7 +104,7 @@ export default function EventPromotionModal() {
       giaTriToiThieu: values.giaTriToiThieu,
       ngayBatDau: formatDate(values.ngayBatDau),
       ngayKetThuc: formatDate(values.ngayKetThuc),
-      maSuKien: eventID?.toString()!,
+      maSuKien: maSuKien?.toString()!,
     });
   }
 

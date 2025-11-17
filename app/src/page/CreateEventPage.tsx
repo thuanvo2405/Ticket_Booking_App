@@ -3,7 +3,10 @@ import EventProfileSetup from "@/components/CreateEventPage/EventProfileSetup";
 import EventPromotionSetup from "@/components/CreateEventPage/EventPromotionSetup";
 import EventTicketSetup from "@/components/CreateEventPage/EventTicketSetup";
 import { Button } from "@/components/ui/button";
+import { getEventByIdAPI } from "@/services/eventService";
 import { useEventStore } from "@/store/useEventStore";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const steps = [
   "Thông tin sự kiện",
@@ -13,7 +16,19 @@ const steps = [
 ];
 
 export default function CreateEventPage() {
-  const { step, setStep, setPrevStep, setNextStep } = useEventStore();
+  const { step, setStep, setPrevStep, setNextStep, setMaSuKien, setEventData } =
+    useEventStore();
+  const [searchParams] = useSearchParams();
+  const eventId = searchParams.get("eventId");
+
+  useEffect(() => {
+    if (eventId) {
+      setMaSuKien(eventId);
+      getEventByIdAPI(eventId).then((data) => {
+        setEventData(data);
+      });
+    }
+  }, [eventId, setMaSuKien, setEventData]);
 
   return (
     <div className="shadow-2xl rounded-2xl overflow-hidden">

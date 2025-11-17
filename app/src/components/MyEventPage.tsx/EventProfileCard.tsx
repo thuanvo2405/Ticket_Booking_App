@@ -1,8 +1,11 @@
 import { MapPin, Calendar } from "lucide-react";
+import { NavLink } from "react-router-dom";
 
 export default function EventProfileCard({ event }: { event: any }) {
+  console.log(event);
   return (
-    <div
+    <NavLink
+      to={`/organizer/create-event?eventId=${event.masukien}`}
       className="
         w-full bg-white 
         rounded-xl border border-green-500 
@@ -43,7 +46,6 @@ export default function EventProfileCard({ event }: { event: any }) {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end">
             <button
               className="
@@ -58,6 +60,6 @@ export default function EventProfileCard({ event }: { event: any }) {
           </div>
         </div>
       </div>
-    </div>
+    </NavLink>
   );
 }

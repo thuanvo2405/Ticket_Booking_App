@@ -14,7 +14,7 @@ export default function EventPage() {
 
   console.log(maSuKien);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["fetchingEventById", maSuKien],
     queryFn: () => getEventByIdAPI(maSuKien!),
     enabled: !!maSuKien,

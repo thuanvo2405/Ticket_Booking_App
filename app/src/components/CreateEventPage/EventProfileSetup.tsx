@@ -24,10 +24,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import province from "@/data/vietnam-provinces.json";
-import { URL } from "@/constant/constant";
-import { createEventAPI, updateEventAPI } from "@/services/eventService";
+import { IMAGE_URL, URL } from "@/constant/constant";
+import {
+  createEventAPI,
+  getEventByIdAPI,
+  updateEventAPI,
+} from "@/services/eventService";
 import toast from "react-hot-toast";
 import { useEventStore, type EventData } from "@/store/useEventStore";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 const eventSchema = z.object({
   tenSuKien: z.string().min(1, "Vui lòng nhập tên sự kiện"),
@@ -99,9 +105,12 @@ const formats = [
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-  const { setStep, setEventID, setEventData, eventData, eventID } =
-    useEventStore();
-  console.log(eventData);
+  const { setStep, setMaSuKien } = useEventStore();
+
+  const [searchParams] = useSearchParams();
+  const maSuKien = searchParams.get("eventId");
+
+  const navigate = useNavigate();
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -122,27 +131,38 @@ export default function CreateEventInfoStep() {
     }
   }, []);
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["fetchingEventById", maSuKien],
+    queryFn: () => getEventByIdAPI(maSuKien!),
+    enabled: !!maSuKien,
+  });
+
+  console.log("hi");
+  console.log(maSuKien);
+  console.log(data);
+
+  isLoading && <div>Loading...</div>;
+
   useEffect(() => {
-    if (eventData) {
+    if (maSuKien && data) {
       form.reset({
-        tenSuKien: eventData.tenSuKien,
-        maloaisukien: eventData.maloaisukien,
-        tinhThanh: eventData.tinhThanh,
-        quanHuyen: eventData.quanHuyen,
-        phuongXa: eventData.phuongXa,
-        soNha: eventData.soNha,
-        moTa: eventData.moTa ?? "",
+        tenSuKien: data.tensukien,
+        maloaisukien: data.maloaisukien,
+        tinhThanh: data.thanhpho,
+        quanHuyen: data.quan,
+        phuongXa: data.phuong,
+        soNha: data.diachi,
+        moTa: data.mota ?? "",
       });
 
-      setPoster(eventData.posterFile ?? null);
-      setBanner(eventData.bannerFile ?? null);
+      setPoster(data.anhsukiendoc ?? null);
+      setBanner(data.anhsukienngang ?? null);
     }
-  }, [eventData]);
+  }, [maSuKien, data]);
 
   const city = form.watch("tinhThanh");
   const district = form.watch("quanHuyen");
   const ward = form.watch("phuongXa");
-  const eventType = form.watch("maloaisukien");
 
   const selectedCity = province.find((c) => c.name === city);
   const districts = selectedCity?.districts || [];
@@ -168,17 +188,11 @@ export default function CreateEventInfoStep() {
   };
 
   const onSubmit = async (data: EventForm) => {
-    if (!eventID) {
+    if (!maSuKien) {
       if (!poster || !banner) {
         toast.error("Vui lòng chọn đầy đủ hình ảnh!");
         return;
       }
-
-      const eventDataToStore: EventData = {
-        ...data,
-        posterFile: poster,
-        bannerFile: banner,
-      };
 
       try {
         const res = await createEventAPI(
@@ -193,8 +207,8 @@ export default function CreateEventInfoStep() {
           data.maloaisukien
         );
 
-        setEventID(res.maSuKien);
-        setEventData(eventDataToStore);
+        setMaSuKien(res.maSuKien);
+        navigate(`/organizer/create-event?eventId=${res.maSuKien}`);
 
         setStep(2);
 
@@ -208,15 +222,9 @@ export default function CreateEventInfoStep() {
         return;
       }
 
-      const eventDataToStore: EventData = {
-        ...data,
-        posterFile: poster,
-        bannerFile: banner,
-      };
-
       try {
         await updateEventAPI(
-          eventID,
+          maSuKien,
           data.tenSuKien,
           banner,
           poster,
@@ -228,7 +236,6 @@ export default function CreateEventInfoStep() {
           data.maloaisukien
         );
 
-        setEventData(eventDataToStore);
         setStep(2);
 
         toast.success("Cập nhật sự kiện thành công");
@@ -257,7 +264,7 @@ export default function CreateEventInfoStep() {
                       src={
                         poster instanceof File
                           ? window.URL.createObjectURL(poster)
-                          : poster || ""
+                          : IMAGE_URL + poster || ""
                       }
                       alt="Poster"
                       className="object-contain w-full h-full rounded-2xl"
@@ -290,7 +297,7 @@ export default function CreateEventInfoStep() {
                       src={
                         banner instanceof File
                           ? window.URL.createObjectURL(banner)
-                          : banner || ""
+                          : IMAGE_URL + banner || ""
                       }
                       alt="Banner"
                       className="object-cover w-full h-full rounded-2xl"
@@ -422,7 +429,6 @@ export default function CreateEventInfoStep() {
                 )}
               />
 
-              {/* Ward */}
               <FormField
                 key={ward}
                 control={form.control}

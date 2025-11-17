@@ -28,16 +28,16 @@ export interface CreatePerformance {
 }
 
 export default function CreatePerformance({ close }: CreatePerformance) {
-  const { eventID } = useEventStore();
+  const { maSuKien } = useEventStore();
   const queryClient = useQueryClient();
 
   const createPerformanceMutation = useMutation({
-    mutationFn: ({ thoiGianBatDau, thoiGianKetThuc, eventID }: any) =>
-      CreatePerformanceAPI(thoiGianBatDau, thoiGianKetThuc, eventID),
+    mutationFn: ({ thoiGianBatDau, thoiGianKetThuc, maSuKien }: any) =>
+      CreatePerformanceAPI(thoiGianBatDau, thoiGianKetThuc, maSuKien),
     onSuccess: () => {
-      if (eventID) {
+      if (maSuKien) {
         queryClient.invalidateQueries({
-          queryKey: ["fetchPerformance", eventID],
+          queryKey: ["fetchPerformance", maSuKien],
         });
       }
       toast.success("Tạo performance thành công");
@@ -71,7 +71,7 @@ export default function CreatePerformance({ close }: CreatePerformance) {
     createPerformanceMutation.mutate({
       thoiGianBatDau: formatDate(values.thoiGianBatDau),
       thoiGianKetThuc: formatDate(values.thoiGianKetThuc),
-      eventID: eventID?.toString()!,
+      maSuKien: maSuKien?.toString()!,
     });
   }
 

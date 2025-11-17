@@ -65,7 +65,7 @@ export default function MenuTicket({
   const [openCreateTicket, setOpenCreateTicket] = useState(false);
 
   const queryClient = useQueryClient();
-  const { eventID } = useEventStore();
+  const { maSuKien } = useEventStore();
 
   const { data, isFetching } = useQuery({
     queryKey: ["fetchTicketType", masuatdien],
@@ -77,7 +77,7 @@ export default function MenuTicket({
     mutationFn: () => deletePerformaneAPI(masuatdien),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["fetchPerformance", eventID],
+        queryKey: ["fetchPerformance", maSuKien],
       });
       toast.success("Xóa performance thành công");
       close();

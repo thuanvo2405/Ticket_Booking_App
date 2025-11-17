@@ -20,29 +20,17 @@ export interface EventType {
   tenloaisukien: string;
 }
 
-export interface TicketTypes {
-  // fields vé
-}
-
-export interface PromotionData {
-  // fields khuyến mãi
-}
-
 type EventStore = {
   step: number;
-  eventID: number | null;
+  maSuKien: string | null;
   eventData: EventData | null;
-  ticketTypes: TicketTypes[];
-  promotions: PromotionData[];
   eventTypes: EventType[];
 
   setStep: (step: number) => void;
   setNextStep: () => void;
   setPrevStep: () => void;
-  setEventID: (id: number) => void;
+  setMaSuKien: (id: string) => void;
   setEventData: (data: EventData) => void;
-  addTicketType: (ticket: TicketTypes) => void;
-  addPromotion: (promotion: PromotionData) => void;
   setEventTypes: (types: EventType[]) => void;
   fetchEventTypes: () => Promise<void>;
   resetAll: () => void;
@@ -50,10 +38,8 @@ type EventStore = {
 
 export const useEventStore = create<EventStore>()((set) => ({
   step: 1,
-  eventID: null,
+  maSuKien: null,
   eventData: null,
-  ticketTypes: [],
-  promotions: [],
   eventTypes: [],
 
   setStep: (step) => set({ step }),
@@ -65,7 +51,7 @@ export const useEventStore = create<EventStore>()((set) => ({
     set((state) => ({
       step: state.step > 1 ? state.step - 1 : state.step,
     })),
-  setEventID: (id) => set({ eventID: id }),
+  setMaSuKien: (id) => set({ maSuKien: id }),
   setEventData: (data) =>
     set((state) => ({
       eventData: {
@@ -73,10 +59,6 @@ export const useEventStore = create<EventStore>()((set) => ({
         ...data,
       },
     })),
-  addTicketType: (ticket) =>
-    set((state) => ({ ticketTypes: [...state.ticketTypes, ticket] })),
-  addPromotion: (promotion) =>
-    set((state) => ({ promotions: [...state.promotions, promotion] })),
   setEventTypes: (types) => set({ eventTypes: types }),
   fetchEventTypes: async () => {
     try {
@@ -90,9 +72,7 @@ export const useEventStore = create<EventStore>()((set) => ({
   resetAll: () =>
     set({
       step: 1,
-      eventID: null,
+      maSuKien: null,
       eventData: null,
-      ticketTypes: [],
-      promotions: [],
     }),
 }));

@@ -8,16 +8,16 @@ import { getPerformaneAPI } from "@/services/ticketService";
 import { useEventStore } from "@/store/useEventStore";
 
 export default function EventTicketSetup() {
-  const { eventID } = useEventStore();
+  const { maSuKien } = useEventStore();
   const [openCreatePerformance, setOpenCreatePerformance] = useState(false);
   const handleCloseCreatePerformance = () => {
     setOpenCreatePerformance(false);
   };
 
   const { data } = useQuery({
-    queryKey: ["fetchPerformance", eventID],
-    queryFn: () => getPerformaneAPI(eventID!),
-    enabled: !!eventID,
+    queryKey: ["fetchPerformance", maSuKien],
+    queryFn: () => getPerformaneAPI(maSuKien!),
+    enabled: !!maSuKien,
   });
   console.log(data);
 
@@ -26,7 +26,7 @@ export default function EventTicketSetup() {
       <div className="border-b-2 w-11/12 mx-auto py-3">
         <div className="text-2xl uppercase mb-3">Suất diễn</div>
         <div className="flex flex-col gap-3">
-          {eventID &&
+          {maSuKien &&
             data?.map((item: any, index: number) => (
               <MenuTicket
                 key={index}
