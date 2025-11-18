@@ -309,7 +309,7 @@ export const getEventByOrganizerIdService = async (matochuc, trangThai) => {
   }
 
   const sql = `
-    SELECT masukien, anhsukienngang, tensukien, diachi, phuong, quan, thanhpho
+    SELECT masukien, anhsukienngang, tensukien, diachi, phuong, quan, thanhpho, trangthai
     FROM su_kien
     WHERE ${conditions.join(" AND ")}
   `;

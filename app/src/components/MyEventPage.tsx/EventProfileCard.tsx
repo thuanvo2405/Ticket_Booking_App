@@ -4,6 +4,7 @@ import { Button } from "../ui/button";
 import { deleteEventAPI } from "@/services/eventService";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { IMAGE_URL } from "@/constant/constant";
 
 export default function EventProfileCard({ event }: { event: any }) {
   const queryClient = useQueryClient();
@@ -24,6 +25,8 @@ export default function EventProfileCard({ event }: { event: any }) {
     },
   });
 
+  console.log(event);
+
   return (
     <div
       className="
@@ -36,7 +39,7 @@ export default function EventProfileCard({ event }: { event: any }) {
     >
       <div className="flex gap-4">
         <img
-          src="/img.jpg"
+          src={IMAGE_URL + event.anhsukienngang}
           alt="event"
           className="w-48 h-32 object-cover rounded-lg ring-1 ring-green-200"
         />
@@ -66,24 +69,28 @@ export default function EventProfileCard({ event }: { event: any }) {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <NavLink to={`/organizer/create-event?eventId=${event.masukien}`}>
-              <Button className="bg-green-600 text-white hover:bg-green-700">
-                Quản lý sự kiện
-              </Button>
-            </NavLink>
+          {event.trangthai === "NHAP" ? (
+            <div className="flex justify-end gap-2">
+              <NavLink to={`/organizer/create-event?eventId=${event.masukien}`}>
+                <Button className="bg-green-600 text-white hover:bg-green-700">
+                  Quản lý sự kiện
+                </Button>
+              </NavLink>
 
-            <Button
-              variant="destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                deleteMutation.mutate(event.masukien);
-              }}
-            >
-              Xóa sự kiện
-            </Button>
-          </div>
+              <Button
+                variant="destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  deleteMutation.mutate(event.masukien);
+                }}
+              >
+                Xóa sự kiện
+              </Button>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>

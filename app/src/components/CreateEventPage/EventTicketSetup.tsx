@@ -5,10 +5,11 @@ import { useState } from "react";
 import CreatePerformance from "./EventTicket/CreatePerformance";
 import { useQuery } from "@tanstack/react-query";
 import { getPerformaneAPI } from "@/services/ticketService";
-import { useEventStore } from "@/store/useEventStore";
+import { useSearchParams } from "react-router-dom";
 
 export default function EventTicketSetup() {
-  const { maSuKien } = useEventStore();
+  const [searchParams] = useSearchParams();
+  const maSuKien = searchParams.get("eventId");
   const [openCreatePerformance, setOpenCreatePerformance] = useState(false);
   const handleCloseCreatePerformance = () => {
     setOpenCreatePerformance(false);

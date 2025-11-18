@@ -14,15 +14,14 @@ export default function MyEventPage() {
     queryKey: ["fetchProfileEventByOrganizerID", tab],
     queryFn: () => {
       let status: string | undefined;
-      if (tab === "wait") status = "DA_DUYET";
+      if (tab === "wait") status = "CHO_DUYET";
+      else if (tab === "accept") status = "DA_DUYET";
       else if (tab === "pending") status = "NHAP";
       else status = undefined;
 
       return fetchProfileEventsByOrganizerID(status);
     },
   });
-
-  console.log(events);
 
   if (isFetching) return <h1>Loading</h1>;
 
@@ -59,6 +58,12 @@ export default function MyEventPage() {
               className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
             >
               Chờ duyệt
+            </TabsTrigger>
+            <TabsTrigger
+              value="accept"
+              className="text-gray-600 hover:text-black data-[state=active]:bg-green-500 data-[state=active]:text-white"
+            >
+              Đã duyệt
             </TabsTrigger>
 
             <TabsTrigger

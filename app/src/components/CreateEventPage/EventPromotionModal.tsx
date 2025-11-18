@@ -31,9 +31,9 @@ import {
 import { DateTimePicker24h } from "../date-time-picker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useEventStore } from "@/store/useEventStore";
 import { useState } from "react";
 import { CreatePromotionAPI } from "@/services/promotionService";
+import { useSearchParams } from "react-router-dom";
 
 export const PromotionFormSchema = z
   .object({
@@ -70,7 +70,8 @@ export const PromotionFormSchema = z
 export type PromotionFormValues = z.infer<typeof PromotionFormSchema>;
 
 export default function EventPromotionModal() {
-  const { maSuKien } = useEventStore();
+  const [searchParams] = useSearchParams();
+  const maSuKien = searchParams.get("eventId");
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 

@@ -27,24 +27,64 @@ import {
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import bankData from "@/data/vietnam-bank.json";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import {
+  createBankAccountAPI,
+  getBankAccountByEventIDAPI,
+  updateBankAccountAPI,
+  updateEventStatusAPI,
+} from "@/services/eventService";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const paymentSchema = z.object({
-  ownerName: z.string().min(2, "Vui lòng nhập tên chủ sở hữu"),
-  accountNumber: z.string().min(5, "Vui lòng nhập mã tài khoản"),
-  bankName: z.string().min(2, "Vui lòng chọn ngân hàng"),
-  branch: z.string().optional(),
+  tenChuSoHuu: z
+    .string()
+    .min(2, "Vui lòng nhập tên chủ sở hữu")
+    .max(100, "Tên chủ sở hữu quá dài"),
+
+  soTaiKhoan: z
+    .string()
+    .min(6, "Số tài khoản phải có ít nhất 6 chữ số")
+    .max(20, "Số tài khoản quá dài")
+    .regex(/^\d+$/, "Số tài khoản chỉ được chứa chữ số"),
+
+  tenNganHang: z
+    .string()
+    .min(2, "Vui lòng chọn ngân hàng")
+    .max(100, "Tên ngân hàng quá dài"),
+
+  chiNhanh: z
+    .string()
+    .min(2, "Vui lòng nhập chi nhánh")
+    .max(100, "Chi nhánh quá dài"),
 });
 
 type PaymentFormValues = z.infer<typeof paymentSchema>;
 
 export default function EventPaymentSetup() {
+  const [searchParams] = useSearchParams();
+  const maSuKien = searchParams.get("eventId");
+
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      ownerName: "",
-      accountNumber: "",
-      bankName: "",
-      branch: "",
+      tenChuSoHuu: "",
+      soTaiKhoan: "",
+      tenNganHang: "",
+      chiNhanh: "",
     },
   });
 
@@ -54,22 +94,89 @@ export default function EventPaymentSetup() {
   const banks = bankData.data;
 
   const onSelectBank = (val: string) => {
-    form.setValue("bankName", val);
+    form.setValue("tenNganHang", val);
     setOpen(false);
   };
 
-  const onSubmit = (data: PaymentFormValues) => {
-    console.log("Payment info:", data);
-  };
+  const queryClient = useQueryClient();
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["bankAccount", maSuKien],
+    queryFn: () => getBankAccountByEventIDAPI(maSuKien!),
+    enabled: !!maSuKien,
+  });
+
+  const handleUpdateStatusEvent = useMutation({
+    mutationFn: () => updateEventStatusAPI(maSuKien!, "CHO_DUYET"),
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: ["fetchProfileEventByOrganizerID"],
+        exact: false,
+      });
+      toast.success("Sự kiện đã được gửi yêu cầu duyệt!");
+    },
+    onError: () => {
+      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    },
+  });
+
+  const handleBankAccount = useMutation({
+    mutationFn: async (formData: PaymentFormValues) => {
+      if (data?.mataikhoannganhang) {
+        return updateBankAccountAPI(
+          maSuKien!,
+          formData.tenNganHang,
+          formData.chiNhanh,
+          formData.soTaiKhoan,
+          formData.tenChuSoHuu
+        );
+      } else {
+        return createBankAccountAPI(
+          maSuKien!,
+          formData.tenNganHang,
+          formData.chiNhanh,
+          formData.soTaiKhoan,
+          formData.tenChuSoHuu
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bankAccount", maSuKien] });
+      toast.success("Thông tin thanh toán đã được lưu thành công!");
+    },
+    onError: () => {
+      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        tenChuSoHuu: data.tenchusohuu,
+        soTaiKhoan: data.sotaikhoan,
+        tenNganHang: data.tennganhang,
+        chiNhanh: data.chinhanh,
+      });
+    }
+  }, [data]);
+
+  if (isFetching) {
+    return <div>Đang tải thông tin...</div>;
+  }
 
   return (
     <div className="max-w-lg mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Thông tin thanh toán</h1>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit((formData) =>
+            handleBankAccount.mutate(formData)
+          )}
+          className="space-y-4"
+        >
           <FormField
             control={form.control}
-            name="bankName"
+            name="tenNganHang"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ngân hàng</FormLabel>
@@ -135,10 +242,9 @@ export default function EventPaymentSetup() {
             )}
           />
 
-          {/* Tên chủ sở hữu */}
           <FormField
             control={form.control}
-            name="ownerName"
+            name="tenChuSoHuu"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tên chủ sở hữu</FormLabel>
@@ -156,7 +262,7 @@ export default function EventPaymentSetup() {
 
           <FormField
             control={form.control}
-            name="accountNumber"
+            name="soTaiKhoan"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Số tài khoản</FormLabel>
@@ -174,7 +280,7 @@ export default function EventPaymentSetup() {
 
           <FormField
             control={form.control}
-            name="branch"
+            name="chiNhanh"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Chi nhánh</FormLabel>
@@ -195,6 +301,33 @@ export default function EventPaymentSetup() {
           </Button>
         </form>
       </Form>
+
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button className="mt-3 w-full" variant="outline">
+            Yêu cầu duyệt sự kiện
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Yêu cầu duyệt sự kiện</AlertDialogTitle>
+            <AlertDialogDescription>
+              Khi sự kiện được yêu cầu duyệt, bạn sẽ không thể chỉnh sửa thông
+              tin nữa. Vui lòng kiểm tra kỹ trước khi yêu cầu duyệt sự kiện.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                handleUpdateStatusEvent.mutate();
+              }}
+            >
+              Đồng ý
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
