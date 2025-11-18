@@ -1,4 +1,4 @@
-import Card from "@/components/event-card";
+import EventCard from "@/components/event-card";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -7,9 +7,18 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { getSuggestedEventsAPI } from "@/services/eventService";
+import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
+import { locations } from "../constant/constant";
+const categories = ["Âm Nhạc", "Sân khấu & Nghệ thuật", "Khác"];
 
 export default function HomePage() {
+  const { data, isFetching } = useQuery({
+    queryKey: ["eventsByCategory"],
+    queryFn: () => getSuggestedEventsAPI(),
+  });
+
   return (
     <div>
       <nav className="h-[60px] bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
@@ -100,49 +109,46 @@ export default function HomePage() {
           </Carousel>
         </section>
 
-        <div className="mt-8">
-          <p className="font-semibold text-lg mb-3">Nhạc sống</p>
-          <div className="flex gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} />
-            ))}
+        {categories.map((category) => (
+          <div key={category} className="mt-8">
+            <p className="font-semibold text-lg mb-3">{category}</p>
+            <div className="flex gap-4 ">
+              {!isFetching ? (
+                data?.[category]?.map((item: any) => (
+                  <EventCard
+                    key={item.masukien}
+                    maSuKien={item.masukien}
+                    tenSuKien={item.tensukien}
+                    anhBanner={item.anhsukienngang}
+                    thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
+                    giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
+                  />
+                ))
+              ) : (
+                <div>Loading...</div>
+              )}
+            </div>
           </div>
-        </div>
+        ))}
 
-        <div className="mt-8">
-          <p className="font-semibold text-lg mb-3">Sân khấu & Nghệ thuật</p>
-          <div className="flex gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} />
-            ))}
-          </div>
-        </div>
-        <div className="mt-8">
-          <p className="font-semibold text-lg mb-3">Thể loại khác</p>
-          <div className="flex gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <Card key={index} />
-            ))}
-          </div>
-        </div>
         <div className="mt-8">
           <p className="font-semibold text-lg mb-3">Sự kiện theo khu vực</p>
           <div className="flex gap-4">
-            {Array.from({ length: 4 }).map((_, index) => (
+            {locations.map((loc) => (
               <NavLink
-                to="/"
-                key={index}
-                className="relative rounded-2xl overflow-hidden"
+                to="/search"
+                key={loc.name}
+                className="relative rounded-2xl overflow-hidden w-[300px] h-[200px]"
               >
                 <img
-                  src="/place.jpg"
-                  alt={`slide-${index}`}
+                  src={loc.image}
+                  alt={loc.name}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black to-green-100 opacity-70"></div>
                 <div className="absolute inset-0 flex justify-center items-center">
                   <span className="text-white font-bold text-lg">
-                    Khu vực {index + 1}
+                    {loc.name}
                   </span>
                 </div>
               </NavLink>

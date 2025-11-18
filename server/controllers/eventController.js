@@ -13,6 +13,7 @@ import {
   createBankAccountService,
   updateBankAccountService,
   deleteBankAccountService,
+  getEventsByCategoryService,
 } from "../models/eventModel.js";
 import { BankAccountSchema } from "../utils/validate.js";
 import { getOrganizerID } from "../models/organizerModel.js";
@@ -272,6 +273,16 @@ export const deleteBankAccount = async (req, res, next) => {
     const { maSuKien } = req.query;
     await deleteBankAccountService(maSuKien);
     handleResponse(res, 200, "Xóa tài khoản ngân hàng thành công");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventsByCategory = async (req, res, next) => {
+  try {
+    const data = await getEventsByCategoryService();
+
+    handleResponse(res, 200, "Lấy sự kiện theo danh mục thành công", data);
   } catch (error) {
     next(error);
   }

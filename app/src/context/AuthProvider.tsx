@@ -4,9 +4,11 @@ import axiosInstance from "@/services/axiosInstance";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { getProfileUserAPI } from "@/services/userService";
 
 export interface AuthContextProps {
   user: { manguoidung: number; vaitro: string } | null;
+  userProfile: { tennguoidung: string; anhdaidien: string } | null;
   token: {
     accessToken: string;
     refreshToken: string;
@@ -18,6 +20,9 @@ export interface AuthContextProps {
   ) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  setUserProfile: React.Dispatch<
+    React.SetStateAction<{ tennguoidung: string; anhdaidien: string } | null>
+  >;
   isLoggedIn: () => boolean;
   resetPassword: () => void;
   updateUserAndToken: (
@@ -42,6 +47,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   } | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
 
+  const [userProfile, setUserProfile] = useState<{
+    tennguoidung: string;
+    anhdaidien: string;
+  } | null>(null);
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await getProfileUserAPI();
+      setUserProfile(res);
+    } catch (err) {
+      console.log("Lỗi lấy hồ sơ:", err);
+    }
+  };
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     const savedTokens = localStorage.getItem("tokens");
@@ -59,6 +78,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       axiosInstance.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${parsedTokens.accessToken}`;
+      fetchUserProfile();
     }
 
     setIsReady(true);
@@ -102,7 +122,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         axios.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${res.tokens.accessToken}`;
-
+        await fetchUserProfile();
         toast.success("Đăng nhập thành công!");
         return true;
       } else {
@@ -123,10 +143,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("user");
     setUser(null);
     setToken(null);
+    setUserProfile(null);
 
     delete axios.defaults.headers.common["Authorization"];
     delete axiosInstance.defaults.headers.common["Authorization"];
-
     toast.success("Đã đăng xuất!");
     navigate("/");
   };
@@ -161,6 +181,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signup,
         user,
         token,
+        userProfile,
+        setUserProfile,
         isLoggedIn,
         resetPassword,
         updateUserAndToken,

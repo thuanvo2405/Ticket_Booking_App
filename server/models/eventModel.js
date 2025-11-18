@@ -401,3 +401,59 @@ export const deleteBankAccountService = async (maSuKien) => {
   );
   return result.rows[0];
 };
+
+export const getEventsByCategoryService = async () => {
+  const categories = ["Âm Nhạc", "Sân khấu & Nghệ thuật", "Khác"];
+
+  const result = await pool.query(
+    `SELECT 
+        sk.masukien,
+        sk.tensukien,
+        sk.anhsukienngang,
+        sk.trangthai,
+        lsk.tenloaisukien,
+        (
+          SELECT json_agg(
+            json_build_object(
+              'maSuatDien', sd.masuatdien,
+              'thoigianbatdau', sd.thoigianbatdau,
+              'thoigianketthuc', sd.thoigianketthuc,
+              'loaiVe', (
+                SELECT json_agg(
+                  json_build_object(
+                    'maLoaiVe', lv.maloaive,
+                    'tenLoaiVe', lv.tenloaive,
+                    'giaTien', lv.giaTien,
+                    'moTa', lv.moTa
+                  ) ORDER BY lv.giaTien ASC
+                )
+                FROM loai_ve lv
+                WHERE lv.masuatdien = sd.masuatdien
+              )
+            ) ORDER BY sd.thoigianbatdau ASC
+          )
+          FROM suat_dien sd
+          WHERE sd.masukien = sk.masukien
+        ) AS suat_dien
+      FROM su_kien sk
+      JOIN to_chuc tc ON tc.matochuc = sk.matochuc
+      JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
+      WHERE sk.trangthai = 'DA_DUYET'
+      ORDER BY (
+        SELECT MIN(sd.thoigianbatdau)
+        FROM suat_dien sd
+        WHERE sd.masukien = sk.masukien
+      ) ASC`
+  );
+
+  const grouped = {};
+  categories.forEach((c) => (grouped[c] = []));
+
+  result.rows.forEach((e) => {
+    const categoryName = e.tenloaisukien;
+    if (grouped[categoryName]) grouped[categoryName].push(e);
+    else grouped[categoryName] = [e];
+  });
+
+  return grouped;
+};

@@ -189,3 +189,8 @@ export const deleteBankAccountAPI = async (maSuKien: string) => {
   );
   return res.data.data;
 };
+
+export const getSuggestedEventsAPI = async () => {
+  const res = await axios.get(URL + `events_suggest`);
+  return res.data.data;
+};

@@ -9,12 +9,13 @@ import { useEffect, useState } from "react";
 import { updateProfileUserAPI } from "@/services/userService";
 import toast from "react-hot-toast";
 import { ResetPasswordModal } from "@/components/ResetPasswordModal";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function ProfilePage() {
   const [tennguoidung, setTenNguoiDung] = useState("");
   const [sodienthoai, setSoDienThoai] = useState("");
   const [anhdaidien, setAnhDaiDien] = useState<File | null>(null);
-
+  const { setUserProfile } = useAuth();
   const { data, isFetching } = useQuery({
     queryKey: ["fetchCurrentUser"],
     queryFn: getProfileUserAPI,
@@ -36,6 +37,10 @@ export default function ProfilePage() {
       ),
     onSuccess: () => {
       toast("Cập nhật thành công!");
+      setUserProfile({
+        tennguoidung,
+        anhdaidien: anhdaidien ? anhdaidien.name : data.anhdaidien,
+      });
     },
     onError: () => {
       toast.error("Cập nhật thất bại!");

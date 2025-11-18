@@ -17,10 +17,12 @@ import {
 import { useAuth } from "@/context/AuthProvider";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { IMAGE_URL } from "@/constant/constant";
 
 export function AccountMenu() {
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const { userProfile } = useAuth();
 
   return (
     <DropdownMenu onOpenChange={setOpen}>
@@ -30,11 +32,13 @@ export function AccountMenu() {
           className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white"
         >
           <img
-            src="https://api.dicebear.com/9.x/adventurer/svg?seed=user"
+            src={IMAGE_URL + userProfile?.anhdaidien}
             alt="avatar"
-            className="w-6 h-6 rounded-full"
+            className="w-7 h-7 rounded-full"
           />
-          <span>Tài khoản</span>
+          <span className="truncate max-w-[150px]">
+            {userProfile?.tennguoidung}
+          </span>
 
           {open ? <ChevronUp /> : <ChevronDown />}
         </Button>

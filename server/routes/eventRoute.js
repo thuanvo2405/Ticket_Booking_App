@@ -12,6 +12,7 @@ import {
   createBankAccount,
   updateBankAccount,
   deleteBankAccount,
+  getEventsByCategory,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -26,6 +27,7 @@ router.get("/event", getEventById);
 router.get("/events", parseTokenIfExists, getEvents);
 router.get("/organizer/events", authenticateToken, getEventByOrganizerId);
 router.get("/event-types", getEventTypes);
+router.get("/events_suggest", getEventsByCategory);
 
 router.post(
   "/event",

@@ -1,8 +1,11 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthProvider";
+import { IMAGE_URL } from "@/constant/constant";
 
-export default function   ProfileLayout() {
+export default function ProfileLayout() {
   const location = useLocation();
+  const { userProfile } = useAuth();
   const getPageTitle = () => {
     if (location.pathname.includes("my-tickets")) return "Vé của tôi";
     if (location.pathname.includes("my-events")) return "Sự kiện của tôi";
@@ -25,11 +28,13 @@ export default function   ProfileLayout() {
         <aside className="bg-white rounded-2xl shadow-md p-5 border border-gray-100">
           <div className="flex flex-col items-center gap-3 pb-6 border-b">
             <img
-              src="https://api.dicebear.com/9.x/adventurer/svg?seed=user"
+              src={IMAGE_URL + userProfile?.anhdaidien}
               alt="avatar"
               className="w-20 h-20 rounded-full border"
             />
-            <p className="text-lg font-semibold text-gray-800">username</p>
+            <p className="text-lg font-semibold text-gray-800">
+              {userProfile?.tennguoidung}
+            </p>
           </div>
 
           <ul className="flex flex-col gap-2 mt-6">
