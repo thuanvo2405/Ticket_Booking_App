@@ -330,3 +330,74 @@ export const deleteEventService = async (maSuKien) => {
   );
   return result.rows[0];
 };
+
+export const getBankAccountService = async (maSuKien) => {
+  const result = await pool.query(
+    `SELECT * FROM tai_khoan_ngan_hang WHERE maSuKien = $1`,
+    [maSuKien]
+  );
+  return result.rows[0];
+};
+
+export const createBankAccountService = async (
+  maSuKien,
+  tenNganHang,
+  chiNhanh,
+  soTaiKhoan,
+  tenChuSoHuu
+) => {
+  const existing = await pool.query(
+    `SELECT * FROM tai_khoan_ngan_hang WHERE maSuKien = $1`,
+    [maSuKien]
+  );
+
+  if (existing.rows.length > 0) {
+    throw new Error("Tài khoản ngân hàng cho sự kiện này đã tồn tại");
+  }
+  const result = await pool.query(
+    `
+    INSERT INTO tai_khoan_ngan_hang (
+      maSuKien,
+      tenNganHang,
+      chiNhanh,
+      soTaiKhoan,
+      tenChuSoHuu
+    ) VALUES ($1, $2, $3, $4, $5)
+    RETURNING *;
+  `,
+    [maSuKien, tenNganHang, chiNhanh, soTaiKhoan, tenChuSoHuu]
+  );
+  return result.rows[0];
+};
+
+export const updateBankAccountService = async (maSuKien, fields) => {
+  const setFields = Object.fromEntries(
+    Object.entries(fields).filter(([_, v]) => v !== undefined)
+  );
+
+  const keys = Object.keys(setFields);
+  if (keys.length === 0) return null;
+
+  const setQuery = keys
+    .map((key, index) => `${key} = $${index + 2}`)
+    .join(", ");
+  const values = Object.values(setFields);
+
+  const result = await pool.query(
+    `UPDATE tai_khoan_ngan_hang
+     SET ${setQuery}
+     WHERE maSuKien = $1
+     RETURNING *;`,
+    [maSuKien, ...values]
+  );
+
+  return result.rows[0];
+};
+
+export const deleteBankAccountService = async (maSuKien) => {
+  const result = await pool.query(
+    `DELETE FROM tai_khoan_ngan_hang WHERE maSuKien = $1 `,
+    [maSuKien]
+  );
+  return result.rows[0];
+};
