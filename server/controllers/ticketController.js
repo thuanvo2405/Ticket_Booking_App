@@ -5,8 +5,8 @@ import {
   getPerformaneService,
   deletePerformanceService,
   getTicketTypeService,
+  deleteTicketTypeService,
 } from "../models/ticketModel.js";
-import { z } from "zod";
 import { TicketTypeSchema, PerformanceSchema } from "../utils/validate.js";
 
 export const createTicketType = async (req, res, next) => {
@@ -74,6 +74,16 @@ export const getTicketType = async (req, res, next) => {
     handleResponse(res, 200, "Lấy thông tin loại vé diễn thành công", {
       result,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteTicketType = async (req, res, next) => {
+  try {
+    const { maLoaiVe } = req.query;
+    await deleteTicketTypeService(maLoaiVe);
+    handleResponse(res, 201, "Xóa thông tin loại vé thành công");
   } catch (error) {
     next(error);
   }

@@ -9,7 +9,7 @@ import { IMAGE_URL } from "@/constant/constant";
 import { formatPrice } from "@/utils/convert";
 
 export default function EventPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("maSuKien");
 
   console.log(maSuKien);

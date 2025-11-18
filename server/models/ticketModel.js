@@ -54,3 +54,11 @@ export const getTicketTypeService = async (maSuatDien) => {
 
   return result.rows;
 };
+
+export const deleteTicketTypeService = async (maLoaiVe) => {
+  const result = await pool.query("Delete from loai_ve where maloaive = $1", [
+    maLoaiVe,
+  ]);
+
+  return result.rows;
+};

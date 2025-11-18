@@ -33,6 +33,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   deletePerformaneAPI,
+  deleteTicketTypeAPI,
   getTicketTypeAPI,
 } from "@/services/ticketService";
 import toast from "react-hot-toast";
@@ -49,7 +50,7 @@ type EventForm = z.infer<typeof eventSchema>;
 export interface MenuTicketProps {
   thoiGianBatDau: string;
   thoiGianKetThuc: string;
-  masuatdien: number;
+  masuatdien: string;
 }
 
 export default function MenuTicket({
@@ -87,6 +88,18 @@ export default function MenuTicket({
     },
   });
 
+  const deleteTicketType = useMutation({
+    mutationFn: (maLoaiVe: string) => deleteTicketTypeAPI(maLoaiVe),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetchTicketType", masuatdien],
+      });
+      toast.success("Xóa loại vé thành công");
+    },
+    onError: (error: any) => {
+      toast.error("Lỗi xóa loại vé: " + (error.message || error));
+    },
+  });
   if (isFetching) return <h1>Loading</h1>;
 
   return (
@@ -102,7 +115,7 @@ export default function MenuTicket({
                       " - " +
                       formatDateTime(thoiGianKetThuc)}
                   </p>
-                  <p className="text-sm">1 Loại vé</p>
+                  <p className="text-sm">{data.length} Loại vé</p>
                 </div>
               </div>
               <Button
@@ -164,7 +177,11 @@ export default function MenuTicket({
                     <Button size="sm">
                       <Pencil />
                     </Button>
-                    <Button variant="destructive" size="sm">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => deleteTicketType.mutate(item.maloaive)}
+                    >
                       <Trash2 />
                     </Button>
                   </div>

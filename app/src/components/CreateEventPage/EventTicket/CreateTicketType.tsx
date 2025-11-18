@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CreateTicketTypeAPI } from "@/services/ticketService";
+import { createTicketTypeAPI } from "@/services/ticketService";
 import toast from "react-hot-toast";
 
 const TicketSchema = z.object({
@@ -55,7 +55,7 @@ export default function CreateTicketType({
       soLuongPhatHanh,
       maSuatDien,
     }: any) =>
-      CreateTicketTypeAPI(
+      createTicketTypeAPI(
         tenLoaiVe,
         moTa,
         giaTien,

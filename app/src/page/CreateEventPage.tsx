@@ -3,7 +3,6 @@ import EventProfileSetup from "@/components/CreateEventPage/EventProfileSetup";
 import EventPromotionSetup from "@/components/CreateEventPage/EventPromotionSetup";
 import EventTicketSetup from "@/components/CreateEventPage/EventTicketSetup";
 import { Button } from "@/components/ui/button";
-import { getEventByIdAPI } from "@/services/eventService";
 import { useEventStore } from "@/store/useEventStore";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
