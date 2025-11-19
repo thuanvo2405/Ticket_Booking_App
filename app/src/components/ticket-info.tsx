@@ -5,14 +5,15 @@ import {
   formatFullDateTime,
   formatPrice,
 } from "@/utils/convert";
+import { NavLink } from "react-router-dom";
 
 export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
   console.log(suat_dien);
-  console.log(suat_dien);
 
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  const toggleSession = (index: number) => {
+  const [activeIndex, setActiveIndex] = useState<string | null>(null);
+  console.log(activeIndex);
+  const toggleSession = (index: string) => {
+    console.log("má" + index);
     setActiveIndex(activeIndex === index ? null : index);
   };
 
@@ -22,14 +23,14 @@ export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
         Thông tin vé
       </p>
 
-      {suat_dien.map((item: any, index: number) => (
-        <div key={index} className="border-b border-gray-700">
+      {suat_dien.map((item: any) => (
+        <div key={item.maSuatDien} className="border-b border-gray-700">
           <div
             className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-[#2a2a2a] transition"
-            onClick={() => toggleSession(index)}
+            onClick={() => toggleSession(item.maSuatDien)}
           >
             <div className="flex items-center gap-2">
-              {activeIndex === index ? (
+              {activeIndex === item.maSuatDien ? (
                 <ChevronDown size={18} />
               ) : (
                 <ChevronRight size={18} />
@@ -38,12 +39,15 @@ export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
                 {formatFullDateTime(item.thoigianbatdau, item.thoigianketthuc)}
               </span>
             </div>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md">
+            <NavLink
+              to={`${item.maSuatDien}/selected`}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md"
+            >
               Mua vé ngay
-            </button>
+            </NavLink>
           </div>
 
-          {activeIndex === index && (
+          {activeIndex === item.maSuatDien && (
             <div className="bg-[#2b2b2b] divide-y divide-gray-700">
               {item.loaiVe?.map((item: any, idx: number) => (
                 <div

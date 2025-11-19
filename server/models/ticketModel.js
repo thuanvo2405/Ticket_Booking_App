@@ -62,3 +62,40 @@ export const deleteTicketTypeService = async (maLoaiVe) => {
 
   return result.rows;
 };
+
+export const ticketTypeByPerformanceIDService = async (maSuatDien) => {
+  const result = await pool.query(
+    `SELECT 
+  json_build_object(
+    'masuatdien', sd.masuatdien,
+    'thoigianbatdau', sd.thoigianbatdau,
+    'thoigianketthuc', sd.thoigianketthuc,
+    'trangthai', sd.trangthai,
+    'tensukien', sk.tensukien,
+    'phuong', sk.phuong,
+    'quan', sk.quan,
+    'thanhpho', sk.thanhpho,
+    'diachi', sk.diachi,
+    'suatdien', json_agg(
+      json_build_object(
+        'tenloaive', lv.tenloaive,
+        'maloaive', lv.maloaive,
+        'giatien', lv.giatien,
+        'soluongphathanh', lv.soluongphathanh,
+        'soluongdaban', lv.soluongdaban,
+        'soluongkhoa', lv.soluongkhoa,
+        'mota', lv.mota
+      )
+    )
+  ) AS result
+  FROM suat_dien sd
+  JOIN loai_ve lv ON lv.masuatdien = sd.masuatdien
+  JOIN su_kien sk ON sk.masukien = sd.masukien
+  WHERE sd.masuatdien = $1
+  GROUP BY sd.masuatdien, sd.thoigianbatdau, sd.thoigianketthuc, sd.trangthai, sk.tensukien, sk.phuong, sk.quan, sk.thanhpho, sk.diachi;
+  `,
+    [maSuatDien]
+  );
+
+  return result.rows[0].result;
+};

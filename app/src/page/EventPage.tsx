@@ -1,5 +1,3 @@
-import Card from "@/components/event-card";
-import TicketInfo from "@/components/ticket-info";
 import { Button } from "@/components/ui/button";
 import TicketDescription from "@/components/ui/ticket-description";
 import { getEventByIdAPI } from "@/services/eventService";
@@ -7,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { IMAGE_URL } from "@/constant/constant";
 import { formatPrice } from "@/utils/convert";
+import TicketInfo from "@/components/ticket-info";
+import EventCard from "@/components/event-card";
 
 export default function EventPage() {
   const [searchParams] = useSearchParams();
@@ -19,9 +19,6 @@ export default function EventPage() {
     queryFn: () => getEventByIdAPI(maSuKien!),
     enabled: !!maSuKien,
   });
-
-  console.log(data);
-  console.log(data?.suat_dien?.length);
 
   if (isLoading) return <h1>Loading</h1>;
 
@@ -105,7 +102,7 @@ export default function EventPage() {
         </p>
         <div className="grid grid-cols-4 gap-4">
           {Array.from({ length: 12 }).map((_, index) => (
-            <Card key={index} />
+            <EventCard key={index} />
           ))}
         </div>
         <Button className="mx-auto block  mt-2">Xem thêm</Button>

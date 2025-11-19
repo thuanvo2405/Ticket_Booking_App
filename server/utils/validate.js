@@ -133,3 +133,14 @@ export const BankAccountSchema = z.object({
 
   maSuKien: z.string(),
 });
+
+export const TicketSchema = z.object({
+  maLoaiVe: z.string().min(1, "Mã loại vé không hợp lệ"),
+  soLuong: z.number().int().positive("Số lượng phải > 0"),
+});
+
+export const CreateOrderSchema = z.object({
+  maNguoiDung: z.number().positive("Mã người dùng không hợp lệ"),
+  maSuatDien: z.string().min(1, "Mã suất diễn không hợp lệ"),
+  tickets: z.array(TicketSchema).nonempty("Phải chọn ít nhất 1 vé"),
+});

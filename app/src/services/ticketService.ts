@@ -55,3 +55,9 @@ export const deleteTicketTypeAPI = async (maLoaiVe: string) => {
   const res = await axios.delete(URL + "ticket-type?maLoaiVe=" + maLoaiVe);
   return res.data.data;
 };
+
+export const getTicketTypeByPerformanceIDAPI = async (maSuatDien: string) => {
+  const res = await axios.get(URL + `performances/${maSuatDien}/ticket-types`);
+  console.log(res);
+  return res.data.data;
+};
