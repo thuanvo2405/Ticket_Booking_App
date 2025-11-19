@@ -1,5 +1,5 @@
 import handleResponse from "../utils/handleResponse.js";
-import { createPaymentService } from "../models/paymentController.js";
+import { createPaymentService } from "../models/paymentModel.js";
 
 export const createPayment = async (req, res, next) => {
   try {
