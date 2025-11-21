@@ -93,3 +93,41 @@ export const createOrderService = async (manguoidung, items) => {
     client.release();
   }
 };
+
+export const getOrderDetailService = async (madonhang) => {
+  // 1. Lấy thông tin đơn hàng
+  const orderRes = await pool.query(
+    `
+    SELECT madonhang, manguoidung, trangthai, tongtien, thoihanthanhtoan
+    FROM don_hang
+    WHERE madonhang = $1
+    `,
+    [madonhang]
+  );
+
+  if (orderRes.rows.length === 0) {
+    throw new Error("Đơn hàng không tồn tại");
+  }
+
+  // 2. Lấy chi tiết đơn hàng + thông tin loại vé
+  const detailRes = await pool.query(
+    `
+    SELECT 
+      ctdh.maloaive,
+      lv.tenloaive,
+      lv.giatien,
+      ctdh.soluong,
+      ctdh.dongia,
+      ctdh.thanhtien
+    FROM chi_tiet_don_hang ctdh
+    JOIN loai_ve lv ON ctdh.maloaive = lv.maloaive
+    WHERE ctdh.madonhang = $1
+    `,
+    [madonhang]
+  );
+
+  return {
+    order: orderRes.rows[0],
+    items: detailRes.rows,
+  };
+};

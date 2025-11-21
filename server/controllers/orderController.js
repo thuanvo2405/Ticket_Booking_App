@@ -1,6 +1,7 @@
 import handleResponse from "../utils/handleResponse.js";
 import {
   createOrderService,
+  getOrderDetailService,
 } from "../models/orderModel.js";
 
 export const createOrder = async (req, res, next) => {
@@ -24,5 +25,17 @@ export const createOrder = async (req, res, next) => {
     handleResponse(res, 201, "Tạo đơn hàng thành công", order);
   } catch (error) {
     next(error);
+  }
+};
+
+export const getOrderById = async (req, res, next) => {
+  try {
+    const { madonhang } = req.params;
+
+    const data = await getOrderDetailService(madonhang);
+
+    handleResponse(res, 200, "Lấy chi tiết đơn hàng thành công", data);
+  } catch (err) {
+    next(err);
   }
 };

@@ -21,7 +21,7 @@ import AccountManage from "./page/AccountManage";
 import DashboardManage from "./page/DashboardManage";
 import SelectTicketPage from "./page/SelectTicketPage";
 import PaymentInfoPage from "./page/PaymentInfoPage";
-import PaymentPage from "./page/PaymentPage";
+import PaymentResultPage from "./page/PaymentResult";
 
 function App() {
   return (
@@ -32,15 +32,15 @@ function App() {
         <Route path="verify-email" element={<VerifyEmailPage />} />
         <Route path="reset-password" element={<ResetPasswordPage />} />
         <Route path="event" element={<EventPage />} />
-        <Route path="event/:maSuatDien">
+        <Route path="event/:maSuKien/:maSuatDien">
           <Route path="selected" element={<SelectTicketPage />} />
-          <Route path="payment-info" element={<PaymentInfoPage />} />
-          <Route path="payment" element={<PaymentPage />} />
+          <Route path=":madonhang/payment-info" element={<PaymentInfoPage />} />
         </Route>
         <Route element={<ProfileLayout />}>
           <Route path="my-profile" element={<ProfilePage />} />
           <Route path="my-tickets" element={<MyTicketPage />} />
         </Route>
+        <Route path="payment-result" element={<PaymentResultPage />} />
       </Route>
       <Route path="organizer" element={<OrganizerLayout />}>
         <Route index element={<OrganizerPage />} />

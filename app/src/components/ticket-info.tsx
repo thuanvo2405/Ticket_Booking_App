@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import {
-  formatDateTime,
-  formatFullDateTime,
-  formatPrice,
-} from "@/utils/convert";
+import { formatFullDateTime, formatPrice } from "@/utils/convert";
 import { NavLink } from "react-router-dom";
 
-export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
+export default function TicketInfo({
+  suat_dien,
+  maSuKien,
+}: {
+  suat_dien: any;
+  maSuKien: string;
+}) {
   console.log(suat_dien);
 
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
@@ -40,7 +42,7 @@ export default function TicketInfo({ suat_dien }: { suat_dien: any }) {
               </span>
             </div>
             <NavLink
-              to={`${item.maSuatDien}/selected`}
+              to={`${maSuKien}/${item.maSuatDien}/selected`}
               className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md"
             >
               Mua vé ngay

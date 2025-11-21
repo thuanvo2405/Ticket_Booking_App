@@ -1,12 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import TicketTypeSelect from "@/components/Order/TicketTypeSelect";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { getTicketTypeByPerformanceIDAPI } from "@/services/ticketService";
 import { formatFullDateTime, formatPrice } from "@/utils/convert";
 import { useTicketStore } from "@/store/useTicketStore";
 import { useEffect } from "react";
+import { createOrderAPI } from "@/services/orderService";
 
 export default function SelectTicketPage() {
   const navigate = useNavigate();
@@ -18,6 +19,34 @@ export default function SelectTicketPage() {
     queryFn: () => getTicketTypeByPerformanceIDAPI(maSuatDien!),
     enabled: !!maSuatDien,
   });
+  const maSuKien = useParams<{ maSuKien: string }>().maSuKien;
+
+  const createOrderMutation = useMutation({
+    mutationFn: (orderData: any) => createOrderAPI(orderData),
+  });
+
+  const handleContinue = async () => {
+    try {
+      if (selectedTickets.length === 0) return;
+
+      const orderData = {
+        manguoidung: "currentUserID",
+        items: selectedTickets.map((t) => ({
+          maloaive: t.maLoaiVe,
+          soluong: t.soLuong,
+        })),
+      };
+
+      const res = await createOrderMutation.mutateAsync(orderData);
+
+      navigate(
+        `/event/${maSuKien}/${maSuatDien}/${res.madonhang}/payment-info`
+      );
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Tạo đơn hàng thất bại");
+    }
+  };
 
   const { clearTickets } = useTicketStore();
 
@@ -102,7 +131,8 @@ export default function SelectTicketPage() {
           <div>
             {total > 0 ? (
               <Button
-                onClick={() => console.log(selectedTickets)}
+                onClick={handleContinue}
+                disabled={total <= 0 || createOrderMutation.isPending}
                 className="w-full bg-green-600 hover:bg-green-700 font-semibold py-3 rounded-lg shadow-md transition-all hover:scale-105"
               >
                 Tiếp tục - {formatPrice(total)}

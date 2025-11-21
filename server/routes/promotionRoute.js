@@ -12,4 +12,5 @@ router.get("/promotion", getPromotions);
 router.post("/promotion", authenticateToken, createPromotion);
 router.delete("/promotion", authenticateToken, deletePromotion);
 
+
 export default router;

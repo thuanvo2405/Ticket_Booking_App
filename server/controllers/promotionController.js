@@ -54,3 +54,4 @@ export const deletePromotion = async (req, res, next) => {
     next(error);
   }
 };
+

@@ -10,9 +10,7 @@ import EventCard from "@/components/event-card";
 
 export default function EventPage() {
   const [searchParams] = useSearchParams();
-  const maSuKien = searchParams.get("maSuKien");
-
-  console.log(maSuKien);
+  const maSuKien = searchParams.get("maSuKien") || "";
 
   const { data, isLoading } = useQuery({
     queryKey: ["fetchingEventById", maSuKien],
@@ -78,7 +76,7 @@ export default function EventPage() {
       </div>
       <section>
         <TicketDescription moTa={data.mota} />
-        <TicketInfo suat_dien={data.suat_dien} />
+        <TicketInfo suat_dien={data.suat_dien} maSuKien={maSuKien} />
         <div className="shadow-xl border mt-10 rounded-2xl p-4">
           <p className="text-xl font-semibold text-center border-b-1 py-3">
             Ban tổ chức
