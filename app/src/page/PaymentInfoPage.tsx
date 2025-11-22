@@ -74,7 +74,7 @@ export default function PaymentInfoPage() {
     mutationFn: () => checkOutAPI(madonhang!, appliedPromo?.makhuyenmai || ""),
     onSuccess: (data) => {
       console.log(data.payUrl);
-      window.location.href = data.payUrl
+      window.location.href = data.payUrl;
     },
     onError: (error) => {
       console.error("Checkout failed:", error);

@@ -22,6 +22,8 @@ import DashboardManage from "./page/DashboardManage";
 import SelectTicketPage from "./page/SelectTicketPage";
 import PaymentInfoPage from "./page/PaymentInfoPage";
 import PaymentResultPage from "./page/PaymentResult";
+import AdminLoginPage from "./page/AdminLoginPage";
+import AdminProtectedRoute from "./utils/ProtectRoute";
 
 function App() {
   return (
@@ -48,11 +50,15 @@ function App() {
         <Route path="my-events" element={<MyEventPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
       </Route>
-      <Route path="admin" element={<AdminLayout />}>
-        <Route index element={<AdminPage />} />
-        <Route path="account-manage" element={<AccountManage />} />
-        <Route path="event-manage" element={<EventManage />} />
-        <Route path="dashboard" element={<DashboardManage />} />
+      <Route path="/admin/login" element={<AdminLoginPage />} />
+
+      <Route element={<AdminProtectedRoute />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminPage />} />
+          <Route path="account-manage" element={<AccountManage />} />
+          <Route path="event-manage" element={<EventManage />} />
+          <Route path="dashboard" element={<DashboardManage />} />
+        </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
