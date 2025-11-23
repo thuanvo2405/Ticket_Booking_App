@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { resetPasswordAPI } from "@/services/authService";
 import { useAuth } from "@/context/AuthProvider";
@@ -66,7 +67,7 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button type="button" variant="outline" className="h-11 w-full">
+        <Button type="button" variant="outline" className="h-11 mt-3 w-full">
           {triggerText}
         </Button>
       </AlertDialogTrigger>
@@ -128,10 +129,11 @@ export const ResetPasswordModal: React.FC<ResetPasswordModalProps> = ({
             <Button
               type="submit"
               disabled={loading}
-              className="bg-green-500 hover:bg-green-600 text-white w-full"
+              className="bg-green-500 hover:bg-green-600 text-white"
             >
               {loading ? "Đang xử lý..." : "Xác nhận"}
             </Button>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

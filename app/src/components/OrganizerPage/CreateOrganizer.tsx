@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,10 +22,10 @@ import { useAuth } from "@/context/AuthProvider";
 const formSchema = z.object({
   tenToChuc: z.string().min(2, "Tên tổ chức phải có ít nhất 2 ký tự"),
   anhToChuc: z
-    .any()
-    .refine((file) => file instanceof File, "Vui lòng chọn ảnh tổ chức")
+    .instanceof(File)
+    .refine((file) => file.size > 0, "Vui lòng chọn ảnh tổ chức")
     .refine(
-      (file) => ["image/jpeg", "image/png"].includes(file.type),
+      (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
       "Ảnh phải là PNG hoặc JPG"
     ),
   moTa: z.string().min(5, "Giới thiệu tối thiểu 5 ký tự"),
@@ -92,7 +92,7 @@ export default function CreateOrganizer() {
               )}
             />
 
-            <Controller
+            <FormField
               name="anhToChuc"
               control={form.control}
               render={({ field }) => (

@@ -39,6 +39,7 @@ export default function EditOrganizer({ data, refetch }: any) {
       tentochuc: data.tentochuc,
       mota: data.mota,
     },
+    mode: "onSubmit",
   });
 
   const onSubmit = async (values: OrganizerFormValues) => {
@@ -89,6 +90,13 @@ export default function EditOrganizer({ data, refetch }: any) {
             <FormField
               control={form.control}
               name="tentochuc"
+              rules={{
+                required: "Tên tổ chức là bắt buộc",
+                minLength: {
+                  value: 2,
+                  message: "Tên tổ chức phải có ít nhất 2 ký tự",
+                },
+              }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-medium">Tên tổ chức</FormLabel>
@@ -103,10 +111,16 @@ export default function EditOrganizer({ data, refetch }: any) {
               )}
             />
 
-            {/* Giới thiệu */}
             <FormField
               control={form.control}
               name="mota"
+              rules={{
+                required: "Giới thiệu là bắt buộc",
+                minLength: {
+                  value: 5,
+                  message: "Giới thiệu phải có ít nhất 5 ký tự",
+                },
+              }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-medium">Giới thiệu</FormLabel>
@@ -121,10 +135,19 @@ export default function EditOrganizer({ data, refetch }: any) {
               )}
             />
 
-            {/* Ảnh tổ chức */}
             <FormField
               control={form.control}
               name="anhtochuc"
+              rules={{
+                validate: (file) => {
+                  if (!file) return true;
+                  const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+                  return (
+                    allowedTypes.includes(file.type) ||
+                    "Chỉ chấp nhận ảnh JPG/PNG/GIF"
+                  );
+                },
+              }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-medium">Ảnh tổ chức</FormLabel>

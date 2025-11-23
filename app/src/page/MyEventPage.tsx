@@ -7,9 +7,13 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProfileEventsByOrganizerID } from "@/services/eventService";
 import EventProfileCard from "@/components/MyEventPage.tsx/EventProfileCard";
+import { useAuth } from "@/context/AuthProvider";
+import toast from "react-hot-toast";
 
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
+  const { user } = useAuth();
+  console.log(user);
   const { data: events, isFetching } = useQuery({
     queryKey: ["fetchProfileEventByOrganizerID", tab],
     queryFn: () => {
@@ -21,6 +25,7 @@ export default function MyEventPage() {
 
       return fetchProfileEventsByOrganizerID(status);
     },
+    enabled: user?.vaitro === "TO_CHUC",
   });
 
   if (isFetching) return <h1>Loading</h1>;
@@ -39,9 +44,20 @@ export default function MyEventPage() {
           <Button className="bg-black text-white hover:bg-gray-800">
             Tìm kiếm
           </Button>
-          <Button className="bg-black text-white hover:bg-gray-800">
-            <Link to="/organizer/create-event">Tạo Sự Kiện</Link>
-          </Button>
+          {user?.vaitro === "TO_CHUC" ? (
+            <Button className="bg-black text-white hover:bg-gray-800">
+              <Link to="/organizer/create-event">Tạo Sự Kiện</Link>
+            </Button>
+          ) : (
+            <Button
+              className="bg-black text-white hover:bg-gray-800"
+              onClick={() => {
+                toast.error("Bạn phải tạo hồ sơ tổ chức trước khi tạo sự kiện");
+              }}
+            >
+              Tạo Sự Kiện
+            </Button>
+          )}
         </div>
 
         <Tabs value={tab} onValueChange={setTab}>

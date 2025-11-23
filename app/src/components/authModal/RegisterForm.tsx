@@ -51,16 +51,12 @@ export default function RegisterForm({
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
-    try {
-      const success = await signup(
-        values.email,
-        values.userName,
-        values.password
-      );
-      if (success) onClose();
-    } catch (error: any) {
-      toast.error(error.message || "Có lỗi xảy ra khi đăng ký");
-    }
+    const success = await signup(
+      values.email,
+      values.userName,
+      values.password
+    );
+    if (success) onClose();
   }
 
   return (

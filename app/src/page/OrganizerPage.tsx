@@ -13,7 +13,6 @@ export default function OrganizerPage() {
     queryFn: getOrganizerProfileAPI,
     enabled: user?.vaitro === "TO_CHUC",
   });
-  console.log(user);
 
   if (user?.vaitro !== "TO_CHUC") return <CreateOrganizer />;
   if (isFetching) return <h1>Loading...</h1>;
