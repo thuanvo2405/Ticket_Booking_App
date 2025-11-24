@@ -20,7 +20,6 @@ export default function EventTicketSetup() {
     queryFn: () => getPerformaneAPI(maSuKien!),
     enabled: !!maSuKien,
   });
-  console.log(data);
 
   return (
     <div>
