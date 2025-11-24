@@ -7,6 +7,14 @@ export const loginAPI = async (email: string, password: string) => {
   return res.data.data;
 };
 
+export const loginForAdminAPI = async (email: string, password: string) => {
+  const res = await axios.post(`${URL}admin-login`, {
+    email,
+    matKhau: password,
+  });
+  return res.data.data;
+};
+
 export const signupAPI = async (
   email: string,
   username: string,

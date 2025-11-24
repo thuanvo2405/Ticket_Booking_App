@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import pool from "../config/db.js";
-import { logInService, signUpService } from "../models/userModel.js";
+import {
+  logInService,
+  signUpService,
+  logInServiceForAdmin,
+} from "../models/userModel.js";
 import { jwtTokens } from "../utils/jwtHelper.js";
 import handleResponse from "../utils/handleResponse.js";
 import {
@@ -15,16 +19,22 @@ dotenv.config();
 
 export const signup = async (req, res, next) => {
   const { tennguoidung, email, matkhau } = req.body;
+  const emailVerified = email.trim().toLowerCase();
+
   try {
     const hashedPassword = await bcrypt.hash(matkhau, 10);
-    const user = await signUpService(tennguoidung, email, hashedPassword);
+    const user = await signUpService(
+      tennguoidung,
+      emailVerified,
+      hashedPassword
+    );
     const verifyToken = jwt.sign(
       { userId: user.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 
-    await sendVerificationEmail(email, verifyToken);
+    await sendVerificationEmail(emailVerified, verifyToken);
 
     res.status(200).json({
       message:
@@ -38,8 +48,8 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, matKhau } = req.body;
-
-    const user = await logInService(email);
+    const emailVerified = email.trim().toLowerCase();
+    const user = await logInService(emailVerified);
 
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
@@ -49,6 +59,35 @@ export const login = async (req, res, next) => {
       return res.status(403).json({
         error: "Email chưa xác thực. Vui lòng kiểm tra email.",
       });
+    }
+
+    const validPassword = await bcrypt.compare(matKhau, user.matkhau);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Mật khẩu không chính xác!" });
+    }
+
+    const tokens = jwtTokens(user);
+
+    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+    const { manguoidung, vaitro } = user;
+
+    handleResponse(res, 200, "Login successful", {
+      user: { manguoidung, vaitro },
+      tokens,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const loginForAdmin = async (req, res, next) => {
+  try {
+    const { email, matKhau } = req.body;
+    const emailVerified = email.trim().toLowerCase();
+    const user = await logInServiceForAdmin(emailVerified);
+    console.log(emailVerified, matKhau);
+    if (!user) {
+      return res.status(401).json({ error: "Người dùng không tồn tại" });
     }
 
     const validPassword = await bcrypt.compare(matKhau, user.matkhau);

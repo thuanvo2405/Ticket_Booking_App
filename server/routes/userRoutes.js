@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   resetPasswordByUserId,
+  loginForAdmin,
 } from "../controllers/authController.js";
 import {
   getProfileUser,
@@ -22,6 +23,7 @@ const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
+router.post("/admin-login", loginForAdmin);
 router.post("/refresh_token", getRefreshToken);
 router.delete("/refresh_token", deleteRefreshToken);
 router.post("/forgot-password", forgotPassword);

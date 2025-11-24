@@ -1,9 +1,42 @@
-import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/context/AuthProvider";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+const loginSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+});
 
 export default function AdminLoginPage() {
+  const { loginForAdmin } = useAuth();
+  const navigate = useNavigate();
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const isSubmitting = form.formState.isSubmitting;
+
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
+    const success = await loginForAdmin(values.email, values.password);
+    if (success) navigate("/admin");
+  }
+
   return (
     <div
       className="relative w-screen h-screen flex items-center justify-center bg-cover bg-center"
@@ -16,21 +49,64 @@ export default function AdminLoginPage() {
           <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="email" className="text-sm font-medium">
-              Email
-            </label>
-            <Input id="email" type="email" placeholder="admin@example.com" />
-          </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4"
+              noValidate
+            >
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Email của bạn"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <div className="flex flex-col space-y-2">
-            <label htmlFor="password" className="text-sm font-medium">
-              Password
-            </label>
-            <Input id="password" type="password" placeholder="********" />
-          </div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mật khẩu</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Mật khẩu"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Button className="w-full mt-2">Login</Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-3 mt-2 bg-gradient-to-r from-green-400 to-teal-500 hover:from-teal-500 hover:to-green-400 text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Đang đăng nhập...
+                  </>
+                ) : (
+                  "Đăng nhập"
+                )}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

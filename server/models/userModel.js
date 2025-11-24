@@ -28,6 +28,15 @@ export const logInService = async (email) => {
   return result.rows[0];
 };
 
+export const logInServiceForAdmin = async (email) => {
+  const result = await pool.query(
+    "SELECT * FROM nguoi_dung WHERE email = $1 and vaitro = 'QUAN_TRI'",
+    [email]
+  );
+  console.log(result);
+  return result.rows[0];
+};
+
 export const updateProfileUserService = async (
   userId,
   tennguoidung,

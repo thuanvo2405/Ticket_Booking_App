@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from "react";
-import { loginAPI, signupAPI } from "@/services/authService";
+import { loginAPI, loginForAdminAPI, signupAPI } from "@/services/authService";
 import axiosInstance from "@/services/axiosInstance";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -19,6 +19,7 @@ export interface AuthContextProps {
     password: string
   ) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
+  loginForAdmin: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setUserProfile: React.Dispatch<
     React.SetStateAction<{ tennguoidung: string; anhdaidien: string } | null>
@@ -136,6 +137,39 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const loginForAdmin = async (
+    email: string,
+    password: string
+  ): Promise<boolean> => {
+    try {
+      const res = await loginForAdminAPI(email, password);
+      if (res && res.tokens && res.user) {
+        localStorage.setItem("tokens", JSON.stringify(res.tokens));
+        localStorage.setItem("user", JSON.stringify(res.user));
+
+        setToken(res.tokens);
+        setUser(res.user);
+
+        axiosInstance.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${res.tokens.accessToken}`;
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${res.tokens.accessToken}`;
+        await fetchUserProfile();
+        toast.success("Đăng nhập thành công!");
+        return true;
+      } else {
+        toast.error("Phản hồi đăng nhập không hợp lệ!");
+        return false;
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.response?.data?.error || "Sai email hoặc mật khẩu");
+      return false;
+    }
+  };
+
   const isLoggedIn = () => !!user && !!token;
 
   const logout = () => {
@@ -177,6 +211,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         login,
+        loginForAdmin,
         logout,
         signup,
         user,
