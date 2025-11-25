@@ -3,6 +3,7 @@ import {
   updateProfileUserService,
   deleteForAdminService,
   getUsersService,
+  updateForAdminService,
 } from "../models/userModel.js";
 import handleResponse from "../utils/handleResponse.js";
 
@@ -40,6 +41,22 @@ export const deleteForAdmin = async (req, res, next) => {
     const { manguoidung } = req.params;
     await deleteForAdminService(manguoidung);
     handleResponse(res, 200, "Xóa người dùng thành công");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateForAdmin = async (req, res, next) => {
+  try {
+    const { manguoidung } = req.params;
+    const { tennguoidung, email, chucvu } = req.body;
+    const result = await updateForAdminService(
+      manguoidung,
+      tennguoidung,
+      email,
+      chucvu
+    );
+    handleResponse(res, 200, "Cập nhật thành công", result);
   } catch (error) {
     next(error);
   }

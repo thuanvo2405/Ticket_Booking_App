@@ -60,3 +60,17 @@ export const createUserAPI = async ({
   });
   return res.data.data;
 };
+
+interface UpdateUserData {
+  tennguoidung?: string;
+  email?: string;
+  chucvu?: "QUAN_TRI" | "TO_CHUC" | "KHACH_HANG";
+}
+
+export const updateUserAPI = async (
+  manguoidung: string,
+  data: UpdateUserData
+) => {
+  const res = await axiosInstance.patch(`user-admin/${manguoidung}`, data);
+  return res.data;
+};

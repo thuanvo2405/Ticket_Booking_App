@@ -120,3 +120,46 @@ export const getUsersService = async (limit, offset) => {
   );
   return result;
 };
+
+export const updateForAdminService = async (
+  manguoidung,
+  tennguoidung,
+  email,
+  chucvu
+) => {
+  const fields = [];
+  const values = [];
+  let idx = 1;
+  console.log(tennguoidung);
+  console.log(manguoidung);
+  console.log(email);
+  console.log(chucvu);
+
+  if (tennguoidung !== undefined) {
+    fields.push(`tennguoidung = $${idx++}`);
+    values.push(tennguoidung);
+  }
+  if (email !== undefined) {
+    fields.push(`email = $${idx++}`);
+    values.push(email);
+  }
+  if (chucvu !== undefined) {
+    fields.push(`vaitro = $${idx++}`);
+    values.push(chucvu);
+  }
+
+  if (fields.length === 0) {
+    return null;
+  }
+
+  values.push(manguoidung);
+  const query = `
+    UPDATE nguoi_dung
+    SET ${fields.join(", ")}
+    WHERE manguoidung = $${idx}
+    RETURNING *;
+  `;
+
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};

@@ -10,12 +10,13 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import toast from "react-hot-toast";
 import CreateUserModal from "@/components/AdminPage/CreateUserModal";
 import { useState } from "react";
+import UpdateUserModal from "@/components/AdminPage/UpdateUserModal";
 
 export type AccountProfile = {
   manguoidung: string;
   tennguoidung: string;
   email: string;
-  vaitro: string;
+  vaitro: "QUAN_TRI" | "TO_CHUC" | "KHACH_HANG";
   anhdaidien: string;
   ngaytao: string;
 };
@@ -24,7 +25,7 @@ export default function AccountManage() {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ["users", page],
     queryFn: () => getUsersAPI(page),
     placeholderData: (previous) => previous,
@@ -105,13 +106,20 @@ export default function AccountManage() {
       header: "Hành động",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => handleEdit(row.original.manguoidung)}
-          >
-            Sửa
-          </Button>
+          <UpdateUserModal
+            user={{
+              manguoidung: row.original.manguoidung,
+              tennguoidung: row.original.tennguoidung,
+              email: row.original.email,
+              vaitro: row.original.vaitro as
+                | "QUAN_TRI"
+                | "TO_CHUC"
+                | "KHACH_HANG",
+            }}
+            onSuccess={() =>
+              queryClient.invalidateQueries({ queryKey: ["users", page] })
+            }
+          />
 
           <ConfirmDialog
             title="Xác nhận xóa ?"

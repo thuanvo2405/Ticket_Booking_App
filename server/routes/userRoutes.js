@@ -17,6 +17,7 @@ import {
   updateProfileUser,
   deleteForAdmin,
   getUsers,
+  updateForAdmin,
 } from "../controllers/userController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 import checkRole from "../middleware/verifyRole.js";
@@ -54,6 +55,13 @@ router.post(
   authenticateToken,
   checkRole(["QUAN_TRI"]),
   signupForAdmin
+);
+
+router.patch(
+  "/user-admin/:manguoidung",
+  authenticateToken,
+  checkRole(["QUAN_TRI"]),
+  updateForAdmin
 );
 
 router.delete(
