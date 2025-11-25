@@ -37,7 +37,7 @@ export const updateProfileUser = async (req, res, next) => {
 
 export const deleteForAdmin = async (req, res, next) => {
   try {
-    const { manguoidung } = req.body;
+    const { manguoidung } = req.params;
     await deleteForAdminService(manguoidung);
     handleResponse(res, 200, "Xóa người dùng thành công");
   } catch (error) {
@@ -65,7 +65,7 @@ export const getUsers = async (req, res, next) => {
       total: parseInt(total),
       page,
       limit,
-      });
+    });
   } catch (error) {
     next(error);
   }

@@ -55,12 +55,14 @@ router.post(
   checkRole(["QUAN_TRI"]),
   signupForAdmin
 );
+
 router.delete(
-  "/admin-delete",
+  "/admin-delete/:manguoidung",
   authenticateToken,
   checkRole(["QUAN_TRI"]),
   deleteForAdmin
 );
+
 router.get("/users", authenticateToken, checkRole(["QUAN_TRI"]), getUsers);
 
 export default router;

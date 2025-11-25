@@ -124,9 +124,7 @@ export const signupForAdmin = async (req, res, next) => {
       hashedPassword
     );
 
-    res.status(200).json({
-      message: "Tài khoản tạo thành công",
-    });
+    handleResponse(res, 200, "Tạo người dùng mới thành công", user);
   } catch (error) {
     next(error);
   }

@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthProvider";
 import { Loader2 } from "lucide-react";
 

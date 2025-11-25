@@ -1,8 +1,9 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { Button } from "../ui/button";
-import { AccountMenu } from "../account-menu";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function AdminLayout() {
+  const { logout } = useAuth();
   return (
     <div className="min-h-screen flex">
       <aside className="w-64 bg-white h-screen shadow-md p-5 border-r border-gray-100 fixed left-0 top-0">
@@ -93,13 +94,11 @@ export default function AdminLayout() {
             </NavLink>
           </li>
         </ul>
+
+        <Button onClick={logout}>Đăng xuất</Button>
       </aside>
 
       <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-        <header className="bg-black/70 p-4 flex justify-end text-white">
-          <AccountMenu />
-        </header>
-
         <div className="p-6">
           <Outlet />
         </div>

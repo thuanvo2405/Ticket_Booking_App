@@ -28,6 +28,35 @@ export const updateProfileUserAPI = async (
 };
 
 export const getProfileUserAPI = async () => {
-  const res = await axiosInstance.get(`${URL}profile`);
+  const res = await axiosInstance.get(`profile`);
+  return res.data.data;
+};
+
+export const getUsersAPI = async (page = 1, limit = 10) => {
+  const res = await axiosInstance.get(`users`, {
+    params: { page, limit },
+  });
+  return res.data.data;
+};
+
+export const deleteUserAPI = async (manguoidung: string) => {
+  const res = await axiosInstance.delete(`admin-delete/${manguoidung}`);
+  return res.data.status;
+};
+
+export const createUserAPI = async ({
+  tennguoidung,
+  matkhau,
+  email,
+}: {
+  tennguoidung: string;
+  matkhau: string;
+  email: string;
+}) => {
+  const res = await axiosInstance.post("signup-admin", {
+    tennguoidung,
+    matkhau,
+    email,
+  });
   return res.data.data;
 };
