@@ -10,10 +10,13 @@ import {
   resetPassword,
   resetPasswordByUserId,
   loginForAdmin,
+  signupForAdmin,
 } from "../controllers/authController.js";
 import {
   getProfileUser,
   updateProfileUser,
+  deleteForAdmin,
+  getUsers,
 } from "../controllers/userController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 import checkRole from "../middleware/verifyRole.js";
@@ -23,7 +26,6 @@ const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/admin-login", loginForAdmin);
 router.post("/refresh_token", getRefreshToken);
 router.delete("/refresh_token", deleteRefreshToken);
 router.post("/forgot-password", forgotPassword);
@@ -44,5 +46,21 @@ router.patch(
   upload.single("anhdaidien"),
   updateProfileUser
 );
+
+//ADMIN
+router.post("/admin-login", loginForAdmin);
+router.post(
+  "/signup-admin",
+  authenticateToken,
+  checkRole(["QUAN_TRI"]),
+  signupForAdmin
+);
+router.delete(
+  "/admin-delete",
+  authenticateToken,
+  checkRole(["QUAN_TRI"]),
+  deleteForAdmin
+);
+router.get("/users", authenticateToken, checkRole(["QUAN_TRI"]), getUsers);
 
 export default router;

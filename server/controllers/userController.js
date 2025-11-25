@@ -1,5 +1,9 @@
 import pool from "../config/db.js";
-import { updateProfileUserService } from "../models/userModel.js";
+import {
+  updateProfileUserService,
+  deleteForAdminService,
+  getUsersService,
+} from "../models/userModel.js";
 import handleResponse from "../utils/handleResponse.js";
 
 export const getProfileUser = async (req, res, next) => {
@@ -28,5 +32,41 @@ export const updateProfileUser = async (req, res, next) => {
     handleResponse(res, 200, "Cập nhật thành công");
   } catch (err) {
     next(err);
+  }
+};
+
+export const deleteForAdmin = async (req, res, next) => {
+  try {
+    const { manguoidung } = req.body;
+    await deleteForAdminService(manguoidung);
+    handleResponse(res, 200, "Xóa người dùng thành công");
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUsers = async (req, res, next) => {
+  try {
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const offset = (page - 1) * limit;
+
+    const users = await getUsersService(limit, offset);
+
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) AS total FROM nguoi_dung`
+    );
+
+    const total = totalResult.rows[0].total;
+    handleResponse(res, 200, "Lấy danh sách người dùng thành công", {
+      data: users.rows,
+      total: parseInt(total),
+      page,
+      limit,
+      });
+  } catch (error) {
+    next(error);
   }
 };

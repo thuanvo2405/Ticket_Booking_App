@@ -21,6 +21,31 @@ export const signUpService = async (username, email, hashedPassword) => {
   return result.rows[0];
 };
 
+export const signUpForAdminService = async (
+  username,
+  email,
+  hashedPassword
+) => {
+  const checkUser = await pool.query(
+    "SELECT * FROM nguoi_dung WHERE email = $1",
+    [email]
+  );
+
+  if (checkUser.rows.length > 0) {
+    const error = new Error("Email này đã tồn tại");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const result = await pool.query(
+    `INSERT INTO nguoi_dung (tennguoidung, email, matkhau,vaitro,isverified) 
+     VALUES ($1, $2, $3,'QUAN_TRI',true) 
+     RETURNING *`,
+    [username, email, hashedPassword]
+  );
+  return result.rows[0];
+};
+
 export const logInService = async (email) => {
   const result = await pool.query("SELECT * FROM nguoi_dung WHERE email = $1", [
     email,
@@ -76,4 +101,22 @@ export const updateProfileUserService = async (
 
   const result = await pool.query(query, values);
   return result.rows[0];
+};
+
+export const deleteForAdminService = async (manguoidung) => {
+  await pool.query("DELETE FROM nguoi_dung WHERE manguoidung = $1", [
+    manguoidung,
+  ]);
+  return;
+};
+
+export const getUsersService = async (limit, offset) => {
+  const result = await pool.query(
+    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao
+       FROM nguoi_dung
+       ORDER BY ngaytao DESC
+       LIMIT $1 OFFSET $2`,
+    [limit, offset]
+  );
+  return result;
 };

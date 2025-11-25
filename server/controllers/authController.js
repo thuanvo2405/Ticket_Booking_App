@@ -6,6 +6,7 @@ import {
   logInService,
   signUpService,
   logInServiceForAdmin,
+  signUpForAdminService,
 } from "../models/userModel.js";
 import { jwtTokens } from "../utils/jwtHelper.js";
 import handleResponse from "../utils/handleResponse.js";
@@ -103,6 +104,28 @@ export const loginForAdmin = async (req, res, next) => {
     handleResponse(res, 200, "Login successful", {
       user: { manguoidung, vaitro },
       tokens,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const signupForAdmin = async (req, res, next) => {
+  const { tennguoidung, email, matkhau } = req.body;
+  console.log(req.body);
+  const emailVerified = email.trim().toLowerCase();
+
+  try {
+    const hashedPassword = await bcrypt.hash(matkhau, 10);
+
+    const user = await signUpForAdminService(
+      tennguoidung,
+      emailVerified,
+      hashedPassword
+    );
+
+    res.status(200).json({
+      message: "Tài khoản tạo thành công",
     });
   } catch (error) {
     next(error);
