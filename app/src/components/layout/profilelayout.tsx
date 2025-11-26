@@ -58,28 +58,6 @@ export default function ProfileLayout() {
                 </Button>
               </NavLink>
             </li>
-
-            <li>
-              <NavLink
-                to="/my-events"
-                className={({ isActive }) =>
-                  `w-full block ${
-                    isActive
-                      ? "bg-green-100 text-green-700"
-                      : "hover:bg-gray-100 text-gray-700"
-                  } rounded-lg`
-                }
-              >
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="w-full justify-start font-medium"
-                >
-                  Sự kiện của tôi
-                </Button>
-              </NavLink>
-            </li>
-
             <li>
               <NavLink
                 to="/my-profile"

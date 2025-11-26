@@ -6,9 +6,9 @@ import { CalendarIcon, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProfileEventsByOrganizerID } from "@/services/eventService";
-import EventProfileCard from "@/components/MyEventPage.tsx/EventProfileCard";
 import { useAuth } from "@/context/AuthProvider";
 import toast from "react-hot-toast";
+import EventProfileCard from "@/components/MyEventPage/EventProfileCard";
 
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
