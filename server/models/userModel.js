@@ -103,16 +103,30 @@ export const updateProfileUserService = async (
   return result.rows[0];
 };
 
-export const deleteForAdminService = async (manguoidung) => {
-  await pool.query("DELETE FROM nguoi_dung WHERE manguoidung = $1", [
-    manguoidung,
-  ]);
-  return;
+export const toggleUserStatusService = async (manguoidung) => {
+  const result = await pool.query(
+    "SELECT is_active FROM nguoi_dung WHERE manguoidung = $1",
+    [manguoidung]
+  );
+
+  if (result.rowCount === 0) {
+    throw new Error("Người dùng không tồn tại");
+  }
+
+  const current = result.rows[0].is_active;
+  const newStatus = !current;
+
+  await pool.query(
+    "UPDATE nguoi_dung SET is_active = $1 WHERE manguoidung = $2",
+    [newStatus, manguoidung]
+  );
+
+  return newStatus;
 };
 
 export const getUsersService = async (limit, offset) => {
   const result = await pool.query(
-    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao
+    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao, is_active
        FROM nguoi_dung
        ORDER BY ngaytao DESC
        LIMIT $1 OFFSET $2`,

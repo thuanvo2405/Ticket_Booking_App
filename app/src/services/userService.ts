@@ -39,8 +39,8 @@ export const getUsersAPI = async (page = 1, limit = 10) => {
   return res.data.data;
 };
 
-export const deleteUserAPI = async (manguoidung: string) => {
-  const res = await axiosInstance.delete(`admin-delete/${manguoidung}`);
+export const toggleUserStatusAPI = async (manguoidung: string) => {
+  const res = await axiosInstance.patch(`toggle-status/${manguoidung}`);
   return res.data.status;
 };
 

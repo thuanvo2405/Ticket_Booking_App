@@ -13,7 +13,6 @@ import toast from "react-hot-toast";
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
   const { user } = useAuth();
-  console.log(user);
   const { data: events, isFetching } = useQuery({
     queryKey: ["fetchProfileEventByOrganizerID", tab],
     queryFn: () => {

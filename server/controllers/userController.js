@@ -1,7 +1,7 @@
 import pool from "../config/db.js";
 import {
   updateProfileUserService,
-  deleteForAdminService,
+  toggleUserStatusService,
   getUsersService,
   updateForAdminService,
 } from "../models/userModel.js";
@@ -36,11 +36,17 @@ export const updateProfileUser = async (req, res, next) => {
   }
 };
 
-export const deleteForAdmin = async (req, res, next) => {
+export const toggleUserStatus = async (req, res, next) => {
   try {
     const { manguoidung } = req.params;
-    await deleteForAdminService(manguoidung);
-    handleResponse(res, 200, "Xóa người dùng thành công");
+
+    const status = await toggleUserStatusService(manguoidung);
+
+    handleResponse(
+      res,
+      200,
+      `Cập nhật trạng thái thành: ${status ? "HOẠT ĐỘNG" : "KHÓA"}`
+    );
   } catch (error) {
     next(error);
   }

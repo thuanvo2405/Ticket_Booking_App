@@ -25,7 +25,36 @@ export default function EventProfileCard({ event }: { event: any }) {
     },
   });
 
-  console.log(event);
+  const getStatusTag = (status: string) => {
+    switch (status) {
+      case "NHAP":
+        return (
+          <span className="px-3 py-1 text-xs font-semibold bg-gray-200 text-gray-700 rounded-full border border-gray-400">
+            Nháp
+          </span>
+        );
+      case "CHO_DUYET":
+        return (
+          <span className="px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-full border border-yellow-400">
+            Chờ duyệt
+          </span>
+        );
+      case "DA_DUYET":
+        return (
+          <span className="px-3 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full border border-green-500">
+            Đã duyệt
+          </span>
+        );
+      case "TU_CHOI":
+        return (
+          <span className="px-3 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full border border-red-500">
+            Bị từ chối
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div
@@ -46,9 +75,12 @@ export default function EventProfileCard({ event }: { event: any }) {
 
         <div className="flex flex-col justify-between flex-1">
           <div>
-            <p className="font-bold text-2xl text-green-700 mb-1">
-              {event.tensukien}
-            </p>
+            <div className="flex items-center gap-3 mb-1">
+              <p className="font-bold text-2xl text-green-700">
+                {event.tensukien}
+              </p>
+              {getStatusTag(event.trangthai)}
+            </div>
 
             <div className="flex items-start gap-2 text-sm text-gray-700">
               <MapPin size={18} className="text-green-600 mt-0.5" />
@@ -69,8 +101,8 @@ export default function EventProfileCard({ event }: { event: any }) {
             </div>
           </div>
 
-          {event.trangthai === "NHAP" ? (
-            <div className="flex justify-end gap-2">
+          {event.trangthai === "NHAP" && (
+            <div className="flex justify-end gap-2 mt-3">
               <NavLink to={`/organizer/create-event?eventId=${event.masukien}`}>
                 <Button className="bg-green-600 text-white hover:bg-green-700">
                   Quản lý sự kiện
@@ -88,8 +120,6 @@ export default function EventProfileCard({ event }: { event: any }) {
                 Xóa sự kiện
               </Button>
             </div>
-          ) : (
-            ""
           )}
         </div>
       </div>

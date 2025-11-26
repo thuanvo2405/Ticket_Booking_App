@@ -9,7 +9,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { Button } from "./ui/button";
 
 interface ConfirmDialogProps {
@@ -18,6 +18,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
+  isActive: boolean;
 }
 
 export function ConfirmDialog({
@@ -26,18 +27,26 @@ export function ConfirmDialog({
   onConfirm,
   confirmText = "Xác nhận",
   cancelText = "Hủy",
+  isActive,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="destructive"
-          size="sm"
-          className="flex items-center gap-1"
-        >
-          <Trash2 size={16} />
-          Xóa
-        </Button>
+        {isActive ? (
+          <Button
+            size="sm"
+            variant="destructive"
+            className="flex items-center gap-1 "
+          >
+            <Lock size={16} />
+            Khóa
+          </Button>
+        ) : (
+          <Button size="sm" className="flex items-center gap-1">
+            <LockOpen size={16} />
+            Mở khóa
+          </Button>
+        )}
       </AlertDialogTrigger>
 
       <AlertDialogContent>

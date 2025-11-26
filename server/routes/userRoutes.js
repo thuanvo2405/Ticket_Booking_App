@@ -15,7 +15,7 @@ import {
 import {
   getProfileUser,
   updateProfileUser,
-  deleteForAdmin,
+  toggleUserStatus,
   getUsers,
   updateForAdmin,
 } from "../controllers/userController.js";
@@ -64,11 +64,11 @@ router.patch(
   updateForAdmin
 );
 
-router.delete(
-  "/admin-delete/:manguoidung",
+router.patch(
+  "/toggle-status/:manguoidung",
   authenticateToken,
   checkRole(["QUAN_TRI"]),
-  deleteForAdmin
+  toggleUserStatus
 );
 
 router.get("/users", authenticateToken, checkRole(["QUAN_TRI"]), getUsers);

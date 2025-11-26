@@ -131,8 +131,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     } catch (error: any) {
-      console.log(error);
-      toast.error(error.response?.data?.error || "Sai email hoặc mật khẩu");
+      console.log(error.response);
+      toast.error(error.response?.data?.message || "Có lỗi gì đó xảy ra");
       return false;
     }
   };

@@ -55,6 +55,11 @@ export const login = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
     }
+    console.log(user);
+
+    if (!user.is_active) {
+      return handleResponse(res, 403, "Tài khoản đã bị khóa bởi quản trị viên");
+    }
 
     if (!user.isverified) {
       return res.status(403).json({
@@ -86,9 +91,12 @@ export const loginForAdmin = async (req, res, next) => {
     const { email, matKhau } = req.body;
     const emailVerified = email.trim().toLowerCase();
     const user = await logInServiceForAdmin(emailVerified);
-    console.log(emailVerified, matKhau);
+
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
+    }
+    if (!user.is_active) {
+      return handleResponse(res, 403, "Tài khoản đã bị khóa bởi quản trị viên");
     }
 
     const validPassword = await bcrypt.compare(matKhau, user.matkhau);

@@ -1,6 +1,6 @@
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { deleteUserAPI, getUsersAPI } from "@/services/userService";
+import { toggleUserStatusAPI, getUsersAPI } from "@/services/userService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { type ColumnDef } from "@tanstack/react-table";
@@ -19,6 +19,7 @@ export type AccountProfile = {
   vaitro: "QUAN_TRI" | "TO_CHUC" | "KHACH_HANG";
   anhdaidien: string;
   ngaytao: string;
+  is_active: boolean;
 };
 
 export default function AccountManage() {
@@ -30,22 +31,20 @@ export default function AccountManage() {
     queryFn: () => getUsersAPI(page),
     placeholderData: (previous) => previous,
   });
-
   console.log(data);
+
   const queryClient = useQueryClient();
 
-  const handleEdit = (manguoidung: string) => {
-    console.log("Edit user:", manguoidung);
-  };
-
-  const handleDelete = useMutation({
-    mutationFn: (manguoidung: string) => deleteUserAPI(manguoidung),
-    onSuccess: () => {
-      toast.success("Xóa thành công");
-      queryClient.invalidateQueries({ queryKey: ["fetchUsers"] });
+  const handleToggleStatus = useMutation({
+    mutationFn: (manguoidung: string) => toggleUserStatusAPI(manguoidung),
+    onSuccess: (data) => {
+      toast.success(
+        data?.status ? "Tài khoản đã được mở khóa" : "Tài khoản đã bị khóa"
+      );
+      queryClient.invalidateQueries({ queryKey: ["users", page] });
     },
-    onError: (error: any) => {
-      toast.error("Xóa thất bại");
+    onError: () => {
+      toast.error("Cập nhật trạng thái thất bại");
     },
   });
 
@@ -122,11 +121,20 @@ export default function AccountManage() {
           />
 
           <ConfirmDialog
-            title="Xác nhận xóa ?"
-            description="Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác."
-            onConfirm={() => handleDelete.mutate(row.original.manguoidung)}
-            confirmText="Xóa"
+            title={
+              row.original.is_active ? "Khóa tài khoản?" : "Mở khóa tài khoản?"
+            }
+            description={
+              row.original.is_active
+                ? "Tài khoản này sẽ bị KHÓA và không thể đăng nhập."
+                : "Mở khóa tài khoản để người dùng sử dụng lại."
+            }
+            onConfirm={() =>
+              handleToggleStatus.mutate(row.original.manguoidung)
+            }
+            confirmText={row.original.is_active ? "Khóa" : "Mở khóa"}
             cancelText="Hủy"
+            isActive={row.original.is_active}
           />
         </div>
       ),

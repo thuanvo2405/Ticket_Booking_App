@@ -28,9 +28,20 @@ export default function EventManage() {
     placeholderData: (previous) => previous,
   });
 
-  const approveMutation = useMutation({
+  const handleAccept = useMutation({
     mutationFn: (maSuKien: string) =>
       updateEventStatusAPI(maSuKien, "DA_DUYET"),
+    onSuccess: () => {
+      toast.success("Duyệt sự kiện thành công");
+      queryClient.invalidateQueries({ queryKey: ["events", page] });
+    },
+    onError: () => {
+      toast.error("Duyệt thất bại");
+    },
+  });
+
+  const handleReject = useMutation({
+    mutationFn: (maSuKien: string) => updateEventStatusAPI(maSuKien, "TU_CHOI"),
     onSuccess: () => {
       toast.success("Duyệt sự kiện thành công");
       queryClient.invalidateQueries({ queryKey: ["events", page] });
@@ -77,13 +88,24 @@ export default function EventManage() {
       header: "Hành động",
       cell: ({ row }) => {
         const event = row.original;
+        const showActions =
+          event.trangthai === "NHAP" || event.trangthai === "CHO_DUYET";
         return (
           <div className="flex gap-2">
             <EventProfileModal event={event} />
-            <Button onClick={() => approveMutation.mutate(event.masukien)}>
-              Duyệt
-            </Button>
-            <Button variant="destructive">Từ chối</Button>
+            {showActions && (
+              <>
+                <Button onClick={() => handleAccept.mutate(event.masukien)}>
+                  Duyệt
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleReject.mutate(event.masukien)}
+                >
+                  Từ chối
+                </Button>
+              </>
+            )}
           </div>
         );
       },
