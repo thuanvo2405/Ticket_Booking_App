@@ -8,7 +8,6 @@ cron.schedule("*/1 * * * *", async () => {
   const client = await pool.connect();
 
   try {
-    // 1. Lấy tất cả đơn hàng quá hạn
     const { rows: expiredOrders } = await client.query(`
       SELECT madonhang 
       FROM don_hang
@@ -27,7 +26,6 @@ cron.schedule("*/1 * * * *", async () => {
       try {
         await client.query("BEGIN");
 
-        // 2. Lấy chi tiết đơn hàng
         const { rows: details } = await client.query(
           `SELECT maloaiVe, soluong 
            FROM chi_tiet_don_hang 
@@ -35,7 +33,6 @@ cron.schedule("*/1 * * * *", async () => {
           [madonhang]
         );
 
-        // 3. Trả lại số lượng vé (giảm soluongkhoa)
         for (const item of details) {
           await client.query(
             `UPDATE loai_ve
@@ -45,7 +42,6 @@ cron.schedule("*/1 * * * *", async () => {
           );
         }
 
-        // 4. Cập nhật trạng thái đơn hàng
         await client.query(
           `UPDATE don_hang
            SET trangthai = 'HET_HAN'

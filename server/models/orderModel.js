@@ -6,7 +6,6 @@ export const createOrderService = async (manguoidung, items) => {
   try {
     await client.query("BEGIN");
 
-    // 1. Tạo đơn hàng tạm
     const orderRes = await client.query(
       `
       INSERT INTO don_hang (manguoidung, trangthai, tongtien, thoihanthanhtoan)
@@ -49,11 +48,9 @@ export const createOrderService = async (manguoidung, items) => {
         );
       }
 
-      // 2.2 Tính thành tiền (giá tuyệt đối từ BE)
       const thanhtien = giatien * soluong;
       total += thanhtien;
 
-      // 2.3 Tăng số lượng khóa (giữ chỗ 15 phút)
       await client.query(
         `
         UPDATE loai_ve
@@ -63,7 +60,6 @@ export const createOrderService = async (manguoidung, items) => {
         [soluong, maloaive]
       );
 
-      // 2.4 Tạo chi tiết đơn hàng
       await client.query(
         `
         INSERT INTO chi_tiet_don_hang (madonhang, maloaive, soluong, dongia, thanhtien)
@@ -73,7 +69,6 @@ export const createOrderService = async (manguoidung, items) => {
       );
     }
 
-    // 3. Update tổng tiền cho đơn
     await client.query(
       `UPDATE don_hang SET tongtien = $1 WHERE madonhang = $2`,
       [total, madonhang]

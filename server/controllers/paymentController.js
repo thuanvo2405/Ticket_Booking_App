@@ -256,7 +256,7 @@ export const prepareMomoPayment = async (madonhang) => {
   const requestId = orderId;
   const orderInfo = `Thanh toán đơn hàng ${madonhang}`;
   const redirectUrl = `http://localhost:5173/payment-result`;
-  const ipnUrl = "https://d99dbe862732.ngrok-free.app/v1/api/callback-payment";
+  const ipnUrl = "https://a56dc2e02975.ngrok-free.app/v1/api/callback-payment";
   const requestType = "payWithMethod";
   const expiry = order.thoi_han_thanh_toan?.getTime() || null;
   const extraData = JSON.stringify({ expiry, madonhang });

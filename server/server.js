@@ -11,9 +11,9 @@ import ticketRoute from "./routes/ticketRoute.js";
 import promotionRoute from "./routes/promotionRoute.js";
 import paymentRoute from "./routes/paymentRoute.js";
 import orderRoute from "./routes/orderRoute.js";
+import reportRoute from "./routes/reportRoute.js";
 import upload from "./utils/multer.js";
 import errorHandling from "./middleware/errorHandler.js";
-import nodeCron from "./utils/orderCleanup.js";
 dotenv.config();
 
 const app = express();
@@ -34,6 +34,7 @@ app.use("/v1/api", ticketRoute);
 app.use("/v1/api", promotionRoute);
 app.use("/v1/api", paymentRoute);
 app.use("/v1/api", orderRoute);
+app.use("/v1/api", reportRoute);
 
 router.post("/uploads", upload.single("image"), (req, res) => {
   const imageUrl = req.file.path;
