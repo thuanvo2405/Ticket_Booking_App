@@ -89,8 +89,7 @@ export const createOrderService = async (manguoidung, items) => {
   }
 };
 
-export const getOrderDetailService = async (madonhang) => {
-  // 1. Lấy thông tin đơn hàng
+export const getOrderDetailByIdService = async (madonhang) => {
   const orderRes = await pool.query(
     `
     SELECT madonhang, manguoidung, trangthai, tongtien, thoihanthanhtoan
@@ -104,7 +103,6 @@ export const getOrderDetailService = async (madonhang) => {
     throw new Error("Đơn hàng không tồn tại");
   }
 
-  // 2. Lấy chi tiết đơn hàng + thông tin loại vé
   const detailRes = await pool.query(
     `
     SELECT 
@@ -124,5 +122,69 @@ export const getOrderDetailService = async (madonhang) => {
   return {
     order: orderRes.rows[0],
     items: detailRes.rows,
+  };
+};
+
+export const getOrdersByUserIdService = async (manguoidung) => {
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM don_hang
+    WHERE manguoidung = $1
+    `,
+    [manguoidung]
+  );
+
+  return result.rows;
+};
+
+export const getOrderDetailService = async (madonhang) => {
+  const orderRes = await pool.query(
+    `
+    SELECT madonhang, manguoidung, trangthai, tongtien, thoihanthanhtoan
+    FROM don_hang
+    WHERE madonhang = $1
+    `,
+    [madonhang]
+  );
+
+  if (orderRes.rows.length === 0) {
+    throw new Error("Đơn hàng không tồn tại");
+  }
+
+  const detailRes = await pool.query(
+    `
+    SELECT 
+      ctdh.maloaive,
+      lv.tenloaive,
+      lv.giatien,
+      ctdh.soluong,
+      ctdh.dongia,
+      ctdh.thanhtien
+    FROM chi_tiet_don_hang ctdh
+    JOIN loai_ve lv ON ctdh.maloaive = lv.maloaive
+    WHERE ctdh.madonhang = $1
+    `,
+    [madonhang]
+  );
+
+  const detailTicket = await pool.query(
+    `
+    SELECT 
+      v.mave,
+      v.madonhang,
+      v.maloaive,
+      lv.tenloaive
+    FROM ve v
+    JOIN loai_ve lv ON v.maloaive = lv.maloaive
+    WHERE v.madonhang = $1
+  `,
+    [madonhang]
+  );
+
+  return {
+    order: orderRes.rows[0],
+    items: detailRes.rows,
+    tickets: detailTicket.rows,
   };
 };

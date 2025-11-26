@@ -8,13 +8,12 @@ import { Ticket, Tag, DollarSign, X } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { checkOutAPI, getOrderByIDAPI } from "@/services/orderService";
 import { getPromotionAPI } from "@/services/promotionService";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Counter from "@/components/counter";
 import { type Item, type Order, type Promotion } from "@/constant/types";
 
 export default function PaymentInfoPage() {
   const { madonhang, maSuKien } = useParams();
-  const navigate = useNavigate();
 
   const { data: orderData, isFetching: orderLoading } = useQuery<{
     order: Order;
