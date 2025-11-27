@@ -14,17 +14,32 @@ import { Input } from "../ui/input";
 import { useAuth } from "@/context/AuthProvider";
 import { Loader2 } from "lucide-react";
 
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/;
+
 const registerSchema = z
   .object({
-    userName: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
-    email: z.string().email("Email không hợp lệ"),
-    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+    userName: z
+      .string()
+      .trim()
+      .min(2, "Họ và tên phải có ít nhất 2 ký tự")
+      .max(50, "Tên quá dài"),
+    email: z.string().trim().toLowerCase().email("Email không hợp lệ"),
+    password: z
+      .string()
+      .min(6, "Mật khẩu phải ít nhất 6 ký tự")
+      .max(15, "Mật khẩu không dài quá 15 ký tự")
+      .regex(
+        passwordRegex,
+        "Mật khẩu phải chứa ít nhất một chữ hoa, một chữ thường, một số và một ký tự đặc biệt."
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
   });
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 interface RegisterFormProps {
   switchToLogin: () => void;
@@ -37,7 +52,7 @@ export default function RegisterForm({
 }: RegisterFormProps) {
   const { signup } = useAuth();
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       userName: "",

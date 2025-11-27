@@ -14,12 +14,14 @@ import {
   sendVerificationEmail,
   sendResetPasswordMail,
 } from "../utils/sendEmail.js";
+import { signUpSchema } from "../utils/validate.js";
 
 const saltRound = 10;
 dotenv.config();
 
 export const signup = async (req, res, next) => {
-  const { tennguoidung, email, matkhau } = req.body;
+  const { tennguoidung, email, matkhau } = signUpSchema.parse(req.body);
+
   const emailNormalized = email.trim().toLowerCase();
 
   try {
@@ -33,7 +35,7 @@ export const signup = async (req, res, next) => {
     const verifyToken = jwt.sign(
       { userId: user.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
-      { expiresIn: "1m" }
+      { expiresIn: "1h" }
     );
 
     await sendVerificationEmail(emailNormalized, verifyToken);

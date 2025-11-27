@@ -144,3 +144,24 @@ export const CreateOrderSchema = z.object({
   maSuatDien: z.string().min(1, "Mã suất diễn không hợp lệ"),
   tickets: z.array(TicketSchema).nonempty("Phải chọn ít nhất 1 vé"),
 });
+
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/;
+
+export const signUpSchema = z.object({
+  tennguoidung: z
+    .string()
+    .trim()
+    .min(2, "Tên phải có ít nhất 2 ký tự")
+    .max(50, "Tên quá dài"),
+
+  email: z.string().trim().toLowerCase().email("Email không hợp lệ"),
+
+  matkhau: z
+    .string()
+    .min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" })
+    .max(15, { message: "Mật khẩu không dài quá 15 ký tự" })
+    .regex(passwordRegex, {
+      message:
+        "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.",
+    }),
+});
