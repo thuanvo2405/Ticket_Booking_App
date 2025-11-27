@@ -19,8 +19,11 @@ import {
   loginSchema,
   changePasswordSchema,
 } from "../utils/validate.js";
+import z from "zod";
 
 const saltRound = 10;
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/;
+
 dotenv.config();
 
 export const signup = async (req, res, next) => {
@@ -251,16 +254,30 @@ export const forgotPassword = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.query;
-    const { password } = req.body;
+
+    const password = z
+      .string()
+      .min(6, "Mật khẩu phải ít nhất 6 ký tự")
+      .max(15, "Mật khẩu không dài quá 15 ký tự")
+      .regex(passwordRegex, {
+        message:
+          "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.",
+      })
+      .parse(req.body.password);
 
     const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
     const manguoidung = payload.manguoidung;
 
     const hashedPassword = await bcrypt.hash(password, saltRound);
-    await pool.query(
+
+    const result = await pool.query(
       "UPDATE nguoi_dung SET matkhau = $1 WHERE manguoidung = $2",
       [hashedPassword, manguoidung]
     );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Người dùng không tồn tại" });
+    }
 
     handleResponse(res, 200, "Mật khẩu đã thay đổi thành công!");
   } catch (error) {
