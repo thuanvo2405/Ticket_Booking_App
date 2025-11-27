@@ -18,3 +18,8 @@ export const checkOutAPI = async (madonhang: string, makhuyenmai: string) => {
   });
   return res.data.data;
 };
+
+export const getOrdersByUserIDAPI = async () => {
+  const res = await axiosInstance.get("user/orders");
+  return res.data.data;
+};

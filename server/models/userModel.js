@@ -1,5 +1,5 @@
 import pool from "../config/db.js";
-
+import { deleteFile } from "../utils/deleteImage.js";
 export const signUpService = async (username, email, hashedPassword) => {
   const checkUser = await pool.query(
     "SELECT * FROM nguoi_dung WHERE email = $1",
@@ -72,6 +72,25 @@ export const updateProfileUserService = async (
   let values = [];
   let index = 1;
 
+  const userRes = await pool.query(
+    "SELECT anhdaidien, is_active FROM nguoi_dung WHERE manguoidung = $1",
+    [userId]
+  );
+
+  if (userRes.rows.length === 0) {
+    const err = new Error("Người dùng không tồn tại");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  const oldAvatar = userRes.rows[0].anhdaidien;
+
+  if (!userRes.rows[0].is_active) {
+    const err = new Error("Tài khoản bị khóa, không thể cập nhật thông tin");
+    err.statusCode = 403;
+    throw err;
+  }
+
   if (tennguoidung) {
     fields.push(`tennguoidung = $${index++}`);
     values.push(tennguoidung);
@@ -98,6 +117,10 @@ export const updateProfileUserService = async (
     WHERE manguoidung = $${index}
     RETURNING *;
   `;
+
+  if (avatar && oldAvatar && oldAvatar !== avatar) {
+    deleteFile(oldAvatar);
+  }
 
   const result = await pool.query(query, values);
   return result.rows[0];

@@ -10,10 +10,24 @@ import handleResponse from "../utils/handleResponse.js";
 export const getProfileUser = async (req, res, next) => {
   try {
     const userId = req.user.user.id;
+
+    if (!req.user.user.id) {
+      const error = new Error("Token không hợp lệ hoặc đã hết hạn");
+      error.statusCode = 401;
+      throw error;
+    }
+
     const result = await pool.query(
       "SELECT tennguoidung,sodienthoai,anhdaidien FROM nguoi_dung WHERE maNguoiDung = $1",
       [userId]
     );
+
+    if (result.rows.length === 0) {
+      const error = new Error("Người dùng không tồn tại");
+      error.statusCode = 404;
+      throw error;
+    }
+
     handleResponse(res, 200, "Lấy thông tin thành công", result.rows[0]);
   } catch (err) {
     next(err);
@@ -22,6 +36,12 @@ export const getProfileUser = async (req, res, next) => {
 
 export const updateProfileUser = async (req, res, next) => {
   try {
+    if (!req.user || !req.user.user.id) {
+      const err = new Error("Token không hợp lệ");
+      err.statusCode = 401;
+      throw err;
+    }
+
     const userId = req.user.user.id;
 
     const avatar = req.file ? req.file.path : null;

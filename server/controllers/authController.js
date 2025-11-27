@@ -20,22 +20,23 @@ dotenv.config();
 
 export const signup = async (req, res, next) => {
   const { tennguoidung, email, matkhau } = req.body;
-  const emailVerified = email.trim().toLowerCase();
+  const emailNormalized = email.trim().toLowerCase();
 
   try {
     const hashedPassword = await bcrypt.hash(matkhau, 10);
     const user = await signUpService(
       tennguoidung,
-      emailVerified,
+      emailNormalized,
       hashedPassword
     );
+
     const verifyToken = jwt.sign(
       { userId: user.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1m" }
     );
 
-    await sendVerificationEmail(emailVerified, verifyToken);
+    await sendVerificationEmail(emailNormalized, verifyToken);
 
     res.status(200).json({
       message:
@@ -55,7 +56,6 @@ export const login = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
     }
-    console.log(user);
 
     if (!user.is_active) {
       return handleResponse(res, 403, "Tài khoản đã bị khóa bởi quản trị viên");

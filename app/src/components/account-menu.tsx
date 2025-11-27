@@ -54,12 +54,6 @@ export function AccountMenu() {
           </NavLink>
           Vé của tôi
         </DropdownMenuItem>
-
-        <DropdownMenuItem className="flex items-center gap-2 cursor-pointer">
-          <Calendar className="w-4 h-4" />
-          Sự kiện của tôi
-        </DropdownMenuItem>
-
         <DropdownMenuItem>
           <NavLink
             to="/my-profile"
