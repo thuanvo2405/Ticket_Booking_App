@@ -165,3 +165,11 @@ export const signUpSchema = z.object({
         "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.",
     }),
 });
+
+export const loginSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Email không hợp lệ"),
+  matKhau: z
+    .string()
+    .min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" })
+    .max(15, { message: "Mật khẩu không dài quá 15 ký tự" }),
+});

@@ -14,7 +14,7 @@ import {
   sendVerificationEmail,
   sendResetPasswordMail,
 } from "../utils/sendEmail.js";
-import { signUpSchema } from "../utils/validate.js";
+import { signUpSchema, loginSchema } from "../utils/validate.js";
 
 const saltRound = 10;
 dotenv.config();
@@ -51,9 +51,9 @@ export const signup = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, matKhau } = req.body;
-    const emailVerified = email.trim().toLowerCase();
-    const user = await logInService(emailVerified);
+    const { email, matKhau } = loginSchema.parse(req.body);
+
+    const user = await logInService(email);
 
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
@@ -65,7 +65,7 @@ export const login = async (req, res, next) => {
 
     if (!user.isverified) {
       return res.status(403).json({
-        error: "Email chưa xác thực. Vui lòng kiểm tra email.",
+        error: "Email chưa xác thực. Vui lòng vào email để kiểm tra.",
       });
     }
 

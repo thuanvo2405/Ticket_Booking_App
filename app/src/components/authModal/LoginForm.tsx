@@ -15,8 +15,11 @@ import { useAuth } from "@/context/AuthProvider";
 import { Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+  email: z.string().trim().toLowerCase().email("Email không hợp lệ"),
+  password: z
+    .string()
+    .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
+    .max(15, "Mật khẩu không dài quá 15 ký tự"),
 });
 
 interface LoginFormProps {
