@@ -173,3 +173,16 @@ export const loginSchema = z.object({
     .min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" })
     .max(15, { message: "Mật khẩu không dài quá 15 ký tự" }),
 });
+
+export const updateProfileSchema = z.object({
+  tennguoidung: z
+    .string()
+    .trim()
+    .min(2, "Tên phải có ít nhất 2 ký tự")
+    .max(50, "Tên quá dài")
+    .optional(),
+  sodienthoai: z
+    .string()
+    .regex(/^\+?\d{10,12}$/, "Số điện thoại không hợp lệ")
+    .optional(),
+});

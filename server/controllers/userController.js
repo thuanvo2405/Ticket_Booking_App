@@ -6,6 +6,7 @@ import {
   updateForAdminService,
 } from "../models/userModel.js";
 import handleResponse from "../utils/handleResponse.js";
+import { updateProfileSchema } from "../utils/validate.js";
 
 export const getProfileUser = async (req, res, next) => {
   try {
@@ -36,21 +37,26 @@ export const getProfileUser = async (req, res, next) => {
 
 export const updateProfileUser = async (req, res, next) => {
   try {
-    if (!req.user || !req.user.user.id) {
-      const err = new Error("Token không hợp lệ");
-      err.statusCode = 401;
-      throw err;
+    if (!req.user?.user?.id) {
+      return res.status(401).json({ error: "Token không hợp lệ" });
     }
 
     const userId = req.user.user.id;
 
-    const avatar = req.file ? req.file.path : null;
+    const avatar = req.file?.path;
 
-    const { tennguoidung, sodienthoai } = req.body;
+    const { tennguoidung, sodienthoai } = updateProfileSchema.parse(req.body);
 
-    await updateProfileUserService(userId, tennguoidung, sodienthoai, avatar);
-
-    handleResponse(res, 200, "Cập nhật thành công");
+    if (!tennguoidung && !sodienthoai && !avatar) {
+      return res.status(400).json({ error: "Không có dữ liệu để cập nhật" });
+    }
+    const updatedUser = await updateProfileUserService(
+      userId,
+      tennguoidung,
+      sodienthoai,
+      avatar
+    );
+    handleResponse(res, 200, "Cập nhật thành công", updatedUser);
   } catch (err) {
     next(err);
   }

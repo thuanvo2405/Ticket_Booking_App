@@ -10,6 +10,21 @@ import { updateProfileUserAPI } from "@/services/userService";
 import toast from "react-hot-toast";
 import { ResetPasswordModal } from "@/components/ResetPasswordModal";
 import { useAuth } from "@/context/AuthProvider";
+import z from "zod";
+
+export const updateProfileSchema = z.object({
+  tennguoidung: z
+    .string()
+    .trim()
+    .min(2, "Tên phải có ít nhất 2 ký tự")
+    .max(50, "Tên quá dài")
+    .optional(),
+  sodienthoai: z
+    .string()
+    .regex(/^\+?\d{9,15}$/, "Số điện thoại không hợp lệ")
+    .optional(),
+  anhdaidien: z.instanceof(File).optional(),
+});
 
 export default function ProfilePage() {
   const [tennguoidung, setTenNguoiDung] = useState("");
@@ -54,9 +69,9 @@ export default function ProfilePage() {
       toast.error("Họ và tên phải có ít nhất 2 ký tự!");
       return;
     }
-    const phoneRegex = /^[0-9]{10}$/;
-    if (!phoneRegex.test(sodienthoai)) {
-      toast.error("Số điện thoại phải gồm đúng 10 chữ số!");
+    const phoneRegex = /^[0-9]{10,12}$/;
+    if (sodienthoai && !phoneRegex.test(sodienthoai)) {
+      toast.error("Số điện thoại phải từ 10 đến 12 số!");
       return;
     }
 
