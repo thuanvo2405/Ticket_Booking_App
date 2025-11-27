@@ -186,3 +186,15 @@ export const updateProfileSchema = z.object({
     .regex(/^\+?\d{10,12}$/, "Số điện thoại không hợp lệ")
     .optional(),
 });
+
+export const changePasswordSchema = z.object({
+  matkhauhientai: z.string().min(6, "Mật khẩu hiện tại tối thiểu 6 ký tự"),
+  matkhaumoi: z
+    .string()
+    .min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" })
+    .max(15, { message: "Mật khẩu không dài quá 15 ký tự" })
+    .regex(passwordRegex, {
+      message:
+        "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.",
+    }),
+});

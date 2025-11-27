@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem("tokens");
         localStorage.removeItem("user");
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
-        window.location.reload();
+        return Promise.reject(refreshError);
       }
     }
 

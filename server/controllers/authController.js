@@ -14,7 +14,11 @@ import {
   sendVerificationEmail,
   sendResetPasswordMail,
 } from "../utils/sendEmail.js";
-import { signUpSchema, loginSchema } from "../utils/validate.js";
+import {
+  signUpSchema,
+  loginSchema,
+  changePasswordSchema,
+} from "../utils/validate.js";
 
 const saltRound = 10;
 dotenv.config();
@@ -267,14 +271,33 @@ export const resetPassword = async (req, res, next) => {
 export const resetPasswordByUserId = async (req, res, next) => {
   try {
     const userId = req.user.user.id;
-    const { matkhaumoi } = req.body;
+
+    const { matkhauhientai, matkhaumoi } = changePasswordSchema.parse(req.body);
+
+    const result = await pool.query(
+      "SELECT matkhau FROM nguoi_dung WHERE manguoidung = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Người dùng không tồn tại" });
+    }
+
+    const currentHashed = result.rows[0].matkhau;
+
+    const isMatch = await bcrypt.compare(matkhauhientai, currentHashed);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Mật khẩu hiện tại không đúng" });
+    }
+
     const hashedPassword = await bcrypt.hash(matkhaumoi, 10);
 
     await pool.query(
       "UPDATE nguoi_dung SET matkhau = $1 WHERE manguoidung = $2",
       [hashedPassword, userId]
     );
-    handleResponse(res, 201, "Cập nhật mật khẩu thành công");
+
+    handleResponse(res, 200, "Cập nhật mật khẩu thành công");
   } catch (err) {
     next(err);
   }

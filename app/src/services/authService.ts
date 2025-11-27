@@ -32,8 +32,12 @@ export const signupAPI = async (
   return res;
 };
 
-export const resetPasswordAPI = async (matkhaumoi: string) => {
+export const resetPasswordAPI = async (
+  matkhauhientai: string,
+  matkhaumoi: string
+) => {
   const res = await axiosInstance.patch(`${URL}password`, {
+    matkhauhientai,
     matkhaumoi,
   });
   return res.data.data;
