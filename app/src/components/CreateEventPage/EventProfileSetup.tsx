@@ -41,7 +41,7 @@ const eventSchema = z.object({
   tinhThanh: z.string().min(1, "Vui lòng chọn Tỉnh/Thành"),
   quanHuyen: z.string().min(1, "Vui lòng chọn Quận/Huyện"),
   phuongXa: z.string().min(1, "Vui lòng chọn Phường/Xã"),
-  soNha: z.string().min(1, "Vui lòng nhập địa chỉ cụ thể"),
+  diaChi: z.string().min(1, "Vui lòng nhập địa chỉ cụ thể"),
   moTa: z.string().optional(),
 });
 
@@ -119,7 +119,7 @@ export default function CreateEventInfoStep() {
       tinhThanh: "",
       quanHuyen: "",
       phuongXa: "",
-      soNha: "",
+      diaChi: "",
       moTa: "",
     },
   });
@@ -147,7 +147,7 @@ export default function CreateEventInfoStep() {
         tinhThanh: data.thanhpho,
         quanHuyen: data.quan,
         phuongXa: data.phuong,
-        soNha: data.diachi,
+        diaChi: data.diachi,
         moTa: data.mota ?? "",
       });
 
@@ -196,7 +196,7 @@ export default function CreateEventInfoStep() {
           banner,
           poster,
           data.moTa ?? "",
-          data.soNha,
+          data.diaChi,
           data.phuongXa,
           data.quanHuyen,
           data.tinhThanh,
@@ -225,7 +225,7 @@ export default function CreateEventInfoStep() {
           banner,
           poster,
           data.moTa ?? "",
-          data.soNha,
+          data.diaChi,
           data.phuongXa,
           data.quanHuyen,
           data.tinhThanh,
@@ -455,7 +455,7 @@ export default function CreateEventInfoStep() {
 
               <FormField
                 control={form.control}
-                name="soNha"
+                name="diaChi"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Số nhà, đường</FormLabel>
@@ -487,7 +487,7 @@ export default function CreateEventInfoStep() {
             />
           </div>
 
-          <div className="flex justify-between pt-6 border-t mt-10">
+          <div className="flex justify-end pt-6 border-t mt-10">
             <Button type="submit" className="w-32">
               Tiếp tục
             </Button>

@@ -19,7 +19,7 @@ import { BankAccountSchema } from "../utils/validate.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 import { EventSchema } from "../utils/validate.js";
-
+import { deleteFile } from "../utils/deleteImage.js";
 export const createEvent = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
@@ -65,8 +65,6 @@ export const updateEvent = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
     const { maSuKien } = req.query;
-    const { tenSuKien, moTa, diaChi, phuong, quan, thanhPho, maLoaiSuKien } =
-      req.body;
 
     if (!maSuKien) throw new Error("Thiếu mã sự kiện để cập nhật");
 
@@ -74,24 +72,36 @@ export const updateEvent = async (req, res, next) => {
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
     const { matochuc } = await getOrganizerID(userID);
-    const diaChiAnhNgang = req.files?.anhSuKienNgang?.[0]?.path || undefined;
-    const diaChiAnhDoc = req.files?.anhSuKienDoc?.[0]?.path || undefined;
+
+    const newAnhNgang = req.files?.anhSuKienNgang?.[0];
+    const newAnhDoc = req.files?.anhSuKienDoc?.[0];
+
+    const pathAnhNgang = newAnhNgang?.path ?? null;
+    const pathAnhDoc = newAnhDoc?.path ?? null;
 
     const result = await updateEventService(
       maSuKien,
-      tenSuKien,
-      moTa,
-      diaChi,
-      phuong,
-      quan,
-      thanhPho,
+      req.body.tenSuKien,
+      req.body.moTa,
+      req.body.diaChi,
+      req.body.phuong,
+      req.body.quan,
+      req.body.thanhPho,
       matochuc,
-      maLoaiSuKien,
-      diaChiAnhNgang,
-      diaChiAnhDoc
+      req.body.maLoaiSuKien,
+      pathAnhNgang,
+      pathAnhDoc
     );
 
-    handleResponse(res, 200, "Cập nhật sự kiện thành công", {
+    if (pathAnhDoc && oldEvent.anhsukiendoc) {
+      deleteFile(oldEvent.anhsukiendoc);
+    }
+
+    if (pathAnhNgang && oldEvent.anhsukienngang) {
+      deleteFile(oldEvent.anhsukienngang);
+    }
+
+    handleResponse(res, 200, "Cập nhật thành công", {
       maSuKien: result.masukien,
     });
   } catch (error) {
