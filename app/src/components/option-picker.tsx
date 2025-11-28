@@ -78,7 +78,7 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
         <div>
           <p className="font-semibold mb-2">Thể loại</p>
           <RadioGroup value={eventType} onValueChange={setEventType}>
-            {["Âm Nhạc", "Sân Khấu Và Nghệ Thuật", "Thể Thao", "Khác"].map(
+            {["Âm Nhạc", "Sân Khấu", "Thể Thao", "Workshop", "Khác"].map(
               (item, i) => (
                 <div key={i} className="flex items-center space-x-2">
                   <RadioGroupItem value={item} id={`type-${i}`} />

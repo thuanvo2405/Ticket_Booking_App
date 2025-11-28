@@ -34,7 +34,7 @@ export default function SearchPage() {
     <div className="w-[1284px] mx-auto">
       <div className="flex items-center py-3 justify-between">
         <p className="font-semibold">Kết quả tìm kiếm</p>
-        <div className="gap-3">
+        <div className="flex gap-3">
           <TimePicker />
           <OptionPicker onApply={handleApplyFilter} />
         </div>

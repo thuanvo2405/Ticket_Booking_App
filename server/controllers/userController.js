@@ -38,7 +38,7 @@ export const getProfileUser = async (req, res, next) => {
 export const updateProfileUser = async (req, res, next) => {
   try {
     if (!req.user?.user?.id) {
-      return res.status(401).json({ error: "Token không hợp lệ" });
+      return res.status(400).json({ error: "Token không hợp lệ" });
     }
 
     const userId = req.user.user.id;

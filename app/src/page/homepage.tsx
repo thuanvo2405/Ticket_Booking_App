@@ -28,7 +28,7 @@ export default function HomePage() {
               variant="outline"
               className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
             >
-              Nhạc sống
+              Âm Nhạc
             </Button>
           </li>
           <li>
@@ -36,7 +36,7 @@ export default function HomePage() {
               variant="outline"
               className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
             >
-              Sân khấu và nghệ thuật
+              Sân Khấu
             </Button>
           </li>
           <li>
@@ -45,6 +45,14 @@ export default function HomePage() {
               className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
             >
               Thể thao
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="outline"
+              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+            >
+              Workshop
             </Button>
           </li>
           <li>

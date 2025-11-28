@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,14 +17,19 @@ import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+  email: z.string().trim().toLowerCase().email("Email không hợp lệ"),
+  password: z
+    .string()
+    .min(6, "Mật khẩu phải ít nhất 6 ký tự")
+    .max(15, "Mật khẩu không dài quá 15 ký tự"),
 });
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function AdminLoginPage() {
   const { loginForAdmin } = useAuth();
   const navigate = useNavigate();
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });

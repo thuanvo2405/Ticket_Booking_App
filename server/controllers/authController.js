@@ -59,8 +59,8 @@ export const signup = async (req, res, next) => {
 export const login = async (req, res, next) => {
   try {
     const { email, matKhau } = loginSchema.parse(req.body);
-
     const user = await logInService(email);
+    console.log(user);
 
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
@@ -75,7 +75,6 @@ export const login = async (req, res, next) => {
         error: "Email chưa xác thực. Vui lòng vào email để kiểm tra.",
       });
     }
-
     const validPassword = await bcrypt.compare(matKhau, user.matkhau);
     if (!validPassword) {
       return res.status(401).json({ error: "Mật khẩu không chính xác!" });
@@ -97,9 +96,9 @@ export const login = async (req, res, next) => {
 
 export const loginForAdmin = async (req, res, next) => {
   try {
-    const { email, matKhau } = req.body;
-    const emailVerified = email.trim().toLowerCase();
-    const user = await logInServiceForAdmin(emailVerified);
+    const { email, matKhau } = loginSchema.parse(req.body);
+
+    const user = await logInServiceForAdmin(email);
 
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });

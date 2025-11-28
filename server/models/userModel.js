@@ -50,6 +50,7 @@ export const logInService = async (email) => {
   const result = await pool.query("SELECT * FROM nguoi_dung WHERE email = $1", [
     email,
   ]);
+  console.log(result);
   return result.rows[0];
 };
 

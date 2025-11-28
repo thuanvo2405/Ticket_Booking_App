@@ -58,7 +58,7 @@ export default function CreateUserModal() {
     }) => createUserAPI(data),
     onSuccess: () => {
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["fetchUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       form.reset();
     },
     onError: (error: any) => {

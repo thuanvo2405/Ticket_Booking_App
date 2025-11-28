@@ -132,7 +132,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error: any) {
       console.log(error.response);
-      toast.error(error.response?.data?.message || "Có lỗi gì đó xảy ra");
+      toast.error(error.response?.data?.error || "Có lỗi gì đó xảy ra");
       return false;
     }
   };
