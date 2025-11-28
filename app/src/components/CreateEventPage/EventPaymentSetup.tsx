@@ -48,6 +48,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { useEventStore } from "@/store/useEventStore";
 
 const paymentSchema = z.object({
   tenChuSoHuu: z
@@ -92,7 +93,7 @@ export default function EventPaymentSetup() {
 
   const [open, setOpen] = React.useState(false);
   const banks = bankData.data;
-
+  const { setPrevStep, setNextStep } = useEventStore();
   const onSelectBank = (val: string) => {
     form.setValue("tenNganHang", val);
     setOpen(false);
@@ -165,169 +166,178 @@ export default function EventPaymentSetup() {
   }
 
   return (
-    <div className="max-w-lg mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Thông tin thanh toán</h1>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((formData) =>
-            handleBankAccount.mutate(formData)
-          )}
-          className="space-y-4"
-        >
-          <FormField
-            control={form.control}
-            name="tenNganHang"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Ngân hàng</FormLabel>
-                <FormControl>
-                  <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={open}
-                        className="w-full justify-between"
-                        ref={triggerRef}
+    <>
+      <div className="max-w-lg mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Thông tin thanh toán</h1>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit((formData) =>
+              handleBankAccount.mutate(formData)
+            )}
+            className="space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="tenNganHang"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ngân hàng</FormLabel>
+                  <FormControl>
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={open}
+                          className="w-full justify-between"
+                          ref={triggerRef}
+                        >
+                          {field.value
+                            ? banks.find((b) => b.shortName === field.value)
+                                ?.shortName
+                            : "Chọn ngân hàng..."}
+                          <ChevronsUpDown className="opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-full p-0"
+                        side="bottom"
+                        align="start"
+                        alignOffset={0}
+                        collisionPadding={0}
+                        style={{ width: triggerRef.current?.offsetWidth }}
                       >
-                        {field.value
-                          ? banks.find((b) => b.shortName === field.value)
-                              ?.shortName
-                          : "Chọn ngân hàng..."}
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-full p-0"
-                      side="bottom"
-                      align="start"
-                      alignOffset={0}
-                      collisionPadding={0}
-                      style={{ width: triggerRef.current?.offsetWidth }}
-                    >
-                      <Command>
-                        <CommandInput
-                          placeholder="Tìm ngân hàng..."
-                          className="h-9"
-                        />
-                        <CommandList className="max-h-60 overflow-y-auto">
-                          <CommandEmpty>Không tìm thấy ngân hàng</CommandEmpty>
-                          <CommandGroup>
-                            {banks.map((bank) => (
-                              <CommandItem
-                                key={bank.id}
-                                value={bank.shortName}
-                                onSelect={() => onSelectBank(bank.shortName)}
-                                className="flex items-center gap-2 px-3 py-3 hover:bg-accent/50 rounded-md cursor-pointer"
-                              >
-                                <img
-                                  src={bank.logo}
-                                  alt={bank.shortName}
-                                  className="w-20 h-8 rounded"
-                                />
-                                <span>{bank.shortName}</span>
-                                {field.value === bank.shortName && (
-                                  <Check className="ml-auto h-4 w-4 text-primary" />
-                                )}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                        <Command>
+                          <CommandInput
+                            placeholder="Tìm ngân hàng..."
+                            className="h-9"
+                          />
+                          <CommandList className="max-h-60 overflow-y-auto">
+                            <CommandEmpty>
+                              Không tìm thấy ngân hàng
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {banks.map((bank) => (
+                                <CommandItem
+                                  key={bank.id}
+                                  value={bank.shortName}
+                                  onSelect={() => onSelectBank(bank.shortName)}
+                                  className="flex items-center gap-2 px-3 py-3 hover:bg-accent/50 rounded-md cursor-pointer"
+                                >
+                                  <img
+                                    src={bank.logo}
+                                    alt={bank.shortName}
+                                    className="w-20 h-8 rounded"
+                                  />
+                                  <span>{bank.shortName}</span>
+                                  {field.value === bank.shortName && (
+                                    <Check className="ml-auto h-4 w-4 text-primary" />
+                                  )}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="tenChuSoHuu"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Tên chủ sở hữu</FormLabel>
-                <FormControl>
-                  <input
-                    {...field}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder="Nguyen Van A"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="tenChuSoHuu"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tên chủ sở hữu</FormLabel>
+                  <FormControl>
+                    <input
+                      {...field}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="Nguyen Van A"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="soTaiKhoan"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Số tài khoản</FormLabel>
-                <FormControl>
-                  <input
-                    {...field}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder="0123456789"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="soTaiKhoan"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Số tài khoản</FormLabel>
+                  <FormControl>
+                    <input
+                      {...field}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="0123456789"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="chiNhanh"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Chi nhánh</FormLabel>
-                <FormControl>
-                  <input
-                    {...field}
-                    className="w-full border rounded-lg px-3 py-2"
-                    placeholder="Chi nhánh Hà Nội"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="chiNhanh"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chi nhánh</FormLabel>
+                  <FormControl>
+                    <input
+                      {...field}
+                      className="w-full border rounded-lg px-3 py-2"
+                      placeholder="Chi nhánh Hà Nội"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit" className="w-full">
-            Lưu
-          </Button>
-        </form>
-      </Form>
+            <Button type="submit" className="w-full">
+              Lưu
+            </Button>
+          </form>
+        </Form>
 
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button className="mt-3 w-full" variant="outline">
-            Yêu cầu duyệt sự kiện
-          </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Yêu cầu duyệt sự kiện</AlertDialogTitle>
-            <AlertDialogDescription>
-              Khi sự kiện được yêu cầu duyệt, bạn sẽ không thể chỉnh sửa thông
-              tin nữa. Vui lòng kiểm tra kỹ trước khi yêu cầu duyệt sự kiện.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                handleUpdateStatusEvent.mutate();
-              }}
-            >
-              Đồng ý
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button className="mt-3 w-full" variant="outline" disabled={!data}>
+              Yêu cầu duyệt sự kiện
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Yêu cầu duyệt sự kiện</AlertDialogTitle>
+              <AlertDialogDescription>
+                Khi sự kiện được yêu cầu duyệt, bạn sẽ không thể chỉnh sửa thông
+                tin nữa. Vui lòng kiểm tra kỹ trước khi yêu cầu duyệt sự kiện.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  handleUpdateStatusEvent.mutate();
+                }}
+              >
+                Đồng ý
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+      <div className="w-11/12 mx-auto flex justify-between py-6 border-t mt-10">
+        <Button onClick={() => setPrevStep()} className="w-32">
+          Quay lại
+        </Button>
+      </div>
+    </>
   );
 }

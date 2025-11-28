@@ -6,9 +6,11 @@ import CreatePerformance from "./EventTicket/CreatePerformance";
 import { useQuery } from "@tanstack/react-query";
 import { getPerformaneAPI } from "@/services/ticketService";
 import { useSearchParams } from "react-router-dom";
+import { useEventStore } from "@/store/useEventStore";
 
 export default function EventTicketSetup() {
   const [searchParams] = useSearchParams();
+  const { setPrevStep, setNextStep } = useEventStore();
   const maSuKien = searchParams.get("eventId");
   const [openCreatePerformance, setOpenCreatePerformance] = useState(false);
   const handleCloseCreatePerformance = () => {
@@ -50,6 +52,14 @@ export default function EventTicketSetup() {
         {openCreatePerformance && (
           <CreatePerformance close={handleCloseCreatePerformance} />
         )}
+      </div>
+      <div className="w-11/12  mx-auto flex justify-between py-6 border-t mt-10">
+        <Button onClick={() => setPrevStep()} className="w-32">
+          Quay lại
+        </Button>
+        <Button onClick={() => setNextStep()} className="w-32">
+          Tiếp tục
+        </Button>
       </div>
     </div>
   );

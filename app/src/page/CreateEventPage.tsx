@@ -15,8 +15,7 @@ const steps = [
 ];
 
 export default function CreateEventPage() {
-  const { step, setStep, setPrevStep, setNextStep, setMaSuKien } =
-    useEventStore();
+  const { step, setMaSuKien } = useEventStore();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("eventId");
 
@@ -28,48 +27,45 @@ export default function CreateEventPage() {
 
   return (
     <div className="shadow-2xl rounded-2xl overflow-hidden">
-      <div className="w-full bg-black text-white px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center ">
-          {steps.map((label, index) => (
-            <div
-              key={index + 1}
-              onClick={setPrevStep}
-              className="flex items-center cursor-pointer"
-            >
-              <div
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                  index < step
-                    ? "bg-green-500 text-white"
-                    : "bg-white text-black"
-                }`}
-              >
-                {index + 1}
-              </div>
-              <span
-                className={`ml-3 text-sm font-medium ${
-                  index + 1 <= step ? "text-green-400" : "text-gray-300"
-                }`}
-              >
-                {label}
-              </span>
-              {index < steps.length - 1 && (
-                <div
-                  className={`w-12 h-[2px] mx-5 ${
-                    index < step ? "bg-green-400" : "bg-gray-700"
-                  }`}
-                ></div>
-              )}
-            </div>
-          ))}
-        </div>
+      <div className="w-full bg-gray-900 text-white px-6 py-6 rounded-t-2xl shadow-md">
+        <div className="flex items-center justify-between">
+          {steps.map((label, index) => {
+            const isActive = index + 1 === step;
+            const isCompleted = index + 1 < step;
 
-        <Button
-          onClick={setNextStep}
-          className="bg-green-500 text-white hover:bg-green-600"
-        >
-          Tiếp tục
-        </Button>
+            return (
+              <div
+                key={index}
+                className="flex flex-col items-center cursor-pointer"
+              >
+                <div
+                  className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${
+                    isActive
+                      ? "bg-green-500 border-green-500 text-white"
+                      : isCompleted
+                      ? "bg-green-400 border-green-400 text-white"
+                      : "bg-gray-800 border-gray-600 text-gray-400"
+                  } transition-all duration-300`}
+                >
+                  {isCompleted ? "✔" : index + 1}
+                </div>
+                <span
+                  className={`mt-2 text-xs font-medium text-center ${
+                    isActive
+                      ? "text-green-400 font-semibold"
+                      : isCompleted
+                      ? "text-green-200"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
+
       <div>
         {step === 1 && <EventProfileSetup />}
         {step === 2 && <EventTicketSetup />}

@@ -105,7 +105,7 @@ const formats = [
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-  const { setStep, setMaSuKien } = useEventStore();
+  const { setStep, setMaSuKien, setPrevStep, setNextStep } = useEventStore();
 
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("eventId");
