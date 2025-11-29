@@ -28,6 +28,48 @@ export const createPerformanceService = async (
   return result.rows[0];
 };
 
+export const updatePerformanceService = async (
+  thoiGianBatDau,
+  thoiGianKetThuc,
+  maSuatDien
+) => {
+  const result = await pool.query(
+    `
+    UPDATE suat_dien
+    SET thoigianbatdau = $1,
+        thoigianketthuc = $2
+    WHERE masuatdien = $3
+    RETURNING *
+  `,
+    [thoiGianBatDau, thoiGianKetThuc, maSuatDien]
+  );
+
+  return result.rows[0];
+};
+
+export const updateTicketTypeService = async (
+  tenLoaiVe,
+  moTa,
+  giaTien,
+  soLuongPhatHanh,
+  maLoaiVe
+) => {
+  const result = await pool.query(
+    `
+      UPDATE loai_ve
+      SET tenloaive = $1,
+          mota = $2,
+          giatien = $3,
+          soluongphathanh = $4
+      WHERE maloaive = $5
+      RETURNING *
+    `,
+    [tenLoaiVe, moTa, giaTien, soLuongPhatHanh, maLoaiVe]
+  );
+
+  return result.rows[0];
+};
+
 export const getPerformaneService = async (maSuKien) => {
   const result = await pool.query(
     "Select * from suat_dien where masukien = $1",

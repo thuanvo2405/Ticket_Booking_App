@@ -19,7 +19,7 @@ import { Pencil, Plus, Ticket, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { formatDateTime } from "@/utils/convert";
+import { formatDate, formatDateTime } from "@/utils/convert";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -35,6 +35,7 @@ import {
   deletePerformaneAPI,
   deleteTicketTypeAPI,
   getTicketTypeAPI,
+  updatePerformanceAPI,
 } from "@/services/ticketService";
 import toast from "react-hot-toast";
 import { useEventStore } from "@/store/useEventStore";
@@ -60,8 +61,12 @@ export default function MenuTicket({
 }: MenuTicketProps) {
   const form = useForm<EventForm>({
     resolver: zodResolver(eventSchema),
-    defaultValues: {},
+    defaultValues: {
+      thoiGianBatDau: new Date(thoiGianBatDau),
+      thoiGianKetThuc: new Date(thoiGianKetThuc),
+    },
   });
+
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openCreateTicket, setOpenCreateTicket] = useState(false);
 
@@ -100,6 +105,28 @@ export default function MenuTicket({
       toast.error("Lỗi xóa loại vé: " + (error.message || error));
     },
   });
+
+  const updatePerformanceMutation = useMutation({
+    mutationFn: ({
+      masuatdien,
+      thoiGianBatDau,
+      thoiGianKetThuc,
+    }: {
+      masuatdien: string;
+      thoiGianBatDau: string;
+      thoiGianKetThuc: string;
+    }) => updatePerformanceAPI(masuatdien, thoiGianBatDau, thoiGianKetThuc),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fetchPerformance", maSuKien],
+      });
+      toast.success("Cập nhật suất diễn thành công");
+    },
+    onError: (error: any) => {
+      toast.error("Lỗi cập nhật: " + (error?.response?.data?.message || error));
+    },
+  });
+
   if (isFetching) return <h1>Loading</h1>;
 
   return (
@@ -162,6 +189,18 @@ export default function MenuTicket({
                 />
               </Form>
             </div>
+            <Button
+              className="w-full"
+              onClick={form.handleSubmit((values) => {
+                updatePerformanceMutation.mutate({
+                  masuatdien,
+                  thoiGianBatDau: formatDate(values.thoiGianBatDau),
+                  thoiGianKetThuc: formatDate(values.thoiGianKetThuc),
+                });
+              })}
+            >
+              Cập nhật thời gian
+            </Button>
             <h3>Loại vé</h3>
             <ul className="flex  flex-col gap-3">
               {data.map((item: any) => (
@@ -174,9 +213,9 @@ export default function MenuTicket({
                     <p>{item.tenloaive}</p>
                   </div>
                   <div className="flex gap-2 items-center">
-                    <Button size="sm">
-                      <Pencil />
-                    </Button>
+                      <Button size="sm">
+                        <Pencil />
+                      </Button>
                     <Button
                       variant="destructive"
                       size="sm"

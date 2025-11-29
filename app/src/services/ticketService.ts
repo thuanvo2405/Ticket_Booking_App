@@ -61,3 +61,17 @@ export const getTicketTypeByPerformanceIDAPI = async (maSuatDien: string) => {
   console.log(res);
   return res.data.data;
 };
+
+export const updatePerformanceAPI = async (
+  maSuatDien: string,
+  thoiGianBatDau: string,
+  thoiGianKetThuc: string
+) => {
+  const res = await axiosInstance.patch(URL + "performance", {
+    maSuatDien,
+    thoiGianBatDau,
+    thoiGianKetThuc,
+  });
+
+  return res.data.data;
+};

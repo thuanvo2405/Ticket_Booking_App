@@ -7,8 +7,15 @@ import {
   getTicketTypeService,
   deleteTicketTypeService,
   ticketTypeByPerformanceIDService,
+  updatePerformanceService,
+  updateTicketTypeService,
 } from "../models/ticketModel.js";
-import { TicketTypeSchema, PerformanceSchema } from "../utils/validate.js";
+import {
+  TicketTypeSchema,
+  PerformanceSchema,
+  UpdatePerformanceSchema,
+  UpdateTicketTypeSchema,
+} from "../utils/validate.js";
 
 export const createTicketType = async (req, res, next) => {
   try {
@@ -95,6 +102,44 @@ export const ticketTypeByPerformanceID = async (req, res, next) => {
     const { maSuatDien } = req.params;
     const result = await ticketTypeByPerformanceIDService(maSuatDien);
     handleResponse(res, 200, "Lấy thông tin loại vé thành công", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateTicketType = async (req, res, next) => {
+  try {
+    const data = UpdateTicketTypeSchema.parse({
+      ...req.body,
+      giaTien: Number(req.body.giaTien),
+      soLuongPhatHanh: Number(req.body.soLuongPhatHanh),
+    });
+
+    const result = await updateTicketTypeService(
+      data.tenLoaiVe,
+      data.moTa || null,
+      data.giaTien,
+      data.soLuongPhatHanh,
+      data.maLoaiVe
+    );
+
+    handleResponse(res, 200, "Cập nhật loại vé thành công", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updatePerformance = async (req, res, next) => {
+  try {
+    const data = UpdatePerformanceSchema.parse(req.body);
+    console.log(data);
+    const result = await updatePerformanceService(
+      data.thoiGianBatDau,
+      data.thoiGianKetThuc,
+      data.maSuatDien
+    );
+
+    handleResponse(res, 200, "Cập nhật suất diễn thành công", result);
   } catch (error) {
     next(error);
   }

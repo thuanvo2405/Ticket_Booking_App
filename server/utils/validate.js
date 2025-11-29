@@ -198,3 +198,48 @@ export const changePasswordSchema = z.object({
         "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.",
     }),
 });
+
+export const UpdatePerformanceSchema = z
+  .object({
+    maSuatDien: z.string().uuid("Mã suất diễn không hợp lệ"),
+    thoiGianBatDau: z
+      .string()
+      .min(1, "Thời gian bắt đầu là bắt buộc")
+      .refine(
+        (val) => !isNaN(Date.parse(val)),
+        "Thời gian bắt đầu không hợp lệ"
+      )
+      .refine(
+        (val) => new Date(val) > new Date(),
+        "Thời gian bắt đầu phải lớn hơn thời gian hiện tại"
+      ),
+    thoiGianKetThuc: z
+      .string()
+      .min(1, "Thời gian kết thúc là bắt buộc")
+      .refine(
+        (val) => !isNaN(Date.parse(val)),
+        "Thời gian kết thúc không hợp lệ"
+      ),
+  })
+  .refine(
+    (data) => new Date(data.thoiGianKetThuc) > new Date(data.thoiGianBatDau),
+    {
+      message: "Thời gian kết thúc phải sau thời gian bắt đầu",
+      path: ["thoiGianKetThuc"],
+    }
+  );
+
+export const UpdateTicketTypeSchema = z.object({
+  tenLoaiVe: z
+    .string()
+    .min(1, "Tên loại vé là bắt buộc")
+    .max(100, "Tên loại vé không được vượt quá 100 ký tự"),
+  moTa: z.string().optional(),
+  giaTien: z
+    .number({ invalid_type_error: "Giá tiền phải là số" })
+    .min(0, "Giá tiền phải >= 0"),
+  soLuongPhatHanh: z
+    .number({ invalid_type_error: "Số lượng phát hành phải là số" })
+    .min(1, "Số lượng phát hành phải >= 1"),
+  maLoaiVe: z.string().uuid("Mã loại vé không hợp lệ"),
+});

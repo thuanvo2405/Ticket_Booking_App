@@ -7,6 +7,8 @@ import {
   getTicketType,
   deleteTicketType,
   ticketTypeByPerformanceID,
+  updateTicketType,
+  updatePerformance,
 } from "../controllers/ticketController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 
@@ -17,6 +19,9 @@ router.get("/ticket-type", getTicketType);
 
 router.post("/ticket-type", authenticateToken, createTicketType);
 router.post("/performance", authenticateToken, createPerformance);
+
+router.patch("/ticket-type", authenticateToken, updateTicketType);
+router.patch("/performance", authenticateToken, updatePerformance);
 
 router.delete("/performance", authenticateToken, deletePerformance);
 router.delete("/ticket-type", authenticateToken, deleteTicketType);
