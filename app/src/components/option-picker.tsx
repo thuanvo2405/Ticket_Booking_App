@@ -32,9 +32,6 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
     setEventType("");
   };
 
-  console.log(area);
-  console.log(eventType);
-
   const handleApply = () => {
     onApply?.({
       area: area,

@@ -11,7 +11,7 @@ import { getSuggestedEventsAPI } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
 import { locations } from "../constant/constant";
-const categories = ["Âm Nhạc", "Sân khấu & Nghệ thuật", "Khác"];
+const categories = ["Âm Nhạc", "Workshop", "Khác"];
 
 export default function HomePage() {
   const { data, isFetching } = useQuery({

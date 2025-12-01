@@ -6,9 +6,9 @@ export default function OrganizerLayout() {
   return (
     <div className="min-h-screen flex">
       <aside className="w-64 bg-white h-screen shadow-md p-5 border-r border-gray-100 fixed left-0 top-0">
-        <NavLink to="/" className="text-lg font-bold uppercase">
-          Eventify
-        </NavLink>
+        <h1 className="text-lg font-bold uppercase text-center">
+          Trang Tổ Chức
+        </h1>
 
         <ul className="flex flex-col gap-2 mt-6">
           <li>

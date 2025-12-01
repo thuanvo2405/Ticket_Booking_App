@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import EventCard from "@/components/event-card";
 import OptionPicker from "@/components/option-picker";
 import TimePicker from "@/components/time-picker";
-import { X } from "lucide-react";
+import { SearchX, X } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
 
 interface FilterData {
@@ -59,18 +59,25 @@ export default function SearchPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
-        {events?.map((item: any) => (
-          <EventCard
-            key={item.masukien}
-            maSuKien={item.masukien}
-            tenSuKien={item.tensukien}
-            anhBanner={item.anhsukienngang}
-            thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
-            giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
-          />
-        ))}
-      </div>
+      {!events || events.length === 0 ? (
+        <div className="w-full h-[400px] flex flex-col items-center justify-center py-20 text-gray-500">
+          <SearchX className="w-24 h-24 mb-3" />
+          <p className="text-xl font-medium">Không có sự kiện phù hợp</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 gap-3">
+          {events.map((item: any) => (
+            <EventCard
+              key={item.masukien}
+              maSuKien={item.masukien}
+              tenSuKien={item.tensukien}
+              anhBanner={item.anhsukienngang}
+              thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
+              giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

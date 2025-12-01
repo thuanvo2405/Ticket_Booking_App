@@ -10,6 +10,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { useSearchStore } from "@/store/useSearchStore";
+import { vi } from "date-fns/locale";
 
 export default function TimePicker() {
   const { fromDate, toDate, setFromDate, setToDate } = useSearchStore();
@@ -27,6 +28,50 @@ export default function TimePicker() {
   const handleSelect = (range: DateRange | undefined) => {
     setFromDate(range?.from);
     setToDate(range?.to);
+  };
+
+  const quickSelect = (label: string) => {
+    const today = new Date();
+    let from: Date | undefined = undefined;
+    let to: Date | undefined = undefined;
+
+    switch (label) {
+      case "Tất cả các ngày":
+        from = undefined;
+        to = undefined;
+        break;
+
+      case "Hôm nay":
+        from = today;
+        to = today;
+        break;
+
+      case "Ngày mai":
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+        from = tomorrow;
+        to = tomorrow;
+        break;
+
+      case "Cuối tuần":
+        const friday = new Date();
+        friday.setDate(today.getDate() + ((5 - today.getDay() + 7) % 7));
+
+        const sunday = new Date(friday);
+        sunday.setDate(friday.getDate() + 2);
+
+        from = friday;
+        to = sunday;
+        break;
+
+      case "Tháng này":
+        from = new Date(today.getFullYear(), today.getMonth(), 1);
+        to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        break;
+    }
+
+    setFromDate(from);
+    setToDate(to);
   };
 
   return (
@@ -83,6 +128,7 @@ export default function TimePicker() {
                 key={label}
                 variant="outline"
                 size="sm"
+                onClick={() => quickSelect(label)}
                 className="rounded-lg text-sm font-medium hover:bg-blue-50 hover:text-blue-600 transition-colors"
               >
                 {label}
@@ -91,11 +137,13 @@ export default function TimePicker() {
           </div>
 
           <Calendar
+            locale={vi}
             mode="range"
             defaultMonth={fromDate || new Date()}
             selected={{ from: fromDate, to: toDate }}
             onSelect={handleSelect}
             numberOfMonths={2}
+            showOutsideDays={false}
             className="rounded-lg border shadow-sm mx-auto w-full"
           />
 
