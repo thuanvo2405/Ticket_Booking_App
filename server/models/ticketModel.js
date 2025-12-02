@@ -67,6 +67,10 @@ export const updateTicketTypeService = async (
     [tenLoaiVe, moTa, giaTien, soLuongPhatHanh, maLoaiVe]
   );
 
+  if (result.rowCount === 0) {
+    throw new Error("Không tìm thấy loại vé", 404);
+  }
+
   return result.rows[0];
 };
 
@@ -93,7 +97,6 @@ export const getTicketTypeService = async (maSuatDien) => {
     "Select * from loai_ve where masuatdien = $1",
     [maSuatDien]
   );
-
   return result.rows;
 };
 

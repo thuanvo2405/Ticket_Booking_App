@@ -24,6 +24,7 @@ import PaymentInfoPage from "./page/PaymentInfoPage";
 import PaymentResultPage from "./page/PaymentResult";
 import AdminLoginPage from "./page/AdminLoginPage";
 import AdminProtectedRoute from "./utils/ProtectRoute";
+import MyOrderPage from "./page/MyOrderPage";
 
 function App() {
   return (
@@ -40,7 +41,7 @@ function App() {
         </Route>
         <Route element={<ProfileLayout />}>
           <Route path="my-profile" element={<ProfilePage />} />
-          <Route path="my-tickets" element={<MyTicketPage />} />
+          <Route path="my-tickets" element={<MyOrderPage />} />
         </Route>
         <Route path="payment-result" element={<PaymentResultPage />} />
       </Route>

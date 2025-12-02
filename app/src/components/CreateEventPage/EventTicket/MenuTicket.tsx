@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Pencil, Plus, Ticket, Trash2 } from "lucide-react";
+import { Plus, Ticket, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +40,7 @@ import {
 import toast from "react-hot-toast";
 import { useEventStore } from "@/store/useEventStore";
 import CreateTicketType from "./CreateTicketType";
+import { UpdateTicketTypeModal } from "./UpdateTicketTypeModal";
 
 const eventSchema = z.object({
   thoiGianBatDau: z.date(),
@@ -78,6 +79,8 @@ export default function MenuTicket({
     queryFn: () => getTicketTypeAPI(masuatdien!),
     enabled: !!masuatdien,
   });
+
+  console.log(data);
 
   const deletePerformance = useMutation({
     mutationFn: () => deletePerformaneAPI(masuatdien),
@@ -213,9 +216,14 @@ export default function MenuTicket({
                     <p>{item.tenloaive}</p>
                   </div>
                   <div className="flex gap-2 items-center">
-                      <Button size="sm">
-                        <Pencil />
-                      </Button>
+                    <UpdateTicketTypeModal
+                      key={item.maloaive}
+                      maLoaiVe={item.maloaive}
+                      tenLoaiVe={item.tenloaive}
+                      giaTien={item.giatien}
+                      soLuongPhatHanh={item.soluongphathanh}
+                      moTa={item.mota}
+                    />
                     <Button
                       variant="destructive"
                       size="sm"

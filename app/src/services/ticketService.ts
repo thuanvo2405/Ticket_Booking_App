@@ -48,7 +48,11 @@ export const createTicketTypeAPI = async (
 
 export const getTicketTypeAPI = async (maSuatDien: string) => {
   const res = await axios.get(URL + "ticket-type", { params: { maSuatDien } });
-  return res.data.data.result;
+  return res.data.data.result.map((ticket: any) => ({
+    ...ticket,
+    giatien: Number(ticket.giatien),
+    soluongphathanh: Number(ticket.soluongphathanh),
+  }));
 };
 
 export const deleteTicketTypeAPI = async (maLoaiVe: string) => {
@@ -74,4 +78,21 @@ export const updatePerformanceAPI = async (
   });
 
   return res.data.data;
+};
+
+export const updateTicketTypeAPI = async (
+  tenLoaiVe: string,
+  giaTien: number,
+  soLuongPhatHanh: number,
+  maLoaiVe: string,
+  moTa?: string
+) => {
+  const res = await axiosInstance.patch(URL + "ticket-type", {
+    tenLoaiVe,
+    moTa,
+    giaTien,
+    soLuongPhatHanh,
+    maLoaiVe,
+  });
+  return res.data;
 };

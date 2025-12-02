@@ -66,5 +66,3 @@ cron.schedule("*/1 * * * *", async () => {
 });
 
 console.log("✅ Cron job order cleanup đã được khởi chạy mỗi phút.");
-
-export default {};

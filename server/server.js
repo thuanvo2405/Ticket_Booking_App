@@ -14,6 +14,8 @@ import orderRoute from "./routes/orderRoute.js";
 import reportRoute from "./routes/reportRoute.js";
 import upload from "./utils/multer.js";
 import errorHandling from "./middleware/errorHandler.js";
+import "./utils/orderCleanup.js";
+
 dotenv.config();
 
 const app = express();

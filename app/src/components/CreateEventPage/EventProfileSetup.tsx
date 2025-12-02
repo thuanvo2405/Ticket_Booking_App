@@ -31,7 +31,7 @@ import {
   updateEventAPI,
 } from "@/services/eventService";
 import toast from "react-hot-toast";
-import { useEventStore, type EventData } from "@/store/useEventStore";
+import { useEventStore } from "@/store/useEventStore";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
@@ -73,39 +73,79 @@ const imageHandler = function (this: any) {
 };
 
 const modules = {
-  toolbar: [
-    [{ header: [1, 2, 3, 4, 5, false] }],
-    ["bold", "italic", "underline", "strike", "blockquote"],
-    [
-      { list: "ordered" },
-      { list: "bullet" },
-      { indent: "-1" },
-      { indent: "+1" },
+  toolbar: {
+    container: [
+      // Heading
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+
+      // Font + Size
+      [{ font: [] }],
+      [{ size: ["small", false, "large", "huge"] }],
+
+      // Styles
+      ["bold", "italic", "underline", "strike"],
+
+      // Color
+      [{ color: [] }, { background: [] }],
+
+      // Alignment
+      [{ align: [] }],
+
+      // List & Indent
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+
+      // Links & Media
+      ["link", "image"],
+
+      // Code
+      ["code", "code-block"],
+
+      // Clean format
+      ["clean"],
     ],
-    ["image"],
-  ],
-  handlers: {
-    image: imageHandler,
+    handlers: {
+      image: imageHandler, // handler custom của bạn
+    },
   },
 };
 
 const formats = [
   "header",
+  "font",
+  "size",
+
   "bold",
   "italic",
   "underline",
   "strike",
-  "blockquote",
+
+  "color",
+  "background",
+
+  "align",
+
   "list",
   "bullet",
   "indent",
+
+  "link",
   "image",
+
+  "code",
+  "code-block",
+
+  "clean",
 ];
 
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
-  const { setStep, setMaSuKien, setPrevStep, setNextStep } = useEventStore();
+  const { setStep, setMaSuKien } = useEventStore();
 
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("eventId");

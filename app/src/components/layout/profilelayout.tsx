@@ -40,26 +40,6 @@ export default function ProfileLayout() {
           <ul className="flex flex-col gap-2 mt-6">
             <li>
               <NavLink
-                to="/my-tickets"
-                className={({ isActive }) =>
-                  `w-full block ${
-                    isActive
-                      ? "bg-green-100 text-green-700"
-                      : "hover:bg-gray-100 text-gray-700"
-                  } rounded-lg`
-                }
-              >
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="w-full justify-start font-medium"
-                >
-                  Vé của tôi
-                </Button>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
                 to="/my-profile"
                 className={({ isActive }) =>
                   `w-full block ${
@@ -78,9 +58,48 @@ export default function ProfileLayout() {
                 </Button>
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                to="/my-tickets"
+                className={({ isActive }) =>
+                  `w-full block ${
+                    isActive
+                      ? "bg-green-100 text-green-700"
+                      : "hover:bg-gray-100 text-gray-700"
+                  } rounded-lg`
+                }
+              >
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="w-full justify-start font-medium"
+                >
+                  Đơn hàng của tôi
+                </Button>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `w-full block ${
+                    isActive
+                      ? "bg-green-100 text-green-700"
+                      : "hover:bg-gray-100 text-gray-700"
+                  } rounded-lg`
+                }
+              >
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  className="w-full justify-start font-medium"
+                >
+                  Tổ chức của bạn
+                </Button>
+              </NavLink>
+            </li>
           </ul>
         </aside>
-
         <main className="bg-white rounded-2xl shadow-md border border-gray-100 p-8">
           <Outlet />
         </main>
