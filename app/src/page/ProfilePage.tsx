@@ -35,6 +35,7 @@ export default function ProfilePage() {
     queryKey: ["fetchCurrentUser"],
     queryFn: getProfileUserAPI,
   });
+  console.log(data);
 
   useEffect(() => {
     if (data) {
@@ -171,7 +172,7 @@ export default function ProfilePage() {
             <Input
               id="email"
               type="email"
-              defaultValue="vothuan2405003@gmail.com"
+              defaultValue={data.email}
               disabled
               className="bg-gray-100 h-11"
             />

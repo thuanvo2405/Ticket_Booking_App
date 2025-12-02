@@ -19,7 +19,7 @@ export const getProfileUser = async (req, res, next) => {
     }
 
     const result = await pool.query(
-      "SELECT tennguoidung,sodienthoai,anhdaidien FROM nguoi_dung WHERE maNguoiDung = $1",
+      "SELECT tennguoidung,sodienthoai,anhdaidien,email FROM nguoi_dung WHERE maNguoiDung = $1",
       [userId]
     );
 

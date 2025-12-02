@@ -8,6 +8,7 @@ import { formatFullDateTime, formatPrice } from "@/utils/convert";
 import { useTicketStore } from "@/store/useTicketStore";
 import { useEffect } from "react";
 import { createOrderAPI } from "@/services/orderService";
+import toast from "react-hot-toast";
 
 export default function SelectTicketPage() {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ export default function SelectTicketPage() {
 
   const createOrderMutation = useMutation({
     mutationFn: (orderData: any) => createOrderAPI(orderData),
+    onSuccess: () => {
+      toast("Tạo đơn hàng thành công");
+    },
   });
 
   const handleContinue = async () => {
@@ -42,9 +46,8 @@ export default function SelectTicketPage() {
       navigate(
         `/event/${maSuKien}/${maSuatDien}/${res.madonhang}/payment-info`
       );
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Tạo đơn hàng thất bại");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Tạo đơn hàng thất bại");
     }
   };
 

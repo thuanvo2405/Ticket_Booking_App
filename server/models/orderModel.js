@@ -42,9 +42,13 @@ export const createOrderService = async (manguoidung, items) => {
 
       const soLuongConLai = soluongphathanh - soluongdaban - soluongkhoa;
 
+      if (soLuongConLai === 0) {
+        throw new Error(`Loại vé này đã hết hàng`);
+      }
+
       if (soLuongConLai < soluong) {
         throw new Error(
-          `Loại vé ${maloaive} không đủ số lượng. Chỉ còn ${soLuongConLai} vé`
+          `Loại vé không đủ số lượng. Chỉ còn ${soLuongConLai} vé`
         );
       }
 

@@ -11,6 +11,7 @@ import { getPromotionAPI } from "@/services/promotionService";
 import { useParams } from "react-router-dom";
 import Counter from "@/components/counter";
 import { type Item, type Order, type Promotion } from "@/constant/types";
+import toast from "react-hot-toast";
 
 export default function PaymentInfoPage() {
   const { madonhang, maSuKien } = useParams();
@@ -74,7 +75,8 @@ export default function PaymentInfoPage() {
     onSuccess: (data) => {
       window.location.href = data.payUrl;
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Có lỗi xảy ra");
       console.error("Checkout failed:", error);
     },
   });
