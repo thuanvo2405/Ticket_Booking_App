@@ -8,10 +8,6 @@ import {
   getEventByOrganizerId,
   getEventTypes,
   deleteEvent,
-  getBankAccount,
-  createBankAccount,
-  updateBankAccount,
-  deleteBankAccount,
   getEventsByCategory,
 } from "../controllers/eventController.js";
 import {
@@ -53,11 +49,5 @@ router.patch(
 router.patch("/event-status", authenticateToken, updateEventStatus);
 
 router.delete("/event/", authenticateToken, deleteEvent);
-
-// Bank Account Routes
-router.get("/event/bank-account", authenticateToken, getBankAccount);
-router.post("/event/bank-account", authenticateToken, createBankAccount);
-router.patch("/event/bank-account", authenticateToken, updateBankAccount);
-router.delete("/event/bank-account", authenticateToken, deleteBankAccount);
 
 export default router;

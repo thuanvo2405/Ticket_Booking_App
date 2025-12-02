@@ -138,58 +138,6 @@ export const deleteEventAPI = async (maSuKien: string) => {
   return res.data.data;
 };
 
-export const getBankAccountByEventIDAPI = async (maSuKien: string) => {
-  const res = await axiosInstance.get(
-    URL + `event/bank-account?maSuKien=` + maSuKien
-  );
-  return res.data.data;
-};
-
-export const createBankAccountAPI = async (
-  maSuKien: string,
-  tenNganHang: string,
-  chiNhanh: string,
-  soTaiKhoan: string,
-  tenChuSoHuu: string
-) => {
-  const res = await axiosInstance.post(
-    URL + `event/bank-account?maSuKien=` + maSuKien,
-    {
-      tenNganHang,
-      chiNhanh,
-      soTaiKhoan,
-      tenChuSoHuu,
-    }
-  );
-  return res.data.data;
-};
-
-export const updateBankAccountAPI = async (
-  maSuKien: string,
-  tenNganHang?: string,
-  chiNhanh?: string,
-  soTaiKhoan?: string,
-  chuTaiKhoan?: string
-) => {
-  const res = await axiosInstance.patch(
-    URL + `event/bank-account?maSuKien=` + maSuKien,
-    {
-      tenNganHang,
-      chiNhanh,
-      soTaiKhoan,
-      chuTaiKhoan,
-    }
-  );
-  return res.data.data;
-};
-
-export const deleteBankAccountAPI = async (maSuKien: string) => {
-  const res = await axiosInstance.delete(
-    URL + `event/bank-account?maSuKien=` + maSuKien
-  );
-  return res.data.data;
-};
-
 export const getSuggestedEventsAPI = async () => {
   const res = await axios.get(URL + `events_suggest`);
   return res.data.data;

@@ -9,13 +9,8 @@ import {
   getEventByOrganizerIdService,
   getEventTypesService,
   deleteEventService,
-  getBankAccountService,
-  createBankAccountService,
-  updateBankAccountService,
-  deleteBankAccountService,
   getEventsByCategoryService,
 } from "../models/eventModel.js";
-import { BankAccountSchema } from "../utils/validate.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 import { EventSchema } from "../utils/validate.js";
@@ -212,77 +207,6 @@ export const deleteEvent = async (req, res, next) => {
     await deleteEventService(maSuKien);
 
     handleResponse(res, 200, "Xóa sự kiện thành công");
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const createBankAccount = async (req, res, next) => {
-  try {
-    const { maSuKien } = req.query;
-
-    const parsed = BankAccountSchema.parse({
-      ...req.body,
-      maSuKien,
-    });
-
-    const result = await createBankAccountService(
-      parsed.maSuKien,
-      parsed.tenNganHang,
-      parsed.chiNhanh,
-      parsed.soTaiKhoan,
-      parsed.tenChuSoHuu
-    );
-
-    handleResponse(res, 201, "Tạo tài khoản ngân hàng thành công", result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getBankAccount = async (req, res, next) => {
-  try {
-    const { maSuKien } = req.query;
-
-    const result = await getBankAccountService(maSuKien);
-    handleResponse(
-      res,
-      200,
-      "Lấy thông tin tài khoản ngân hàng thành công",
-      result
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const updateBankAccount = async (req, res, next) => {
-  try {
-    const { maSuKien } = req.query;
-    if (!maSuKien) return res.status(400).json({ error: "EventId bắt buộc" });
-
-    const parsed = BankAccountSchema.partial().parse({ ...req.body });
-
-    const fields = {
-      tenNganHang: parsed.tenNganHang,
-      chiNhanh: parsed.chiNhanh,
-      soTaiKhoan: parsed.soTaiKhoan,
-      chuTaiKhoan: parsed.tenChuSoHuu,
-    };
-
-    const result = await updateBankAccountService(maSuKien, fields);
-
-    handleResponse(res, 200, "Cập nhật tài khoản ngân hàng thành công", result);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const deleteBankAccount = async (req, res, next) => {
-  try {
-    const { maSuKien } = req.query;
-    await deleteBankAccountService(maSuKien);
-    handleResponse(res, 200, "Xóa tài khoản ngân hàng thành công");
   } catch (error) {
     next(error);
   }

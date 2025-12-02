@@ -109,31 +109,6 @@ export const PromotionSchema = z
     }
   );
 
-export const BankAccountSchema = z.object({
-  tenChuSoHuu: z
-    .string()
-    .min(1, "Tên chủ sở hữu là bắt buộc")
-    .max(100, "Tên chủ sở hữu quá dài"),
-
-  soTaiKhoan: z
-    .string()
-    .min(6, "Số tài khoản phải có ít nhất 6 chữ số")
-    .max(20, "Số tài khoản quá dài")
-    .regex(/^\d+$/, "Số tài khoản chỉ được chứa chữ số"),
-
-  tenNganHang: z
-    .string()
-    .min(1, "Tên ngân hàng là bắt buộc")
-    .max(100, "Tên ngân hàng quá dài"),
-
-  chiNhanh: z
-    .string()
-    .min(1, "Chi nhánh là bắt buộc")
-    .max(100, "Tên chi nhánh quá dài"),
-
-  maSuKien: z.string(),
-});
-
 export const TicketSchema = z.object({
   maLoaiVe: z.string().min(1, "Mã loại vé không hợp lệ"),
   soLuong: z.number().int().positive("Số lượng phải > 0"),

@@ -1,8 +1,6 @@
-import EventPaymentSetup from "@/components/CreateEventPage/EventPaymentSetup";
 import EventProfileSetup from "@/components/CreateEventPage/EventProfileSetup";
 import EventPromotionSetup from "@/components/CreateEventPage/EventPromotionSetup";
 import EventTicketSetup from "@/components/CreateEventPage/EventTicketSetup";
-import { Button } from "@/components/ui/button";
 import { useEventStore } from "@/store/useEventStore";
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -11,7 +9,6 @@ const steps = [
   "Thông tin sự kiện",
   "Thời gian & Loại vé",
   "Thông tin khuyến mãi",
-  "Thông tin thanh toán",
 ];
 
 export default function CreateEventPage() {
@@ -70,7 +67,6 @@ export default function CreateEventPage() {
         {step === 1 && <EventProfileSetup />}
         {step === 2 && <EventTicketSetup />}
         {step === 3 && <EventPromotionSetup />}
-        {step === 4 && <EventPaymentSetup />}
       </div>
     </div>
   );
