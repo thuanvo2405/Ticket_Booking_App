@@ -9,6 +9,19 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useEventStore } from "@/store/useEventStore";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { updateEventStatusAPI } from "@/services/eventService";
+import toast from "react-hot-toast";
 
 type Promotion = {
   makhuyenmai: string;
@@ -42,6 +55,20 @@ export default function EventPromotionSetup() {
       queryClient.invalidateQueries({
         queryKey: ["fetchPromotions", maSuKien],
       });
+    },
+  });
+
+  const handleUpdateStatusEvent = useMutation({
+    mutationFn: () => updateEventStatusAPI(maSuKien!, "CHO_DUYET"),
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: ["fetchProfileEventByOrganizerID"],
+        exact: false,
+      });
+      toast.success("Sự kiện đã được gửi yêu cầu duyệt!");
+    },
+    onError: () => {
+      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
     },
   });
 
@@ -129,9 +156,32 @@ export default function EventPromotionSetup() {
         <Button onClick={() => setPrevStep()} className="w-32">
           Quay lại
         </Button>
-        <Button onClick={() => setNextStep()} className="w-32">
-          Tiếp tục
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button className="" variant="outline">
+              Yêu cầu duyệt sự kiện
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Yêu cầu duyệt sự kiện</AlertDialogTitle>
+              <AlertDialogDescription>
+                Khi sự kiện được yêu cầu duyệt, bạn sẽ không thể chỉnh sửa thông
+                tin nữa. Vui lòng kiểm tra kỹ trước khi yêu cầu duyệt sự kiện.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  handleUpdateStatusEvent.mutate();
+                }}
+              >
+                Đồng ý
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

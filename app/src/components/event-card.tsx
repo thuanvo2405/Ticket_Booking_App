@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { IMAGE_URL } from "@/constant/constant";
 import { Calendar } from "lucide-react";
+import { formatDateTime, formatPrice } from "@/utils/convert";
 
 export interface EventCardProps {
   maSuKien: string;
@@ -29,10 +30,12 @@ export default function EventCard({
       />
       <div className="p-3">
         <p className="font-semibold line-clamp-2 my-1">{tenSuKien}</p>
-        <p className="text-green-600 my-2 font-semibold">Từ {giaTien}</p>
+        <p className="text-green-600 my-2 font-semibold">
+          Từ {formatPrice(Number(giaTien))}
+        </p>
         <div className="flex items-center gap-1 text-sm text-gray-600">
           <Calendar />
-          {thoiGianBatDau}
+          {formatDateTime(thoiGianBatDau)}
         </div>
       </div>
     </NavLink>

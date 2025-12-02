@@ -7,18 +7,31 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Home, Ticket } from "lucide-react";
+import { CheckCircle, XCircle, Home, Ticket, DollarSign } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { retryCheckoutAPI } from "@/services/orderService";
 
 export default function PaymentResultPage() {
   const [searchParams] = useSearchParams();
   const resultCode = searchParams.get("resultCode");
   const message = searchParams.get("message");
   const orderId = searchParams.get("orderId");
+  const madonhang = searchParams.get("madonhang");
 
   const isSuccess = resultCode === "0";
 
+  const retryPaymentMutation = useMutation({
+    mutationFn: () => retryCheckoutAPI(madonhang!),
+    onSuccess: (data) => {
+      window.location.href = data.payUrl;
+    },
+    onError: (error) => {
+      console.error("Checkout failed:", error);
+    },
+  });
+
   return (
-    <div className=" flex items-center justify-center px-4">
+    <div className="flex items-center justify-center px-4">
       <Card className="max-w-md w-full p-4 shadow-lg">
         <CardHeader className="text-center">
           {isSuccess ? (
@@ -52,8 +65,12 @@ export default function PaymentResultPage() {
             </>
           ) : (
             <>
-              <Button variant="destructive" asChild className="w-full">
-                <a href="/checkout">Thử thanh toán lại</a>
+              <Button
+                variant="destructive"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => retryPaymentMutation.mutate()}
+              >
+                <DollarSign className="w-4 h-4" /> Thanh toán lại
               </Button>
               <Button variant="outline" asChild className="w-full">
                 <a href="/" className="flex items-center gap-2">

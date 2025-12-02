@@ -1,7 +1,5 @@
 import pool from "../config/db.js";
 
-export const createPaymentService = async () => {};
-
 export async function validateOrderPaymentDeadline(madonhang) {
   const result = await pool.query(
     `SELECT *

@@ -72,7 +72,6 @@ export default function PaymentInfoPage() {
   const handleCheckOut = useMutation({
     mutationFn: () => checkOutAPI(madonhang!, appliedPromo?.makhuyenmai || ""),
     onSuccess: (data) => {
-      console.log(data.payUrl);
       window.location.href = data.payUrl;
     },
     onError: (error) => {
