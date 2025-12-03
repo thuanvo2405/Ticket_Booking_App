@@ -10,6 +10,7 @@ import {
   getEventTypesService,
   deleteEventService,
   getEventsByCategoryService,
+  getEventsForUserService,
 } from "../models/eventModel.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
@@ -217,6 +218,28 @@ export const getEventsByCategory = async (req, res, next) => {
     const data = await getEventsByCategoryService();
 
     handleResponse(res, 200, "Lấy sự kiện theo danh mục thành công", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventsForUser = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const { tenSuKien, from, to, khuVuc, tenLoaiSuKien } = req.query;
+
+    const result = await getEventsForUserService({
+      page,
+      limit,
+      tenSuKien,
+      from,
+      to,
+      khuVuc,
+      tenLoaiSuKien,
+    });
+
+    handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", result);
   } catch (error) {
     next(error);
   }

@@ -16,9 +16,14 @@ export default function SearchPage() {
   const events = useSearchStore((state) => state.events);
   const searchEvents = useSearchStore((state) => state.searchEvents);
 
+  const area = useSearchStore((state) => state.area);
+  const eventType = useSearchStore((state) => state.eventType);
+  const fromDate = useSearchStore((state) => state.fromDate);
+  const toDate = useSearchStore((state) => state.toDate);
+
   useEffect(() => {
     searchEvents();
-  }, []);
+  }, [area, eventType, fromDate, toDate]);
 
   const handleApplyFilter = (data: FilterData) => setFilters(data);
 
@@ -26,6 +31,9 @@ export default function SearchPage() {
     setFilters((prev) => {
       const newFilters = { ...prev };
       delete newFilters[key];
+
+      if (key === "area") useSearchStore.getState().setArea("Toàn quốc");
+      if (key === "type") useSearchStore.getState().setEventType("");
       return newFilters;
     });
   };

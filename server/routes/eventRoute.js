@@ -9,6 +9,7 @@ import {
   getEventTypes,
   deleteEvent,
   getEventsByCategory,
+  getEventsForUser,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -24,6 +25,7 @@ router.get("/events", parseTokenIfExists, getEvents);
 router.get("/organizer/events", authenticateToken, getEventByOrganizerId);
 router.get("/event-types", getEventTypes);
 router.get("/events_suggest", getEventsByCategory);
+router.get("/user/events", getEventsForUser);
 
 router.post(
   "/event",

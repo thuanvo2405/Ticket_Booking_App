@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getEventsAPI } from "@/services/eventService";
+import { searchEventsForUserAPI } from "@/services/eventService";
 import { format } from "date-fns";
 
 interface SearchStore {
@@ -11,12 +11,16 @@ interface SearchStore {
   toDate?: Date;
   eventType: string;
   area: string;
+  total: number;
+
   setTenSuKien: (tenSuKien: string) => void;
   setEventType: (eventType: string) => void;
   setArea: (area: string) => void;
   setFromDate: (fromDate?: Date) => void;
   setToDate: (toDate?: Date) => void;
+  setPage: (page: number) => void;
   searchEvents: () => Promise<void>;
+  resetFilters: () => void;
 }
 
 export const useSearchStore = create<SearchStore>((set, get) => ({
@@ -27,31 +31,49 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   fromDate: undefined,
   toDate: undefined,
   eventType: "",
-  area: "Toàn Quốc",
+  area: "Toàn quốc",
+  total: 0,
 
   setTenSuKien: (tenSuKien) => set({ tenSuKien }),
-  setFromDate: (fromDate) => set({ fromDate }),
-  setToDate: (toDate) => set({ toDate }),
   setEventType: (eventType) => set({ eventType }),
   setArea: (area) => set({ area }),
-  searchEvents: async () => {
-    const fromDate = get().fromDate;
-    const toDate = get().toDate;
+  setFromDate: (fromDate) => set({ fromDate }),
+  setToDate: (toDate) => set({ toDate }),
+  setPage: (page) => set({ page }),
 
+  resetFilters: () =>
+    set({
+      tenSuKien: "",
+      eventType: "",
+      area: "Toàn quốc",
+      fromDate: undefined,
+      toDate: undefined,
+      page: 1,
+    }),
+
+  searchEvents: async () => {
     try {
-      const res = await getEventsAPI({
+      const res = await searchEventsForUserAPI({
         page: get().page,
         limit: get().limit,
-        tenSuKien: get().tenSuKien,
-        trangThai: "DA_DUYET",
-        from: fromDate ? format(fromDate, "yyyy-MM-dd") : undefined,
-        to: toDate ? format(toDate, "yyyy-MM-dd") : undefined,
+        tenSuKien: get().tenSuKien || undefined,
+        khuVuc: get().area !== "Toàn quốc" ? get().area : undefined,
+        tenLoaiSuKien: get().eventType || undefined,
+        from: get().fromDate
+          ? format(get().fromDate as Date, "yyyy-MM-dd")
+          : undefined,
+        to: get().toDate
+          ? format(get().toDate as Date, "yyyy-MM-dd")
+          : undefined,
       });
 
-      set({ events: res.data });
+      set({
+        events: res.data,
+        total: res.total,
+      });
     } catch (error) {
-      console.error("Search failed:", error);
-      set({ events: [] });
+      console.error("Search events failed:", error);
+      set({ events: [], total: 0 });
     }
   },
 }));

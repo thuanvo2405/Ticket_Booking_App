@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./page/HomePage";
 import Layout from "./components/layout/layout";
 import ResetPasswordPage from "./page/ResetPasswordPage";
-import MyTicketPage from "./page/MyTicketPage";
 import ProfileLayout from "./components/layout/profilelayout";
 import AdminPage from "./page/AdminPage";
 import EventPage from "./page/EventPage";

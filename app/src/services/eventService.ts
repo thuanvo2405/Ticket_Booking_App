@@ -142,3 +142,36 @@ export const getSuggestedEventsAPI = async () => {
   const res = await axios.get(URL + `events_suggest`);
   return res.data.data;
 };
+
+export const searchEventsForUserAPI = async ({
+  page = 1,
+  limit = 12,
+  from,
+  to,
+  khuVuc,
+  tenLoaiSuKien,
+  tenSuKien,
+}: {
+  page?: number;
+  limit?: number;
+  from?: string;
+  to?: string;
+  khuVuc?: string;
+  tenLoaiSuKien?: string;
+  maToChuc?: string;
+  tenSuKien?: string;
+}) => {
+  const params = new URLSearchParams();
+
+  params.append("page", page.toString());
+  params.append("limit", limit.toString());
+
+  if (from) params.append("from", from);
+  if (to) params.append("to", to);
+  if (khuVuc) params.append("khuVuc", khuVuc);
+  if (tenLoaiSuKien) params.append("tenLoaiSuKien", tenLoaiSuKien);
+  if (tenSuKien) params.append("tenSuKien", tenSuKien);
+
+  const res = await axios.get(`${URL}user/events?${params.toString()}`);
+  return res.data.data;
+};
