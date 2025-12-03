@@ -36,6 +36,7 @@
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.554.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-countdown": "^2.3.6",
     "react-day-picker": "^9.11.1",

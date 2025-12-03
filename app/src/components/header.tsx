@@ -64,7 +64,7 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {isLoggedIn() ? (
               <>
-                <NavLink to="/my-tickets">
+                <NavLink to="/my-order">
                   <Button className="bg-white text-green-600 hover:bg-green-50">
                     Vé của tôi
                   </Button>

@@ -13,6 +13,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { NavLink } from "react-router-dom";
 
 export type UserOrder = {
   madonhang: string;
@@ -129,7 +130,7 @@ export default function MyOrderPage() {
 
         return (
           <div className="flex gap-2">
-            <Button>Xem</Button>
+            <NavLink to={`/my-order/${row.original.madonhang}`}>Xem</NavLink>
             {order.trangthai === "CHO_THANH_TOAN" && (
               <Button
                 onClick={() => retryPaymentMutation.mutate(order.madonhang)}

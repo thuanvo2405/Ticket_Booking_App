@@ -7,7 +7,7 @@ export default function ProfileLayout() {
   const location = useLocation();
   const { userProfile } = useAuth();
   const getPageTitle = () => {
-    if (location.pathname.includes("my-tickets")) return "Vé của tôi";
+    if (location.pathname.includes("my-order")) return "Vé của tôi";
     if (location.pathname.includes("my-events")) return "Sự kiện của tôi";
     if (location.pathname.includes("my-profile")) return "Thông tin cá nhân";
     return "Tài khoản";
@@ -60,7 +60,7 @@ export default function ProfileLayout() {
             </li>
             <li>
               <NavLink
-                to="/my-tickets"
+                to="/my-order"
                 className={({ isActive }) =>
                   `w-full block ${
                     isActive

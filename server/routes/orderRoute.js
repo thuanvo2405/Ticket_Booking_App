@@ -4,6 +4,7 @@ import {
   getOrderById,
   getOrdersByUserId,
   getOrderDetail,
+  getTicketByOrderID,
 } from "../controllers/orderController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 const router = express.Router();
@@ -12,10 +13,6 @@ router.post("/order", authenticateToken, createOrder);
 router.get("/order/:madonhang", authenticateToken, getOrderById);
 
 router.get("/user/orders", authenticateToken, getOrdersByUserId);
-router.get(
-  "/user/orders/:madonhang",
-  authenticateToken,
-  getOrderDetail
-);
-
+router.get("/user/orders/:madonhang", authenticateToken, getOrderDetail);
+router.get("/order/:madonhang/tickets", authenticateToken, getTicketByOrderID);
 export default router;

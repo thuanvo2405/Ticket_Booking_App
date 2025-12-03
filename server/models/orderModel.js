@@ -192,3 +192,27 @@ export const getOrderDetailService = async (madonhang) => {
     tickets: detailTicket.rows,
   };
 };
+
+export const getTicketByOrderIDService = async (madonhang) => {
+  const result = await pool.query(
+    `
+  SELECT 
+    ve.*, 
+    loai_ve.tenloaive, 
+    sk.tensukien,
+    sk.diachi,
+    sk.quan,
+    sk.phuong,
+    sk.thanhpho,
+    sd.thoigianbatdau
+  FROM ve
+  JOIN loai_ve ON loai_ve.maloaive = ve.maloaive
+  JOIN suat_dien AS sd ON sd.masuatdien = loai_ve.masuatdien
+  JOIN su_kien AS sk ON sd.masukien = sk.masukien
+  WHERE ve.madonhang = $1;
+    `,
+    [madonhang]
+  );
+
+  return result.rows;
+};

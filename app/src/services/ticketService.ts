@@ -96,3 +96,8 @@ export const updateTicketTypeAPI = async (
   });
   return res.data;
 };
+
+export const getTicketsByOrderIDAPI = async (madonhang: string) => {
+  const res = await axiosInstance.get(`order/${madonhang}/tickets`);
+  return res.data.data;
+};

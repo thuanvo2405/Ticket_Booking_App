@@ -25,6 +25,7 @@ import PaymentResultPage from "./page/PaymentResult";
 import AdminLoginPage from "./page/AdminLoginPage";
 import AdminProtectedRoute from "./utils/ProtectRoute";
 import MyOrderPage from "./page/MyOrderPage";
+import DetailOrderPage from "./page/DetailOrderPage";
 
 function App() {
   return (
@@ -41,7 +42,8 @@ function App() {
         </Route>
         <Route element={<ProfileLayout />}>
           <Route path="my-profile" element={<ProfilePage />} />
-          <Route path="my-tickets" element={<MyOrderPage />} />
+          <Route path="my-order" element={<MyOrderPage />} />
+          <Route path="my-order/:madonhang" element={<DetailOrderPage />} />
         </Route>
         <Route path="payment-result" element={<PaymentResultPage />} />
       </Route>

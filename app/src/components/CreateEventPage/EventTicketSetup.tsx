@@ -57,7 +57,6 @@ export default function EventTicketSetup() {
 
     setNextStep();
   };
-
   return (
     <div>
       <div className="border-b-2 w-11/12 mx-auto py-3">
