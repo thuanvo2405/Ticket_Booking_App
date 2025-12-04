@@ -98,7 +98,7 @@ export const updatePayment = async (req, res, next) => {
 
     // ====== 6. Update order status ======
     await pool.query(
-      `UPDATE don_hang SET trangthai = 'DA_THANH_TOAN' WHERE madonhang = $1`,
+      `UPDATE don_hang SET trangthai = 'DA_THANH_TOAN', thoigianthanhtoan = NOW() WHERE madonhang = $1`,
       [madonhang]
     );
     console.log("end");
