@@ -63,8 +63,15 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    const savedTokens = localStorage.getItem("tokens");
+    const isAdminPath = window.location.pathname.startsWith("/admin");
+
+    const savedUser = isAdminPath
+      ? localStorage.getItem("admin_user")
+      : localStorage.getItem("user");
+
+    const savedTokens = isAdminPath
+      ? localStorage.getItem("admin_tokens")
+      : localStorage.getItem("tokens");
 
     if (savedUser && savedTokens) {
       const parsedUser = JSON.parse(savedUser);
@@ -144,8 +151,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await loginForAdminAPI(email, password);
       if (res && res.tokens && res.user) {
-        localStorage.setItem("tokens", JSON.stringify(res.tokens));
-        localStorage.setItem("user", JSON.stringify(res.user));
+        localStorage.setItem("admin_tokens", JSON.stringify(res.tokens));
+        localStorage.setItem("admin_user", JSON.stringify(res.user));
 
         setToken(res.tokens);
         setUser(res.user);
@@ -153,19 +160,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         axiosInstance.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${res.tokens.accessToken}`;
-        axios.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${res.tokens.accessToken}`;
-        await fetchUserProfile();
-        toast.success("Đăng nhập thành công!");
+        toast.success("Đăng nhập admin thành công!");
         return true;
-      } else {
-        toast.error("Phản hồi đăng nhập không hợp lệ!");
-        return false;
       }
+      toast.error("Phản hồi đăng nhập admin không hợp lệ!");
+      return false;
     } catch (error: any) {
-      console.log(error);
-      toast.error(error.response?.data?.error || "Sai email hoặc mật khẩu");
+      toast.error(error.response?.data?.message || "Sai email hoặc mật khẩu");
       return false;
     }
   };
@@ -173,15 +174,21 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = () => !!user && !!token;
 
   const logout = () => {
-    localStorage.removeItem("tokens");
-    localStorage.removeItem("user");
+    if (user?.vaitro === "QUAN_TRI") {
+      localStorage.removeItem("admin_tokens");
+      localStorage.removeItem("admin_user");
+    } else {
+      localStorage.removeItem("tokens");
+      localStorage.removeItem("user");
+    }
+
     setUser(null);
     setToken(null);
     setUserProfile(null);
 
-    delete axios.defaults.headers.common["Authorization"];
     delete axiosInstance.defaults.headers.common["Authorization"];
     toast.success("Đã đăng xuất!");
+
     navigate("/");
   };
 

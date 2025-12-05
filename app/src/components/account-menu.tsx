@@ -6,14 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import {
-  Ticket,
-  Calendar,
-  User,
-  LogOut,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import { Ticket, User, LogOut, ChevronUp, ChevronDown } from "lucide-react";
 import { useAuth } from "@/context/AuthProvider";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -23,6 +16,7 @@ export function AccountMenu() {
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
   const { userProfile } = useAuth();
+  console.log(userProfile);
 
   return (
     <DropdownMenu onOpenChange={setOpen}>
