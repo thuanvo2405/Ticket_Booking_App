@@ -26,7 +26,7 @@ export const locations = [
     link: "/events?city=danang",
   },
   {
-    name: "Khu vực khác",
+    name: "Khác",
     image: "/locations/other.jpg",
     link: "/events?city=other",
   },

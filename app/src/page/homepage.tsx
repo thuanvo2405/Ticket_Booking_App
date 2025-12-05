@@ -14,7 +14,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
 import { IMAGE_URL, locations } from "../constant/constant";
-const categories = ["Âm Nhạc", "Workshop", "Khác"];
+const categories = ["Âm Nhạc", "Sân Khấu", "Workshop", "Thể Thao", "Khác"];
+const categoriesSuggest = ["Âm Nhạc", "Workshop", "Khác"];
 
 function EventSkeleton() {
   return (
@@ -39,52 +40,22 @@ export default function HomePage() {
     queryFn: () => getSpecialEventsAPI(),
   });
 
-  console.log(specialEvent);
-
   return (
     <div>
       <nav className="h-[60px] bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
         <ul className="flex h-full items-center w-[1284px] gap-3 ">
-          <li>
-            <Button
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
-            >
-              Âm Nhạc
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
-            >
-              Sân Khấu
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
-            >
-              Thể thao
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
-            >
-              Workshop
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
-            >
-              Khác
-            </Button>
-          </li>
+          {categories.map((item) => (
+            <li key={item}>
+              <NavLink to={`search?type=${item}`}>
+                <Button
+                  variant="outline"
+                  className="border-green-600 text-green-600 hover:bg-green-50 px-6 py-2 rounded-full transition"
+                >
+                  {item}
+                </Button>
+              </NavLink>
+            </li>
+          ))}
         </ul>
       </nav>
 
@@ -175,7 +146,7 @@ export default function HomePage() {
           </Carousel>
         </section>
 
-        {categories.map((category) => (
+        {categoriesSuggest.map((category) => (
           <div key={category} className="mt-8">
             <p className="font-semibold text-lg mb-3">{category}</p>
             <div className="grid grid-cols-4 gap-4 ">
@@ -202,7 +173,7 @@ export default function HomePage() {
           <div className="flex gap-4">
             {locations.map((loc) => (
               <NavLink
-                to="/search"
+                to={`/search?area=${loc.name}`}
                 key={loc.name}
                 className="relative rounded-2xl overflow-hidden w-[300px] h-[200px]"
               >

@@ -4,6 +4,8 @@ import OptionPicker from "@/components/option-picker";
 import TimePicker from "@/components/time-picker";
 import { SearchX, X } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
+import { useSearchParams } from "react-router-dom";
+import { format } from "date-fns";
 
 interface FilterData {
   area?: string;
@@ -12,6 +14,7 @@ interface FilterData {
 }
 
 export default function SearchPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<FilterData>({});
   const events = useSearchStore((state) => state.events);
   const searchEvents = useSearchStore((state) => state.searchEvents);
@@ -20,10 +23,34 @@ export default function SearchPage() {
   const eventType = useSearchStore((state) => state.eventType);
   const fromDate = useSearchStore((state) => state.fromDate);
   const toDate = useSearchStore((state) => state.toDate);
+  const page = useSearchStore((state) => state.page);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+
+    if (params.area) useSearchStore.getState().setArea(params.area);
+    if (params.type) useSearchStore.getState().setEventType(params.type);
+    if (params.from)
+      useSearchStore.getState().setFromDate(new Date(params.from));
+    if (params.to) useSearchStore.getState().setToDate(new Date(params.to));
+    if (params.page) useSearchStore.getState().setPage(Number(params.page));
+  }, []);
+
+  useEffect(() => {
+    const params: any = {};
+
+    if (area !== "Toàn quốc") params.area = area;
+    if (eventType) params.type = eventType;
+    if (fromDate) params.from = format(fromDate, "yyyy-MM-dd");
+    if (toDate) params.to = format(toDate, "yyyy-MM-dd");
+    if (page) params.page = String(page);
+
+    setSearchParams(params);
+  }, [area, eventType, fromDate, toDate, page]);
 
   useEffect(() => {
     searchEvents();
-  }, [area, eventType, fromDate, toDate]);
+  }, [area, eventType, fromDate, toDate, page]);
 
   const handleApplyFilter = (data: FilterData) => setFilters(data);
 

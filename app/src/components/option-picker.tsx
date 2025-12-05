@@ -56,22 +56,18 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
         <div>
           <p className="font-semibold mb-2">Khu vực</p>
           <RadioGroup value={area} onValueChange={setArea}>
-            {[
-              "Toàn quốc",
-              "Hồ Chí Minh",
-              "Hà Nội",
-              "Đà Nẵng",
-              "Khu vực khác",
-            ].map((item, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={item}
-                  defaultValue={area}
-                  id={`area-${i}`}
-                />
-                <Label htmlFor={`area-${i}`}>{item}</Label>
-              </div>
-            ))}
+            {["Toàn quốc", "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Khác"].map(
+              (item, i) => (
+                <div key={i} className="flex items-center space-x-2">
+                  <RadioGroupItem
+                    value={item}
+                    defaultValue={area}
+                    id={`area-${i}`}
+                  />
+                  <Label htmlFor={`area-${i}`}>{item}</Label>
+                </div>
+              )
+            )}
           </RadioGroup>
         </div>
 

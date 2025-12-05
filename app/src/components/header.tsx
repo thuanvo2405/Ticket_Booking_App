@@ -6,12 +6,28 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { AccountMenu } from "./account-menu";
 import { Search } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
+import { useSearchParams } from "react-router-dom";
 
 export default function Header() {
   const [modalOpen, setModalOpen] = useState<null | "login" | "register">(null);
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const { tenSuKien, setTenSuKien, searchEvents } = useSearchStore();
+  const [searchParams] = useSearchParams();
+
+  const handleSeach = () => {
+    const params = new URLSearchParams(searchParams);
+
+    if (tenSuKien) {
+      params.set("tenSuKien", tenSuKien);
+    } else {
+      params.delete("tenSuKien");
+    }
+
+    searchEvents();
+
+    navigate(`/search?${params.toString()}`);
+  };
 
   return (
     <>
@@ -36,12 +52,7 @@ export default function Header() {
               />
               <Button
                 className="rounded-none rounded-r-full bg-green-500 hover:bg-green-600 text-white px-5"
-                onClick={() => {
-                  searchEvents();
-                  navigate(
-                    `/search?tenSuKien=${encodeURIComponent(tenSuKien)}`
-                  );
-                }}
+                onClick={handleSeach}
               >
                 Tìm kiếm
               </Button>
@@ -64,21 +75,10 @@ export default function Header() {
           <div className="flex items-center gap-3">
             {isLoggedIn() ? (
               <>
-                <NavLink to="/my-order">
-                  <Button className="bg-white text-green-600 hover:bg-green-50">
-                    Vé của tôi
-                  </Button>
-                </NavLink>
                 <AccountMenu />
               </>
             ) : (
               <>
-                <Button
-                  className="bg-white text-green-600 hover:bg-green-50"
-                  onClick={() => setModalOpen("login")}
-                >
-                  Vé của tôi
-                </Button>
                 <Button
                   className="bg-white text-green-600 hover:bg-green-50"
                   onClick={() => setModalOpen("register")}

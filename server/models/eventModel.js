@@ -234,8 +234,8 @@ export const getEventsService = async ({
   }
 
   if (tenSuKien) {
-    conditions.push(`sk.tensukien ILIKE $${params.length + 1}`);
     params.push(`%${tenSuKien}%`);
+    conditions.push(`unaccent(sk.tensukien) ILIKE unaccent($${params.length})`);
   }
 
   const whereClause = conditions.length
@@ -407,7 +407,7 @@ export const getEventsForUserService = async ({
 
   if (tenSuKien) {
     params.push(`%${tenSuKien}%`);
-    conditions.push(`sk.tensukien ILIKE $${params.length}`);
+    conditions.push(`unaccent(sk.tensukien) ILIKE unaccent($${params.length})`);
   }
 
   if (khuVuc && khuVuc !== "Toàn quốc") {
