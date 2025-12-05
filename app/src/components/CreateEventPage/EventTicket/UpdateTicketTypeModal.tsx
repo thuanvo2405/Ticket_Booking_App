@@ -57,7 +57,7 @@ export function UpdateTicketTypeModal({
   giaTien,
   moTa,
 }: UpdateTicketTypeModalProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const queryClient = useQueryClient();
 

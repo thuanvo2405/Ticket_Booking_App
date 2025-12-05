@@ -7,17 +7,39 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { getSuggestedEventsAPI } from "@/services/eventService";
+import {
+  getSpecialEventsAPI,
+  getSuggestedEventsAPI,
+} from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
-import { locations } from "../constant/constant";
+import { IMAGE_URL, locations } from "../constant/constant";
 const categories = ["Âm Nhạc", "Workshop", "Khác"];
+
+function EventSkeleton() {
+  return (
+    <div className="w-full h-[400px] bg-gray-200 rounded-lg animate-pulse" />
+  );
+}
+
+function BannerSkeleton() {
+  return (
+    <div className="relative w-full h-[400px] rounded-lg overflow-hidden"></div>
+  );
+}
 
 export default function HomePage() {
   const { data, isFetching } = useQuery({
     queryKey: ["eventsByCategory"],
     queryFn: () => getSuggestedEventsAPI(),
   });
+
+  const { data: specialEvent, isFetching: loadingSpecialEvents } = useQuery({
+    queryKey: ["specialEvents"],
+    queryFn: () => getSpecialEventsAPI(),
+  });
+
+  console.log(specialEvent);
 
   return (
     <div>
@@ -70,48 +92,84 @@ export default function HomePage() {
         <div>
           <Carousel opts={{ align: "start" }}>
             <CarouselContent>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <CarouselItem key={index} className="flex-[0_0_50%] relative">
-                  <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
-                    <img
-                      src="/img.jpg"
-                      alt={`slide-${index}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-4 left-4">
-                      <Button>Xem chi tiết</Button>
+              {loadingSpecialEvents ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <CarouselItem key={index} className="flex-[0_0_50%] relative">
+                    <BannerSkeleton />
+                  </CarouselItem>
+                ))
+              ) : specialEvent?.length > 0 ? (
+                specialEvent.map((item: any) => (
+                  <CarouselItem
+                    key={item.masukien}
+                    className="flex-[0_0_50%] relative"
+                  >
+                    <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+                      <img
+                        src={IMAGE_URL + item.anhsukienngang}
+                        alt={item.masukien}
+                        className="w-full h-full object-cover"
+                      />
+
+                      <div className="absolute bottom-4 left-4">
+                        <Button asChild>
+                          <NavLink to={`/event?maSuKien=${item.masukien}`}>
+                            Xem chi tiết
+                          </NavLink>
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CarouselItem>
-              ))}
+                  </CarouselItem>
+                ))
+              ) : (
+                <p>Không có sự kiện nổi bật</p>
+              )}
             </CarouselContent>
+
             <CarouselPrevious className="absolute top-1/2 left-2 -translate-y-1/2 z-10" />
             <CarouselNext className="absolute top-1/2 right-2 -translate-y-1/2 z-10" />
           </Carousel>
-
-          <div className="flex justify-center mt-4 space-x-2">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="w-3 h-3 rounded-full bg-gray-300" />
-            ))}
-          </div>
         </div>
 
         <section className="mt-8">
           <p className="font-semibold text-lg mb-3">Sự kiện đặc biệt</p>
+
           <Carousel opts={{ align: "start" }}>
             <CarouselContent>
-              {Array.from({ length: 5 }).map((_, index) => (
-                <CarouselItem key={index} className="flex-[0_0_25%] relative">
-                  <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
-                    <img
-                      src="/img.jpg"
-                      alt={`slide-${index}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </CarouselItem>
-              ))}
+              {loadingSpecialEvents ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <CarouselItem key={index} className="flex-[0_0_25%] relative">
+                    <EventSkeleton />
+                  </CarouselItem>
+                ))
+              ) : specialEvent?.length > 0 ? (
+                specialEvent.map((item: any) => (
+                  <CarouselItem
+                    key={item.masukien}
+                    className="flex-[0_0_25%] relative"
+                  >
+                    <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+                      <img
+                        src={IMAGE_URL + item.anhsukiendoc}
+                        alt={item.masukien}
+                        className="w-full h-full object-cover"
+                      />
+
+                      <div className="absolute bottom-2 left-2">
+                        <Button asChild size="sm">
+                          <NavLink to={`/event?maSuKien=${item.masukien}`}>
+                            Xem chi tiết
+                          </NavLink>
+                        </Button>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))
+              ) : (
+                <p>Không có sự kiện nào</p>
+              )}
             </CarouselContent>
+
             <CarouselPrevious className="absolute top-1/2 left-2 -translate-y-1/2 z-10" />
             <CarouselNext className="absolute top-1/2 right-2 -translate-y-1/2 z-10" />
           </Carousel>
@@ -120,7 +178,7 @@ export default function HomePage() {
         {categories.map((category) => (
           <div key={category} className="mt-8">
             <p className="font-semibold text-lg mb-3">{category}</p>
-            <div className="flex gap-4 ">
+            <div className="grid grid-cols-4 gap-4 ">
               {!isFetching ? (
                 data?.[category]?.map((item: any) => (
                   <EventCard

@@ -249,6 +249,11 @@ export const getEventsService = async ({
       sk.anhsukiendoc,
       sk.anhsukienngang,
       sk.trangthai,
+      sk.diachi,
+      sk.phuong,
+      sk.quan,
+      sk.thanhpho,
+      sk.mota,
       tc.tentochuc,
       lsk.tenloaisukien,
       (
@@ -332,7 +337,7 @@ export const deleteEventService = async (maSuKien) => {
 };
 
 export const getEventsByCategoryService = async () => {
-  const categories = ["Âm Nhạc", "Sân khấu & Nghệ thuật", "Khác"];
+  const categories = ["Âm Nhạc", "Workshop", "Khác"];
 
   const result = await pool.query(
     `SELECT 
@@ -498,4 +503,22 @@ export const getEventsForUserService = async ({
     limit,
     total: parseInt(totalResult.rows[0].count, 10),
   };
+};
+
+export const getSpecialEventService = async () => {
+  const result = await pool.query(
+    `SELECT *
+     FROM (
+        SELECT DISTINCT su_kien.maSuKien,
+                        su_kien.anhSuKienNgang,
+                        su_kien.anhSuKienDoc
+        FROM su_kien
+        JOIN suat_dien ON su_kien.maSuKien = suat_dien.maSuKien
+        WHERE suat_dien.thoiGianBatDau > NOW()
+     ) AS unique_events
+     ORDER BY RANDOM()
+     LIMIT 5;`
+  );
+
+  return result.rows;
 };

@@ -8,6 +8,8 @@ import {
   DialogTrigger,
   WideDialogContent,
 } from "@/components/ui/dialog";
+import { IMAGE_URL } from "@/constant/constant";
+import { useState } from "react";
 
 export interface EventProfileModalProps {
   maSuKien: number;
@@ -20,6 +22,8 @@ export interface EventProfileModalProps {
 
 export function EventProfileModal({ event }: any) {
   console.log(event);
+  const [expand, setExpand] = useState(false);
+
   return (
     <Dialog>
       <form>
@@ -51,83 +55,52 @@ export function EventProfileModal({ event }: any) {
                   <span className="font-bold">Tên tổ chức:</span>
                   {event.tentochuc}
                 </div>
-                <div className="grid grid-cols-[1fr_5fr]">
-                  <span className="font-bold">Trạng thái:</span>
-                  {event.trangthai.replaceAll("_", " ")}
+
+                <div className="col-span-2">
+                  <span className="font-bold">Địa chỉ:</span>{" "}
+                  {`${event.diachi}, ${event.phuong}, ${event.quan}, ${event.thanhpho}`}
                 </div>
                 <div className="col-span-2">
                   <span className="font-bold">Mô tả:</span>
                   <div
-                    className="prose max-w-none"
-                    dangerouslySetInnerHTML={{ __html: event.mota_sukien }}
+                    className={`
+      prose max-w-none overflow-hidden transition-all duration-300
+      ${expand ? "max-h-full" : "max-h-40"}
+    `}
+                    dangerouslySetInnerHTML={{ __html: event.mota }}
                   />
+                  <button
+                    type="button"
+                    className="text-blue-600 mt-2 hover:underline"
+                    onClick={() => setExpand(!expand)}
+                  >
+                    {expand ? "Thu gọn" : "Xem thêm"}
+                  </button>
                 </div>
               </div>
             </section>
 
-            {/* 2. Thời gian & địa điểm */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-                Thời gian & địa điểm
-              </h2>
-              <div className="flex flex-col gap-x-8 gap-y-4">
-                <div className="grid grid-cols-[3fr_8fr]">
-                  <span className="font-bold">Ngày bắt đầu:</span>{" "}
-                  {event.ngaybatdau}
-                </div>
-                <div className="grid grid-cols-[3fr_8fr]">
-                  <span className="font-bold">Ngày kết thúc:</span>{" "}
-                  {event.ngayketthuc}
-                </div>
-                <div className="col-span-2">
-                  <span className="font-bold">Địa chỉ:</span>{" "}
-                  {`${event.diaChi}, ${event.phuong}, ${event.quan}, ${event.thanhPho}`}
-                </div>
-              </div>
-            </section>
-
-            {/* 3. Truyền thông & hình ảnh */}
             <section>
               <h2 className="text-xl font-semibold mb-4 border-b pb-2">
                 Truyền thông & hình ảnh
               </h2>
-              <div className="flex flex-wrap gap-6">
-                {event.anhSuKienNgang && (
-                  <img
-                    src={event.anhSuKienNgang}
-                    alt="Ảnh ngang sự kiện"
-                    className="w-64 h-44 object-cover rounded-md shadow"
-                  />
-                )}
-                {event.anhSuKienDoc && (
-                  <img
-                    src={event.anhSuKienDoc}
-                    alt="Ảnh dọc sự kiện"
-                    className="w-44 h-64 object-cover rounded-md shadow"
-                  />
-                )}
-              </div>
-            </section>
 
-            {/* 4. Thông tin bán vé / đăng ký */}
-            <section>
-              <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-                Thông tin bán vé / đăng ký
-              </h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                <div>
-                  <span className="font-bold">Loại vé:</span> {event.loaiVe}
+              <div className="flex flex-wrap gap-8 justify-start items-start">
+                <div className="flex flex-col items-center">
+                  <img
+                    src={IMAGE_URL + event.anhsukienngang}
+                    alt="Ảnh ngang sự kiện"
+                    className="w-[500px] h-[280px] object-cover rounded-lg shadow"
+                  />
+                  <span className="text-sm mt-2 text-gray-600">Ảnh ngang</span>
                 </div>
-                <div>
-                  <span className="font-bold">Giá vé:</span> {event.giaVe}
-                </div>
-                <div>
-                  <span className="font-bold">Số lượng vé:</span>{" "}
-                  {event.soLuongVe}
-                </div>
-                <div className="col-span-2">
-                  <span className="font-bold">Khuyến mãi:</span>{" "}
-                  {event.khuyenMai || "Không có"}
+                <div className="flex flex-col items-center">
+                  <img
+                    src={IMAGE_URL + event.anhsukiendoc}
+                    alt="Ảnh dọc sự kiện"
+                    className="w-[260px] h-[400px] object-cover rounded-lg shadow"
+                  />
+                  <span className="text-sm mt-2 text-gray-600">Ảnh dọc</span>
                 </div>
               </div>
             </section>

@@ -11,6 +11,7 @@ import {
   deleteEventService,
   getEventsByCategoryService,
   getEventsForUserService,
+  getSpecialEventService,
 } from "../models/eventModel.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
@@ -240,6 +241,16 @@ export const getEventsForUser = async (req, res, next) => {
     });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSpecialEvent = async (req, res, next) => {
+  try {
+    const data = await getSpecialEventService();
+
+    handleResponse(res, 200, "Lấy sự kiện đặc biệt thành công", data);
   } catch (error) {
     next(error);
   }

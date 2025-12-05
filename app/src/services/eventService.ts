@@ -143,6 +143,11 @@ export const getSuggestedEventsAPI = async () => {
   return res.data.data;
 };
 
+export const getSpecialEventsAPI = async () => {
+  const res = await axios.get(URL + `events_special`);
+  return res.data.data;
+};
+
 export const searchEventsForUserAPI = async ({
   page = 1,
   limit = 12,

@@ -28,7 +28,7 @@ const formSchema = z.object({
       (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
       "Ảnh phải là PNG hoặc JPG"
     ),
-  moTa: z.string().min(5, "Giới thiệu tối thiểu 5 ký tự"),
+  moTa: z.string().min(0),
 });
 
 export default function CreateOrganizer() {
