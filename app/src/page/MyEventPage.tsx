@@ -13,6 +13,7 @@ import EventProfileCard from "@/components/MyEventPage/EventProfileCard";
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
   const { user } = useAuth();
+
   const { data: events, isFetching } = useQuery({
     queryKey: ["fetchProfileEventByOrganizerID", tab],
     queryFn: () => {
@@ -26,6 +27,8 @@ export default function MyEventPage() {
     },
     enabled: user?.vaitro === "TO_CHUC",
   });
+
+  console.log(events);
 
   if (isFetching) return <h1>Loading</h1>;
 

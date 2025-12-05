@@ -3,8 +3,9 @@ import {
   createPromotionService,
   getPromotionsService,
   deletePromotionService,
+  updatePromotionService,
 } from "../models/promotionModel.js";
-import { PromotionSchema } from "../utils/validate.js";
+import { PromotionSchema, UpdatePromotionSchema } from "../utils/validate.js";
 
 export const getPromotions = async (req, res, next) => {
   try {
@@ -42,6 +43,28 @@ export const createPromotion = async (req, res, next) => {
   }
 };
 
+export const updatePromotion = async (req, res, next) => {
+  try {
+    const { maKhuyenMai } = req.params;
+    const validateData = UpdatePromotionSchema.parse(req.body);
+
+    await updatePromotionService(
+      maKhuyenMai,
+      validateData.maGiamGia,
+      validateData.giaTriGiam,
+      validateData.loaiGiam,
+      validateData.ngayBatDau,
+      validateData.ngayKetThuc,
+      validateData.soLuongPhatHanh,
+      validateData.giaTriToiThieu
+    );
+
+    handleResponse(res, 200, "Cập nhật khuyến mãi thành công");
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const deletePromotion = async (req, res, next) => {
   try {
     const { maKhuyenMai } = req.query;
@@ -54,4 +77,3 @@ export const deletePromotion = async (req, res, next) => {
     next(error);
   }
 };
-

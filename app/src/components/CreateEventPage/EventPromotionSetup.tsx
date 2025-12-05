@@ -22,8 +22,9 @@ import {
 } from "../ui/alert-dialog";
 import { updateEventStatusAPI } from "@/services/eventService";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
-type Promotion = {
+export type Promotion = {
   makhuyenmai: string;
   magiamgia: string;
   giatrigiam: number;
@@ -37,7 +38,10 @@ type Promotion = {
 export default function EventPromotionSetup() {
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("eventId");
-  const { setPrevStep, setNextStep } = useEventStore();
+  const { setPrevStep } = useEventStore();
+  const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(
+    null
+  );
 
   const queryClient = useQueryClient();
 
@@ -91,12 +95,13 @@ export default function EventPromotionSetup() {
       cell: ({ row }) =>
         row.original.loaigiam === "PHAN_TRAM"
           ? `${row.original.giatrigiam}%`
-          : `${row.original.giatrigiam.toLocaleString()}đ`,
+          : `${Number(row.original.giatrigiam).toLocaleString()}đ`,
     },
     {
       accessorKey: "giatritoithieu",
       header: "Giá trị tối thiểu",
-      cell: ({ row }) => `${row.original.giatritoithieu.toLocaleString()}đ`,
+      cell: ({ row }) =>
+        `${Number(row.original.giatritoithieu).toLocaleString()}đ`,
     },
     {
       accessorKey: "ngaybatdau",
@@ -124,9 +129,7 @@ export default function EventPromotionSetup() {
           <Button
             size="sm"
             variant="outline"
-            onClick={() => {
-              console.log("hi");
-            }}
+            onClick={() => setEditingPromotion(row.original)}
           >
             Sửa
           </Button>
@@ -146,7 +149,10 @@ export default function EventPromotionSetup() {
     <div className="w-11/12 mx-auto p-4">
       <div className="flex items-center justify-between">
         <p className="text-xl">Quản lý khuyến mãi</p>
-        <EventPromotionModal />
+        <EventPromotionModal
+          promotion={editingPromotion}
+          onClose={() => setEditingPromotion(null)}
+        />
       </div>
 
       <div className="mt-4">

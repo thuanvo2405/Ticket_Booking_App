@@ -94,11 +94,6 @@ export default function EventProfileCard({ event }: { event: any }) {
                   event.thanhpho}
               </span>
             </div>
-
-            <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
-              <Calendar size={18} className="text-green-600" />
-              <span>{event.ngaydienra || "Chưa cập nhật ngày"}</span>
-            </div>
           </div>
 
           {event.trangthai === "NHAP" && (

@@ -37,3 +37,26 @@ export const CreatePromotionAPI = async (
 
   return res.data.data;
 };
+
+export const updatePromotionAPI = async (
+  maKhuyenMai: string,
+  maGiamGia: string,
+  giaTriGiam: number,
+  loaiGiam: string,
+  ngayBatDau: string,
+  ngayKetThuc: string,
+  soLuongPhatHanh: number,
+  giaTriToiThieu: number
+) => {
+  const res = await axiosInstance.patch(`/promotion/${maKhuyenMai}`, {
+    maGiamGia,
+    giaTriGiam,
+    loaiGiam,
+    ngayBatDau,
+    ngayKetThuc,
+    soLuongPhatHanh,
+    giaTriToiThieu,
+  });
+
+  return res.data.data;
+};

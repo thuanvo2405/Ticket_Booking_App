@@ -31,9 +31,13 @@ import {
 import { DateTimePicker24h } from "../date-time-picker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { useState } from "react";
-import { CreatePromotionAPI } from "@/services/promotionService";
+import { useEffect, useState } from "react";
+import {
+  CreatePromotionAPI,
+  updatePromotionAPI,
+} from "@/services/promotionService";
 import { useSearchParams } from "react-router-dom";
+import type { Promotion } from "./EventPromotionSetup";
 
 export const PromotionFormSchema = z
   .object({
@@ -69,11 +73,23 @@ export const PromotionFormSchema = z
 
 export type PromotionFormValues = z.infer<typeof PromotionFormSchema>;
 
-export default function EventPromotionModal() {
+export default function EventPromotionModal({
+  promotion,
+  onClose,
+}: {
+  promotion?: Promotion | null;
+  onClose?: () => void;
+}) {
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("eventId");
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (promotion) {
+      setOpen(true);
+    }
+  }, [promotion]);
 
   const form = useForm<PromotionFormValues>({
     resolver: zodResolver(PromotionFormSchema),
@@ -87,6 +103,20 @@ export default function EventPromotionModal() {
       giaTriToiThieu: 10000,
     },
   });
+
+  useEffect(() => {
+    if (promotion) {
+      form.reset({
+        maGiamGia: promotion.magiamgia,
+        giaTriGiam: Number(promotion.giatrigiam),
+        loaiGiam: promotion.loaigiam,
+        ngayBatDau: new Date(promotion.ngaybatdau),
+        ngayKetThuc: new Date(promotion.ngayketthuc),
+        soLuongPhatHanh: promotion.soluongphathanh,
+        giaTriToiThieu: Number(promotion.giatritoithieu),
+      });
+    }
+  }, [promotion]);
 
   const createPromotionMutation = useMutation({
     mutationFn: ({
@@ -122,18 +152,54 @@ export default function EventPromotionModal() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof PromotionFormSchema>) {
-    createPromotionMutation.mutate({
-      maGiamGia: values.maGiamGia,
-      giaTriGiam: values.giaTriGiam,
-      loaiGiam: values.loaiGiam,
-      soLuongPhatHanh: values.soLuongPhatHanh,
-      giaTriToiThieu: values.giaTriToiThieu,
-      ngayBatDau: formatDate(values.ngayBatDau),
-      ngayKetThuc: formatDate(values.ngayKetThuc),
-      maSuKien: maSuKien?.toString()!,
-    });
-  }
+  const updateMutation = useMutation({
+    mutationFn: (values: any) =>
+      updatePromotionAPI(
+        promotion!.makhuyenmai,
+        values.maGiamGia,
+        values.giaTriGiam,
+        values.loaiGiam,
+        values.ngayBatDau,
+        values.ngayKetThuc,
+        values.soLuongPhatHanh,
+        values.giaTriToiThieu
+      ),
+    onSuccess: () => {
+      toast.success("Cập nhật khuyến mãi thành công");
+      queryClient.invalidateQueries({
+        queryKey: ["fetchPromotions", maSuKien],
+      });
+      form.reset();
+      setOpen(false);
+      onClose?.();
+    },
+  });
+
+  const onSubmit = (values: PromotionFormValues) => {
+    if (promotion) {
+      updateMutation.mutate({
+        maKhuyenMai: promotion.makhuyenmai,
+        maGiamGia: values.maGiamGia,
+        giaTriGiam: values.giaTriGiam,
+        loaiGiam: values.loaiGiam,
+        ngayBatDau: formatDate(values.ngayBatDau),
+        ngayKetThuc: formatDate(values.ngayKetThuc),
+        soLuongPhatHanh: values.soLuongPhatHanh,
+        giaTriToiThieu: values.giaTriToiThieu,
+      });
+    } else {
+      createPromotionMutation.mutate({
+        maGiamGia: values.maGiamGia,
+        giaTriGiam: values.giaTriGiam,
+        loaiGiam: values.loaiGiam,
+        soLuongPhatHanh: values.soLuongPhatHanh,
+        giaTriToiThieu: values.giaTriToiThieu,
+        ngayBatDau: formatDate(values.ngayBatDau),
+        ngayKetThuc: formatDate(values.ngayKetThuc),
+        maSuKien: maSuKien!,
+      });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -292,7 +358,7 @@ export default function EventPromotionModal() {
               <DialogClose asChild>
                 <Button variant="outline">Hủy</Button>
               </DialogClose>
-              <Button type="submit">Tạo</Button>
+              <Button type="submit">{promotion ? "Sửa" : "Tạo"}</Button>
             </DialogFooter>
           </form>
         </Form>

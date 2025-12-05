@@ -109,6 +109,53 @@ export const PromotionSchema = z
     }
   );
 
+export const UpdatePromotionSchema = z
+  .object({
+    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+    giaTriGiam: z
+      .number()
+      .refine((val) => val > 0, "Giá trị giảm phải lớn hơn 0"),
+    loaiGiam: z.enum(["PHAN_TRAM", "SO_TIEN"], {
+      required_error: "Loại giảm là bắt buộc",
+    }),
+    ngayBatDau: z
+      .string()
+      .min(1, "Ngày bắt đầu là bắt buộc")
+      .refine((val) => !isNaN(Date.parse(val)), "Ngày bắt đầu không hợp lệ"),
+    ngayKetThuc: z
+      .string()
+      .min(1, "Ngày kết thúc là bắt buộc")
+      .refine((val) => !isNaN(Date.parse(val)), "Ngày kết thúc không hợp lệ"),
+    soLuongPhatHanh: z
+      .number()
+      .int("Số lượng phải là số nguyên")
+      .min(1, "Số lượng phải lớn hơn 0"),
+    giaTriToiThieu: z
+      .number()
+      .min(1, "Giá trị tối thiểu để áp dụng giảm giá phải lớn hơn 0"),
+  })
+  .refine((data) => new Date(data.ngayKetThuc) > new Date(data.ngayBatDau), {
+    message: "Ngày kết thúc phải sau ngày bắt đầu",
+    path: ["ngayKetThuc"],
+  })
+  .refine(
+    (data) => (data.loaiGiam === "PHAN_TRAM" ? data.giaTriGiam <= 100 : true),
+    {
+      message: "Giảm theo phần trăm phải ≤ 100%",
+      path: ["giaTriGiam"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.loaiGiam === "SO_TIEN"
+        ? data.giaTriGiam <= data.giaTriToiThieu
+        : true,
+    {
+      message: "Giá trị giảm không thể lớn hơn giá trị tối thiểu áp dụng",
+      path: ["giaTriGiam"],
+    }
+  );
+
 export const TicketSchema = z.object({
   maLoaiVe: z.string().min(1, "Mã loại vé không hợp lệ"),
   soLuong: z.number().int().positive("Số lượng phải > 0"),
