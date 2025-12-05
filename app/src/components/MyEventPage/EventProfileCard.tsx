@@ -5,6 +5,7 @@ import { deleteEventAPI } from "@/services/eventService";
 import toast from "react-hot-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IMAGE_URL } from "@/constant/constant";
+import { ConfirmDialog } from "../ConfirmDialog";
 
 export default function EventProfileCard({ event }: { event: any }) {
   const queryClient = useQueryClient();
@@ -104,16 +105,14 @@ export default function EventProfileCard({ event }: { event: any }) {
                 </Button>
               </NavLink>
 
-              <Button
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  deleteMutation.mutate(event.masukien);
-                }}
-              >
-                Xóa sự kiện
-              </Button>
+              <ConfirmDialog
+                title="Bạn có chắc muốn xóa sự kiện này?"
+                description="Hành động này không thể hoàn tác."
+                confirmText="Xóa"
+                cancelText="Hủy"
+                onConfirm={() => deleteMutation.mutate(event.masukien)}
+                textButton="Xóa"
+              />
             </div>
           )}
         </div>

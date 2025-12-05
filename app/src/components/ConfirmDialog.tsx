@@ -18,7 +18,8 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
-  isActive: boolean;
+  isActive?: boolean;
+  textButton?: string;
 }
 
 export function ConfirmDialog({
@@ -28,11 +29,14 @@ export function ConfirmDialog({
   confirmText = "Xác nhận",
   cancelText = "Hủy",
   isActive,
+  textButton,
 }: ConfirmDialogProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        {isActive ? (
+        {textButton ? (
+          <Button>{textButton}</Button>
+        ) : isActive ? (
           <Button
             size="sm"
             variant="destructive"
