@@ -1,7 +1,6 @@
 import pool from "../config/db.js";
 
 export const getPromotionsService = async (maSuKien) => {
-  console.log(maSuKien);
   const result = await pool.query(
     "SELECT * FROM khuyen_mai wHERE maSuKien = $1",
     [maSuKien]

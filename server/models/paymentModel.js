@@ -39,7 +39,6 @@ export async function validateCouponService(makhuyenmai) {
   const now = new Date();
 
   if (now < coupon.ngaybatdau || now > coupon.ngayketthuc) {
-    console.log(coupon.ngayketthuc);
     throw new Error("Mã khuyến mãi không còn hiệu lực");
   }
 

@@ -1,5 +1,10 @@
 import DashBoardCard from "@/components/AdminPage/DashBoardCard";
-import { User } from "lucide-react";
+import {
+  CirclePoundSterling,
+  Package,
+  ShoppingBag,
+  Ticket,
+} from "lucide-react";
 import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -16,6 +21,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useQuery } from "@tanstack/react-query";
+import { getSummaryReportForAdminAPI } from "@/services/reportService";
+import { formatPrice } from "@/utils/convert";
 export const description = "A bar chart";
 const chartData = [
   { month: "January", desktop: 186 },
@@ -33,28 +41,36 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function DashboardPage() {
+  const { data: summaryReport, isFetching } = useQuery({
+    queryKey: ["fetchingReportForAdmin"],
+    queryFn: getSummaryReportForAdminAPI,
+  });
+
+  console.log(summaryReport);
+
+  if (isFetching) return <h1>Loading</h1>;
   return (
     <div>
       <div className="grid grid-cols-4 gap-4">
         <DashBoardCard
-          title="Tổng số người dùng"
-          value={123}
-          icon={<User className="text-blue-500" />}
+          title="Tổng số lượng vé đã bán"
+          value={summaryReport.totalTicket}
+          icon={<Ticket className="text-blue-500" />}
         />
         <DashBoardCard
-          title="Tổng số người dùng"
-          value={123}
-          icon={<User className="text-blue-500" />}
+          title="Tổng số đơn hàng"
+          value={summaryReport.totalOrder}
+          icon={<ShoppingBag className="text-red-500" />}
         />
         <DashBoardCard
-          title="Tổng số người dùng"
-          value={123}
-          icon={<User className="text-blue-500" />}
+          title="Tổng số doanh thu"
+          value={formatPrice(summaryReport.totalRevenue)}
+          icon={<CirclePoundSterling className="text-orange-500" />}
         />
         <DashBoardCard
-          title="Tổng số người dùng"
-          value={123}
-          icon={<User className="text-blue-500" />}
+          title="Tổng sự kiện của bạn"
+          value={summaryReport.totalEvent}
+          icon={<Package className="text-yellow-500" />}
         />
       </div>
       <Card>

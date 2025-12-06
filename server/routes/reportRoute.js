@@ -5,7 +5,8 @@ import {
   getPendingEvents,
   getRevenueToday,
   getRevenue,
-  getSummary
+  getSummary,
+  getSummaryForOrganizer,
 } from "../controllers/reportController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 import checkRole from "../middleware/verifyRole.js";
@@ -52,6 +53,14 @@ router.get(
   authenticateToken,
   checkRole(["QUAN_TRI"]),
   getRevenue
+);
+
+//Organizer
+router.get(
+  "/organizer/report-summary",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getSummaryForOrganizer
 );
 
 export default router;

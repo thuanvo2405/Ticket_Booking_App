@@ -11,6 +11,8 @@ var accessKey = "F8BBA842ECF85";
 var secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 
 export const updatePayment = async (req, res, next) => {
+  console.log("tui da ỏ day");
+  console.log(req.body);
   try {
     const {
       orderId,
@@ -81,8 +83,8 @@ export const updatePayment = async (req, res, next) => {
 
       for (let i = 0; i < soluong; i++) {
         await pool.query(
-          `INSERT INTO ve (trangthai, qrcode, phidichvu, sotienthucnhan, maloaive, madonhang)
-           VALUES ('CHUA_SU_DUNG', gen_random_uuid()::text, 0, 0, $1, $2)`,
+          `INSERT INTO ve (trangthai, qrcode, maloaive, madonhang)
+           VALUES ('CHUA_SU_DUNG', gen_random_uuid()::text, $1, $2)`,
           [maloaive, madonhang]
         );
       }
@@ -101,42 +103,7 @@ export const updatePayment = async (req, res, next) => {
       `UPDATE don_hang SET trangthai = 'DA_THANH_TOAN', thoigianthanhtoan = NOW() WHERE madonhang = $1`,
       [madonhang]
     );
-    console.log("end");
     res.json({ message: "Payment success" });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const checkTransactionStatus = async (req, res, next) => {
-  try {
-    const { orderId } = req.body;
-    const rawSignature = `accessKey=${accessKey}&orderId=${orderId}&partnerCode=MOMO&requestId=${orderId}`;
-
-    const signature = crypto
-      .createHmac("sha256", secretKey)
-      .update(rawSignature)
-      .digest("hex");
-
-    const requestBody = JSON.stringify({
-      partnerCode: "MOMO",
-      requestId: orderId,
-      orderId,
-      signature,
-      lang: "vi",
-    });
-
-    const options = {
-      method: "POST",
-      url: "https://d99dbe862732.ngrok-free.app/v1/api/callback-payment",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: requestBody,
-    };
-
-    let result = await axios.request(options);
-    handleResponse(res, 200, "Check transaction status success", result.data);
   } catch (error) {
     next(error);
   }
@@ -149,7 +116,6 @@ export const prepareMomoPayment = async (madonhang) => {
   );
   const order = orders[0];
   if (!order) throw new Error("Đơn hàng không tồn tại");
-  console.log(order);
 
   const amount = Math.round(order.tongtien);
 
@@ -159,7 +125,7 @@ export const prepareMomoPayment = async (madonhang) => {
   const requestId = orderId;
   const orderInfo = `Thanh toán đơn hàng ${madonhang}`;
   const redirectUrl = `http://localhost:5173/payment-result?madonhang=${madonhang}`;
-  const ipnUrl = "https://0c0b9a509134.ngrok-free.app/v1/api/callback-payment";
+  const ipnUrl = "https://347a09e7357c.ngrok-free.app/v1/api/callback-payment";
   const requestType = "payWithMethod";
   const expiry = order.thoi_han_thanh_toan?.getTime() || null;
   const extraData = JSON.stringify({ expiry, madonhang });
@@ -214,7 +180,6 @@ export const handlePaymentRequest = async (req, res, next) => {
     }
 
     const momoResult = await prepareMomoPayment(madonhang);
-    console.log(momoResult);
 
     handleResponse(res, 200, "Tạo link thanh toán thành công", momoResult);
   } catch (error) {

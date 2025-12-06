@@ -132,7 +132,6 @@ export const updateTicketType = async (req, res, next) => {
 export const updatePerformance = async (req, res, next) => {
   try {
     const data = UpdatePerformanceSchema.parse(req.body);
-    console.log(data);
     const result = await updatePerformanceService(
       data.thoiGianBatDau,
       data.thoiGianKetThuc,

@@ -55,9 +55,6 @@ export const updateOrganizerProfileService = async (
   mota,
   anhtochuc
 ) => {
-  console.log(tentochuc);
-  console.log(mota);
-  console.log(anhtochuc);
   let fields = [];
   let values = [];
   let index = 1;

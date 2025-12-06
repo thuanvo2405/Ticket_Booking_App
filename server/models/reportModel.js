@@ -45,3 +45,69 @@ export const getRevenueServive = async (from, to) => {
 
   return result.rows;
 };
+
+export const getTotalTicketForAdminService = async (maToChuc) => {
+  const result = await pool.query(
+    `
+    SELECT COUNT(*) AS total_ticket
+    FROM ve v
+    JOIN don_hang dh ON dh.madonhang = v.madonhang
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN su_kien sk ON sk.masukien = sd.masukien
+    WHERE sk.matochuc = $1
+    `,
+    [maToChuc]
+  );
+
+  return Number(result.rows[0].total_ticket);
+};
+
+export const getTotalOrderForAdminService = async (maToChuc) => {
+  const result = await pool.query(
+    `
+    SELECT COUNT(DISTINCT dh.madonhang) AS total_order
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN su_kien sk ON sk.masukien = sd.masukien
+    WHERE sk.matochuc = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+    `,
+    [maToChuc]
+  );
+
+  return Number(result.rows[0].total_order);
+};
+
+export const getTotalRevenueForAdminService = async (maToChuc) => {
+  const result = await pool.query(
+    `
+    SELECT COALESCE(SUM(dh.tongtien), 0) AS total_revenue
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN su_kien sk ON sk.masukien = sd.masukien
+    WHERE sk.matochuc = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+    `,
+    [maToChuc]
+  );
+
+  return Number(result.rows[0].total_revenue);
+};
+
+export const getTotalEventForAdminService = async (maToChuc) => {
+  const result = await pool.query(
+    `
+    SELECT COUNT(*) AS total_event
+    FROM su_kien
+    WHERE matochuc = $1
+    `,
+    [maToChuc]
+  );
+  return Number(result.rows[0].total_event);
+};

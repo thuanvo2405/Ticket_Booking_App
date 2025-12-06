@@ -12,22 +12,22 @@ export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 export const locations = [
   {
     name: "Hồ Chí Minh",
-    image: "/locations/hcm.jpg",
+    image: "/locations/hcm.webp",
     link: "/events?city=hcm",
   },
   {
     name: "Hà Nội",
-    image: "/locations/hanoi.jpg",
+    image: "/locations/hanoi.webp",
     link: "/events?city=hanoi",
   },
   {
     name: "Đà Nẵng",
-    image: "/locations/danang.jpg",
+    image: "/locations/danang.webp",
     link: "/events?city=danang",
   },
   {
     name: "Khác",
-    image: "/locations/other.jpg",
+    image: "/locations/other.webp",
     link: "/events?city=other",
   },
 ];

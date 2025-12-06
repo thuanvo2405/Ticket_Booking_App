@@ -5,8 +5,13 @@ import {
   getActiveEventsService,
   getPendingEventsService,
   getRevenueTodayService,
+  getTotalTicketForAdminService,
+  getTotalOrderForAdminService,
+  getTotalRevenueForAdminService,
+  getTotalEventForAdminService,
   getRevenueServive,
 } from "../models/reportModel.js";
+import pool from "../config/db.js";
 
 export const getTotalUser = async (req, res, next) => {
   try {
@@ -79,6 +84,40 @@ export const getSummary = async (req, res, next) => {
       activeEvents: activeEvents[0].count,
       pendingEvents: pendingEvents[0].count,
       revenueToday: revenueToday.revenue,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSummaryForOrganizer = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+
+    const result = await pool.query(
+      `Select * from to_chuc where manguoidung = $1`,
+      [userID]
+    );
+
+    const matochuc = result.rows[0].matochuc;
+
+    if (!matochuc) {
+      return handleResponse(res, 400, "Không tìm thấy mã tổ chức");
+    }
+
+    const [totalTicket, totalOrder, totalRevenue, totalEvent] =
+      await Promise.all([
+        getTotalTicketForAdminService(matochuc),
+        getTotalOrderForAdminService(matochuc),
+        getTotalRevenueForAdminService(matochuc),
+        getTotalEventForAdminService(matochuc),
+      ]);
+
+    handleResponse(res, 200, "Lấy summary dashboard thành công", {
+      totalTicket,
+      totalOrder,
+      totalRevenue,
+      totalEvent,
     });
   } catch (error) {
     next(error);

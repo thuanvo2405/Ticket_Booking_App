@@ -60,7 +60,6 @@ export const login = async (req, res, next) => {
   try {
     const { email, matKhau } = loginSchema.parse(req.body);
     const user = await logInService(email);
-    console.log(user);
 
     if (!user) {
       return res.status(401).json({ error: "Người dùng không tồn tại" });
@@ -128,7 +127,6 @@ export const loginForAdmin = async (req, res, next) => {
 
 export const signupForAdmin = async (req, res, next) => {
   const { tennguoidung, email, matkhau } = req.body;
-  console.log(req.body);
   const emailVerified = email.trim().toLowerCase();
 
   try {
@@ -148,7 +146,6 @@ export const signupForAdmin = async (req, res, next) => {
 
 export const getRefreshToken = async (req, res, next) => {
   try {
-    console.log("req.cookies:", req.cookies);
     const refreshToken = req.cookies.refresh_token;
     if (!refreshToken) {
       return res.status(401).json({ error: "null refresh token" });
@@ -230,7 +227,6 @@ export const forgotPassword = async (req, res, next) => {
       email,
     ]);
     const user = result.rows[0];
-    console.log(user);
     if (!user) {
       throw new Error("Rất tiếc tài khoản không tồn tại");
     }

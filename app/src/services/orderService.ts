@@ -1,5 +1,3 @@
-import axios from "axios";
-import { URL } from "@/constant/constant";
 import axiosInstance from "./axiosInstance";
 
 export const getOrderByIDAPI = async (madonhang: string) => {
