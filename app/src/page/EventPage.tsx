@@ -1,14 +1,19 @@
 import { Button } from "@/components/ui/button";
 import TicketDescription from "@/components/ui/ticket-description";
-import { getEventByIdAPI } from "@/services/eventService";
+import {
+  getEventByIdAPI,
+  getMaybeLikeEventsAPI,
+} from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { IMAGE_URL } from "@/constant/constant";
 import { formatPrice } from "@/utils/convert";
 import TicketInfo from "@/components/ticket-info";
 import EventCard from "@/components/event-card";
+import { useEffect, useRef } from "react";
 
 export default function EventPage() {
+  const ticketInfoRef = useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("maSuKien") || "";
 
@@ -18,7 +23,13 @@ export default function EventPage() {
     enabled: !!maSuKien,
   });
 
-  if (isLoading) return <h1>Loading</h1>;
+  const { data: suggestEvent, isFetching: fetchingSuggetEvent } = useQuery({
+    queryKey: ["fetchingSuggestEvent"],
+    queryFn: getMaybeLikeEventsAPI,
+  });
+
+  console.log(suggestEvent);
+  if (isLoading || fetchingSuggetEvent) return <h1>Loading</h1>;
 
   return (
     <div className="w-[1284px] mx-auto mt-4">
@@ -61,7 +72,12 @@ export default function EventPage() {
                 {formatPrice(data.suat_dien[0].loaiVe[0].giaTien)}
               </span>
             </p>
-            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition">
+            <button
+              className="mt-4 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-semibold transition"
+              onClick={() =>
+                ticketInfoRef.current?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
               Chọn lịch diễn
             </button>
           </div>
@@ -76,7 +92,11 @@ export default function EventPage() {
       </div>
       <section>
         <TicketDescription moTa={data.mota} />
-        <TicketInfo suat_dien={data.suat_dien} maSuKien={maSuKien} />
+        <TicketInfo
+          ref={ticketInfoRef}
+          suat_dien={data.suat_dien}
+          maSuKien={maSuKien}
+        />
         <div className="shadow-xl border mt-10 rounded-2xl p-4">
           <p className="text-xl font-semibold text-center border-b-1 py-3">
             Ban tổ chức
@@ -99,8 +119,15 @@ export default function EventPage() {
           Có thể bạn thích
         </p>
         <div className="grid grid-cols-4 gap-4">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <EventCard key={index} />
+          {suggestEvent.map((item: any) => (
+            <EventCard
+              key={item.masukien}
+              maSuKien={item.masukien}
+              tenSuKien={item.tensukien}
+              anhBanner={item.anhsukienngang}
+              thoiGianBatDau={item.suat_dien}
+              giaTien={Number(item.gia)}
+            />
           ))}
         </div>
         <Button className="mx-auto block  mt-2">Xem thêm</Button>

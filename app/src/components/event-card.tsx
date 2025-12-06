@@ -19,8 +19,8 @@ export default function EventCard({
   giaTien,
 }: EventCardProps) {
   return (
-    <NavLink
-      to={`/event?maSuKien=${maSuKien}`}
+    <a
+      href={`/event?maSuKien=${maSuKien}`}
       className="block rounded-xl overflow-hidden bg-white transition-all duration-300 hover:shadow-xl hover:scale-[1.02]"
     >
       <img
@@ -38,6 +38,6 @@ export default function EventCard({
           {formatDateTime(thoiGianBatDau)}
         </div>
       </div>
-    </NavLink>
+    </a>
   );
 }

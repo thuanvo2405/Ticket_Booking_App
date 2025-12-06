@@ -25,6 +25,7 @@ import AdminLoginPage from "./page/AdminLoginPage";
 import AdminProtectedRoute from "./utils/ProtectRoute";
 import MyOrderPage from "./page/MyOrderPage";
 import DetailOrderPage from "./page/DetailOrderPage";
+import EventStatisticsPage from "./page/EventStatisticsPage";
 
 function App() {
   return (
@@ -51,6 +52,10 @@ function App() {
         <Route path="create-event" element={<CreateEventPage />} />
         <Route path="my-events" element={<MyEventPage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route
+          path="my-events/:maSuKien/stats"
+          element={<EventStatisticsPage />}
+        />
       </Route>
       <Route path="/admin/login" element={<AdminLoginPage />} />
 

@@ -97,24 +97,36 @@ export default function EventProfileCard({ event }: { event: any }) {
             </div>
           </div>
 
-          {event.trangthai === "NHAP" && (
-            <div className="flex justify-end gap-2 mt-3">
-              <NavLink to={`/organizer/create-event?eventId=${event.masukien}`}>
+          <div className="flex justify-end gap-2 mt-3">
+            {event.trangthai === "NHAP" && (
+              <>
+                <NavLink
+                  to={`/organizer/create-event?eventId=${event.masukien}`}
+                >
+                  <Button className="bg-green-600 text-white hover:bg-green-700">
+                    Quản lý sự kiện
+                  </Button>
+                </NavLink>
+
+                <ConfirmDialog
+                  title="Bạn có chắc muốn xóa sự kiện này?"
+                  description="Hành động này không thể hoàn tác."
+                  confirmText="Xóa"
+                  cancelText="Hủy"
+                  onConfirm={() => deleteMutation.mutate(event.masukien)}
+                  textButton="Xóa"
+                />
+              </>
+            )}
+
+            {event.trangthai === "DA_DUYET" && (
+              <NavLink to={`/organizer/my-events/${event.masukien}/stats`}>
                 <Button className="bg-green-600 text-white hover:bg-green-700">
-                  Quản lý sự kiện
+                  Xem thống kê
                 </Button>
               </NavLink>
-
-              <ConfirmDialog
-                title="Bạn có chắc muốn xóa sự kiện này?"
-                description="Hành động này không thể hoàn tác."
-                confirmText="Xóa"
-                cancelText="Hủy"
-                onConfirm={() => deleteMutation.mutate(event.masukien)}
-                textButton="Xóa"
-              />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

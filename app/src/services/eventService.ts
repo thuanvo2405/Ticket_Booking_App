@@ -148,6 +148,24 @@ export const getSpecialEventsAPI = async () => {
   return res.data.data;
 };
 
+export const getMaybeLikeEventsAPI = async () => {
+  const res = await axios.get(URL + `events_maybe_like`);
+  return res.data.data;
+};
+
+export const getEventStatisticsAPI = async (maSuKien: string) => {
+  const res = await axiosInstance.get(`event/${maSuKien}/statistics`);
+  return res.data.data;
+};
+
+export const getEventOrderDetailAPI = async (
+  maSuKien: string,
+  madonhang: string
+) => {
+  const res = await axiosInstance.get(`event/${maSuKien}/orders/${madonhang}`);
+  return res.data.data;
+};
+
 export const searchEventsForUserAPI = async ({
   page = 1,
   limit = 12,

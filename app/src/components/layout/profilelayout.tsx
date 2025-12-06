@@ -80,7 +80,7 @@ export default function ProfileLayout() {
             </li>
             <li>
               <NavLink
-                to="/"
+                to="/organizer"
                 className={({ isActive }) =>
                   `w-full block ${
                     isActive

@@ -11,6 +11,9 @@ import {
   getEventsByCategory,
   getEventsForUser,
   getSpecialEvent,
+  getEventStatistics,
+  getOrderDetailForEvent,
+  getMaybeLikeEvent,
 } from "../controllers/eventController.js";
 import {
   authenticateToken,
@@ -27,7 +30,22 @@ router.get("/organizer/events", authenticateToken, getEventByOrganizerId);
 router.get("/event-types", getEventTypes);
 router.get("/events_suggest", getEventsByCategory);
 router.get("/events_special", getSpecialEvent);
+router.get("/events_maybe_like", getMaybeLikeEvent);
+
 router.get("/user/events", getEventsForUser);
+
+router.get(
+  "/event/:maSuKien/statistics",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getEventStatistics
+);
+router.get(
+  "/event/:maSuKien/orders/:madonhang",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getOrderDetailForEvent
+);
 
 router.post(
   "/event",

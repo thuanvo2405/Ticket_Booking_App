@@ -12,6 +12,9 @@ import {
   getEventsByCategoryService,
   getEventsForUserService,
   getSpecialEventService,
+  getEventStatisticsService,
+  getOrderDetailForEventService,
+  getMaybeLikeEventService,
 } from "../models/eventModel.js";
 import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
@@ -251,6 +254,82 @@ export const getSpecialEvent = async (req, res, next) => {
     const data = await getSpecialEventService();
 
     handleResponse(res, 200, "Lấy sự kiện đặc biệt thành công", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMaybeLikeEvent = async (req, res, next) => {
+  try {
+    const data = await getMaybeLikeEventService();
+
+    handleResponse(res, 200, "Lấy sự kiện đặc biệt thành công", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventStatistics = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+    const { maSuKien } = req.params;
+
+    const { matochuc } = await getOrganizerID(userID);
+    if (!matochuc) {
+      return handleResponse(res, 400, "Không tìm thấy mã tổ chức");
+    }
+
+    const eventRes = await pool.query(
+      "SELECT matochuc FROM su_kien WHERE masukien = $1",
+      [maSuKien]
+    );
+
+    if (eventRes.rowCount === 0) {
+      return handleResponse(res, 404, "Sự kiện không tồn tại");
+    }
+
+    if (eventRes.rows[0].matochuc !== matochuc) {
+      return handleResponse(res, 403, "Bạn không có quyền xem sự kiện này");
+    }
+
+    const stats = await getEventStatisticsService(maSuKien);
+
+    handleResponse(res, 200, "Lấy thống kê sự kiện thành công", stats);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOrderDetailForEvent = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+    const { maSuKien, madonhang } = req.params;
+
+    const { matochuc } = await getOrganizerID(userID);
+    if (!matochuc) {
+      return handleResponse(res, 400, "Không tìm thấy mã tổ chức");
+    }
+
+    const eventRes = await pool.query(
+      "SELECT matochuc FROM su_kien WHERE masukien = $1",
+      [maSuKien]
+    );
+
+    if (eventRes.rowCount === 0) {
+      return handleResponse(res, 404, "Sự kiện không tồn tại");
+    }
+
+    if (eventRes.rows[0].matochuc !== matochuc) {
+      return handleResponse(res, 403, "Bạn không có quyền xem sự kiện này");
+    }
+
+    const detail = await getOrderDetailForEventService(maSuKien, madonhang);
+
+    if (!detail) {
+      return handleResponse(res, 404, "Không tìm thấy đơn hàng cho sự kiện");
+    }
+
+    handleResponse(res, 200, "Lấy đơn hàng thành công", detail);
   } catch (error) {
     next(error);
   }

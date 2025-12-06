@@ -522,3 +522,138 @@ export const getSpecialEventService = async () => {
 
   return result.rows;
 };
+
+export const getMaybeLikeEventService = async () => {
+  const result = await pool.query(
+    `
+    WITH next_performance AS (
+      SELECT
+        sd.masukien,
+        sd.masuatdien,
+        sd.thoigianbatdau,
+        sd.thoigianketthuc,
+        ROW_NUMBER() OVER (
+          PARTITION BY sd.masukien
+          ORDER BY sd.thoigianbatdau
+        ) AS rn,
+        MIN(lv.giatien) OVER (PARTITION BY sd.masuatdien) AS min_price
+      FROM suat_dien sd
+      JOIN loai_ve lv ON lv.masuatdien = sd.masuatdien
+      WHERE sd.thoigianbatdau > NOW()
+      )
+      SELECT 
+        sk.masukien,
+        sk.anhsukienngang,
+        np.thoigianbatdau AS suat_dien,
+        np.min_price AS gia
+      FROM su_kien sk
+      JOIN next_performance np 
+        ON np.masukien = sk.masukien AND np.rn = 1
+      ORDER BY RANDOM()
+      LIMIT 8;
+    `
+  );
+
+  return result.rows;
+};
+
+export const getEventStatisticsService = async (maSuKien) => {
+  const totalsRes = await pool.query(
+    `
+    SELECT 
+      COALESCE(SUM(ct.soluong), 0) AS total_tickets,
+      COALESCE(SUM(dh.tongtien), 0) AS total_revenue,
+      COUNT(DISTINCT dh.madonhang) FILTER (WHERE dh.trangthai = 'DA_THANH_TOAN') AS total_orders
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    WHERE sd.masukien = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+  `,
+    [maSuKien]
+  );
+
+  const ordersRes = await pool.query(
+    `
+    SELECT DISTINCT 
+      dh.madonhang,
+      dh.trangthai,
+      dh.tongtien,
+      dh.ngaydatve,
+      dh.thoigianthanhtoan,
+      nd.tennguoidung,
+      jsonb_agg(
+        DISTINCT jsonb_build_object(
+          'maSuatDien', sd.masuatdien,
+          'thoiGianBatDau', sd.thoigianbatdau,
+          'thoiGianKetThuc', sd.thoigianketthuc
+        )
+      ) FILTER (WHERE sd.masuatdien IS NOT NULL) AS performances
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN nguoi_dung nd ON nd.manguoidung = dh.manguoidung
+    WHERE sd.masukien = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+    GROUP BY dh.madonhang, dh.trangthai, dh.tongtien, dh.ngaydatve, dh.thoigianthanhtoan, nd.tennguoidung
+    ORDER BY dh.ngaydatve DESC
+  `,
+    [maSuKien]
+  );
+
+  return {
+    totalTickets: Number(totalsRes.rows[0].total_tickets),
+    totalRevenue: Number(totalsRes.rows[0].total_revenue),
+    totalOrders: Number(totalsRes.rows[0].total_orders),
+    orders: ordersRes.rows,
+  };
+};
+
+export const getOrderDetailForEventService = async (maSuKien, maDonHang) => {
+  const orderRes = await pool.query(
+    `
+    SELECT 
+      dh.madonhang,
+      dh.trangthai,
+      dh.tongtien,
+      dh.ngaydatve,
+      dh.thoigianthanhtoan
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    WHERE dh.madonhang = $1 AND sd.masukien = $2 AND dh.trangthai = 'DA_THANH_TOAN'
+  `,
+    [maDonHang, maSuKien]
+  );
+
+  if (orderRes.rowCount === 0) {
+    return null;
+  }
+
+  const itemsRes = await pool.query(
+    `
+    SELECT 
+      ct.maloaive,
+      lv.tenloaive,
+      ct.soluong,
+      ct.dongia,
+      ct.thanhtien,
+      sd.masuatdien,
+      sd.thoigianbatdau,
+      sd.thoigianketthuc
+    FROM chi_tiet_don_hang ct
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    WHERE ct.madonhang = $1
+  `,
+    [maDonHang]
+  );
+
+  return {
+    order: orderRes.rows[0],
+    items: itemsRes.rows,
+  };
+};
