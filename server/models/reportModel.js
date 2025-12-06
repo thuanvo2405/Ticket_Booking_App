@@ -111,3 +111,23 @@ export const getTotalEventForAdminService = async (maToChuc) => {
   );
   return Number(result.rows[0].total_event);
 };
+
+export const getMonthlyRevenueForAdminService = async (maToChuc) => {
+  const query = `
+    SELECT 
+        TO_CHAR(dh.thoigianthanhtoan, 'YYYY-MM') AS month,
+        SUM(dh.tongtien) AS revenue
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN su_kien sk ON sk.masukien = sd.masukien
+    WHERE sk.matochuc = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+    GROUP BY month
+    ORDER BY month;
+  `;
+
+  const result = await pool.query(query, [maToChuc]);
+  return result.rows;
+};

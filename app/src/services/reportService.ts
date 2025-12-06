@@ -18,3 +18,8 @@ export const getRevenueAPI = async (from: string, to: string) => {
   });
   return res.data.data;
 };
+
+export const getMonthlyRevenueOrganzierAPI = async () => {
+  const res = await axiosInstance.get("organizer/report-revenue");
+  return res.data.data;
+};

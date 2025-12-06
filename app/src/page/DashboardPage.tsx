@@ -22,23 +22,33 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useQuery } from "@tanstack/react-query";
-import { getSummaryReportForAdminAPI } from "@/services/reportService";
+import {
+  getMonthlyRevenueOrganzierAPI,
+  getSummaryReportForAdminAPI,
+} from "@/services/reportService";
 import { formatPrice } from "@/utils/convert";
 export const description = "A bar chart";
-const chartData = [
-  { month: "January", desktop: 186 },
-  { month: "February", desktop: 305 },
-  { month: "March", desktop: 237 },
-  { month: "April", desktop: 73 },
-  { month: "May", desktop: 209 },
-  { month: "June", desktop: 214 },
-];
+
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Doanh thu",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
+
+const convertRevenueData = (data: any) => {
+  if (!data) return [];
+
+  return data.map((item: any) => {
+    const date = new Date(item.month + "-01");
+    const monthLabel = date.toLocaleString("en-US", { month: "short" });
+
+    return {
+      month: monthLabel,
+      desktop: Number(item.revenue),
+    };
+  });
+};
 
 export default function DashboardPage() {
   const { data: summaryReport, isFetching } = useQuery({
@@ -46,9 +56,14 @@ export default function DashboardPage() {
     queryFn: getSummaryReportForAdminAPI,
   });
 
-  console.log(summaryReport);
+  const { data: monthlyRevenue, isFetching: fetchingRevenue } = useQuery({
+    queryKey: [`fetchingMonthlyRevenue`],
+    queryFn: getMonthlyRevenueOrganzierAPI,
+  });
 
-  if (isFetching) return <h1>Loading</h1>;
+  console.log(monthlyRevenue);
+
+  if (isFetching || fetchingRevenue) return <h1>Loading</h1>;
   return (
     <div>
       <div className="grid grid-cols-4 gap-4">
@@ -75,12 +90,15 @@ export default function DashboardPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Bar Chart</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+          <CardTitle>Doanh thu</CardTitle>
+          <CardDescription>Tháng 1 - Tháng 12 2025</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
-            <BarChart accessibilityLayer data={chartData}>
+            <BarChart
+              accessibilityLayer
+              data={convertRevenueData(monthlyRevenue.data)}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="month"
@@ -97,14 +115,6 @@ export default function DashboardPage() {
             </BarChart>
           </ChartContainer>
         </CardContent>
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 leading-none font-medium">
-            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-          </div>
-          <div className="text-muted-foreground leading-none">
-            Showing total visitors for the last 6 months
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );

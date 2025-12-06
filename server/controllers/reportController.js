@@ -10,6 +10,7 @@ import {
   getTotalRevenueForAdminService,
   getTotalEventForAdminService,
   getRevenueServive,
+  getMonthlyRevenueForAdminService,
 } from "../models/reportModel.js";
 import pool from "../config/db.js";
 
@@ -136,6 +137,31 @@ export const getRevenue = async (req, res, next) => {
       "Lấy báo cáo doanh thu theo khoảng ngày thành công",
       result
     );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMonthlyRevenueForAdmin = async (req, res, next) => {
+  try {
+    const userID = req.user?.user?.id;
+
+    const result = await pool.query(
+      "SELECT * FROM to_chuc WHERE manguoidung = $1",
+      [userID]
+    );
+
+    const matochuc = result.rows[0]?.matochuc;
+
+    if (!matochuc) {
+      return handleResponse(res, 400, "Không tìm thấy mã tổ chức");
+    }
+
+    const revenue = await getMonthlyRevenueForAdminService(matochuc);
+
+    handleResponse(res, 200, "Lấy doanh thu theo tháng thành công", {
+      data: revenue,
+    });
   } catch (error) {
     next(error);
   }
