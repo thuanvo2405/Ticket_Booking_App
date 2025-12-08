@@ -92,20 +92,12 @@ export default function EventManage() {
           event.trangthai === "NHAP" || event.trangthai === "CHO_DUYET";
         return (
           <div className="flex gap-2">
-            <EventProfileModal event={event} />
-            {showActions && (
-              <>
-                <Button onClick={() => handleAccept.mutate(event.masukien)}>
-                  Duyệt
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleReject.mutate(event.masukien)}
-                >
-                  Từ chối
-                </Button>
-              </>
-            )}
+            <EventProfileModal
+              event={event}
+              onApprove={(id) => handleAccept.mutate(id)}
+              onReject={(id) => handleReject.mutate(id)}
+              disableActions={!showActions}
+            />
           </div>
         );
       },

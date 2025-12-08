@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import TicketDescription from "@/components/ui/ticket-description";
 import {
   getEventByIdAPI,
@@ -10,7 +9,7 @@ import { IMAGE_URL } from "@/constant/constant";
 import { formatPrice } from "@/utils/convert";
 import TicketInfo from "@/components/ticket-info";
 import EventCard from "@/components/event-card";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 export default function EventPage() {
   const ticketInfoRef = useRef<HTMLDivElement | null>(null);
@@ -130,7 +129,6 @@ export default function EventPage() {
             />
           ))}
         </div>
-        <Button className="mx-auto block  mt-2">Xem thêm</Button>
       </footer>
     </div>
   );
