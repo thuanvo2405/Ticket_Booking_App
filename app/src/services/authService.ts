@@ -42,3 +42,14 @@ export const resetPasswordAPI = async (
   });
   return res.data.data;
 };
+
+export const resendVerificationEmailAPI = async ({
+  email,
+  token,
+}: {
+  email?: string;
+  token?: string;
+}) => {
+  const res = await axios.post(`${URL}resend-verification`, { email, token });
+  return res.data;
+};

@@ -149,7 +149,15 @@ export const getEventByIdService = async (maSuKien) => {
               'maLoaiVe', lv.maloaive,
               'tenLoaiVe', lv.tenloaive,
               'giaTien', lv.giaTien,
-              'moTa', lv.moTa
+              'moTa', lv.moTa,
+              'soLuongPhatHanh', lv.soluongphathanh,
+              'soLuongDaBan', lv.soluongdaban,
+              'soLuongKhoa', lv.soluongkhoa,
+              'soLuongConLai',
+                GREATEST(
+                  COALESCE(lv.soluongphathanh, 0) - COALESCE(lv.soluongdaban, 0) - COALESCE(lv.soluongkhoa, 0),
+                  0
+                )
             ) ORDER BY lv.giaTien ASC
           )
           FROM loai_ve lv
@@ -405,7 +413,7 @@ export const getEventsForUserService = async ({
   tenLoaiSuKien,
 }) => {
   const offset = (page - 1) * limit;
-  const conditions = ["sk.trangthai = 'DA_DUYET'"];
+  const conditions = ["sk.trangthai IN ('DA_DUYET', 'DA_DIEN_RA')"];
   const params = [];
 
   if (tenSuKien) {
@@ -517,7 +525,7 @@ export const getSpecialEventService = async () => {
                         su_kien.anhSuKienDoc
         FROM su_kien
         JOIN suat_dien ON su_kien.maSuKien = suat_dien.maSuKien
-        WHERE suat_dien.thoiGianBatDau > NOW()
+        WHERE suat_dien.thoiGianBatDau > NOW() AND su_kien.trangthai = 'DA_DUYET'
      ) AS unique_events
      ORDER BY RANDOM()
      LIMIT 5;`

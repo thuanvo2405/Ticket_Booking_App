@@ -182,6 +182,19 @@ export const verifyEmail = async (req, res, next) => {
   try {
     const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
 
+    const userRes = await pool.query(
+      "SELECT isverified FROM nguoi_dung WHERE manguoidung = $1",
+      [payload.userId]
+    );
+
+    if (userRes.rows.length === 0) {
+      return handleResponse(res, 404, "Người dùng không tồn tại");
+    }
+
+    if (userRes.rows[0].isverified) {
+      return handleResponse(res, 200, "Email đã được xác thực trước đó");
+    }
+
     await pool.query(
       "UPDATE nguoi_dung SET isverified = true WHERE manguoidung = $1",
       [payload.userId]
@@ -189,32 +202,60 @@ export const verifyEmail = async (req, res, next) => {
 
     handleResponse(res, 200, "Email verified successfully. You can now login!");
   } catch (error) {
-    next(error);
+    if (error.name === "TokenExpiredError") {
+      return handleResponse(
+        res,
+        410,
+        "Link xác thực đã hết hạn, vui lòng yêu cầu gửi lại"
+      );
+    }
+    return next(error);
   }
 };
 
 export const resendVerificationEmail = async (req, res, next) => {
-  const { email } = req.body;
+  const { token } = req.body;
 
   try {
-    const user = await logInService(email);
+    if (!token) {
+      return res.status(400).json({ error: "Thiếu token xác thực" });
+    }
 
-    if (!user) return res.status(404).json({ error: "User not found" });
-    if (user.isverified)
+    const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET, {
+      ignoreExpiration: true,
+    });
+
+    const lookup = await pool.query(
+      "SELECT manguoidung, email, isverified FROM nguoi_dung WHERE manguoidung = $1",
+      [payload.userId]
+    );
+
+    if (lookup.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const userRecord = lookup.rows[0];
+
+    if (userRecord.isverified)
       return res.status(400).json({ error: "Email already verified" });
 
     const verifyToken = jwt.sign(
-      { userId: user.manguoidung },
+      { userId: userRecord.manguoidung },
       process.env.EMAIL_TOKEN_SECRET,
       { expiresIn: "1h" }
     );
 
-    await sendVerificationEmail(email, verifyToken);
+    await sendVerificationEmail(userRecord.email, verifyToken);
 
     res
       .status(200)
       .json({ message: "Verification email resent. Please check your inbox." });
   } catch (error) {
+    if (error.name === "JsonWebTokenError") {
+      return res
+        .status(400)
+        .json({ error: "Token không hợp lệ, vui lòng đăng ký lại" });
+    }
     next(error);
   }
 };
@@ -224,7 +265,7 @@ export const forgotPassword = async (req, res, next) => {
 
   try {
     const result = await pool.query("Select * from nguoi_dung where email=$1", [
-      email,
+      email.trim().toLowerCase(),
     ]);
     const user = result.rows[0];
     if (!user) {

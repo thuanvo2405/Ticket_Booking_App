@@ -10,14 +10,9 @@ const TicketInfo = forwardRef<
     maSuKien: string;
   }
 >(({ suat_dien, maSuKien }, ref) => {
-  console.log(suat_dien);
-
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
-  console.log(activeIndex);
-  const toggleSession = (index: string) => {
-    console.log("má" + index);
-    setActiveIndex(activeIndex === index ? null : index);
-  };
+  const toggleSession = (index: string) =>
+    setActiveIndex((prev) => (prev === index ? null : index));
 
   return (
     <section
@@ -34,56 +29,86 @@ const TicketInfo = forwardRef<
           ? new Date(item.thoigianketthuc)
           : null;
         const isExpired = end ? end < now : false;
+        const tickets = item.loaiVe || [];
+        const allTicketsSoldOut = tickets.every(
+          (ticket: any) => (ticket.soLuongConLai ?? 0) <= 0
+        );
 
         return (
           <div key={item.maSuatDien} className="border-b border-gray-700">
-          <div
-            className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-[#2a2a2a] transition"
-            onClick={() => toggleSession(item.maSuatDien)}
-          >
-            <div className="flex items-center gap-2">
-              {activeIndex === item.maSuatDien ? (
-                <ChevronDown size={18} />
-              ) : (
-                <ChevronRight size={18} />
-              )}
-              <span className="font-medium">
-                {formatFullDateTime(item.thoigianbatdau, item.thoigianketthuc)}
-              </span>
-            </div>
-            <NavLink
-              to={`${maSuKien}/${item.maSuatDien}/selected`}
-              className={`bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md ${
-                isExpired ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              onClick={(e) => {
-                if (isExpired) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
-              aria-disabled={isExpired}
+            <div
+              className="flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-[#2a2a2a] transition"
+              onClick={() => toggleSession(item.maSuatDien)}
             >
-              {isExpired ? "Đã hết hạn" : "Mua vé ngay"}
-            </NavLink>
-          </div>
-
-          {activeIndex === item.maSuatDien && (
-            <div className="bg-[#2b2b2b] divide-y divide-gray-700">
-              {item.loaiVe?.map((item: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-center px-6 py-3 text-gray-200 hover:bg-[#333] transition"
-                >
-                  <span className="font-semibold">{item.tenLoaiVe}</span>
-                  <span className="text-green-500 font-medium">
-                    {formatPrice(item.giaTien)}
+              <div className="flex items-center gap-2">
+                {activeIndex === item.maSuatDien ? (
+                  <ChevronDown size={18} />
+                ) : (
+                  <ChevronRight size={18} />
+                )}
+                <span className="font-medium">
+                  {formatFullDateTime(item.thoigianbatdau, item.thoigianketthuc)}
+                </span>
+                {allTicketsSoldOut && (
+                  <span className="ml-2 rounded-full bg-red-600/80 px-3 py-1 text-xs font-semibold">
+                    Suất diễn hết vé
                   </span>
-                </div>
-              ))}
+                )}
+              </div>
+              <NavLink
+                to={`${maSuKien}/${item.maSuatDien}/selected`}
+                className={`bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md ${
+                  isExpired || allTicketsSoldOut
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                onClick={(e) => {
+                  if (isExpired || allTicketsSoldOut) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                aria-disabled={isExpired || allTicketsSoldOut}
+              >
+                {isExpired
+                  ? "Đã hết hạn"
+                  : allTicketsSoldOut
+                  ? "Hết vé"
+                  : "Mua vé ngay"}
+              </NavLink>
             </div>
-          )}
-        </div>
+
+            {activeIndex === item.maSuatDien && (
+              <div className="bg-[#2b2b2b] divide-y divide-gray-700">
+                {tickets.map((ticket: any, idx: number) => {
+                  const remaining = ticket.soLuongConLai ?? 0;
+                  const soldOut = remaining <= 0;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center px-6 py-3 text-gray-200 hover:bg-[#333] transition"
+                    >
+                      <span className="font-semibold">{ticket.tenLoaiVe}</span>
+                      <div className="flex items-center gap-3">
+                        {soldOut && (
+                          <span className="rounded-full bg-red-600/80 px-3 py-1 text-xs font-semibold">
+                            Hết vé
+                          </span>
+                        )}
+                        <span
+                          className={`font-medium ${
+                            soldOut ? "text-gray-400" : "text-green-500"
+                          }`}
+                        >
+                          {formatPrice(ticket.giaTien)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         );
       })}
     </section>
