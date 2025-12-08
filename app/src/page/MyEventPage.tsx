@@ -1,36 +1,177 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Search } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { fetchProfileEventsByOrganizerID } from "@/services/eventService";
-import { useAuth } from "@/context/AuthProvider";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 import toast from "react-hot-toast";
-import EventProfileCard from "@/components/MyEventPage/EventProfileCard";
+
+import { DataTable } from "@/components/data-table";
+import { useAuth } from "@/context/AuthProvider";
+import {
+  deleteEventAPI,
+  fetchProfileEventsByOrganizerID,
+} from "@/services/eventService";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IMAGE_URL } from "@/constant/constant";
+
+type OrganizerEvent = {
+  masukien: string;
+  tensukien: string;
+  anhsukienngang: string | null;
+  trangthai: string;
+};
+
+const STATUS_MAP: Record<string, string | undefined> = {
+  all: undefined,
+  wait: "CHO_DUYET",
+  accept: "DA_DUYET",
+  pending: "NHAP",
+};
+
+const PAGE_SIZE = 10;
 
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
+  const [page, setPage] = useState(1);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { data: events, isFetching } = useQuery({
-    queryKey: ["fetchProfileEventByOrganizerID", tab],
-    queryFn: () => {
-      let status: string | undefined;
-      if (tab === "wait") status = "CHO_DUYET";
-      else if (tab === "accept") status = "DA_DUYET";
-      else if (tab === "pending") status = "NHAP";
-      else status = undefined;
+  const statusFilter = STATUS_MAP[tab];
 
-      return fetchProfileEventsByOrganizerID(status);
-    },
+  const {
+    data: eventsResponse,
+    isFetching,
+    isLoading,
+  } = useQuery({
+    queryKey: ["fetchProfileEventByOrganizerID", tab, page],
+    queryFn: () =>
+      fetchProfileEventsByOrganizerID({
+        trangThai: statusFilter,
+        page,
+        limit: PAGE_SIZE,
+      }),
     enabled: user?.vaitro === "TO_CHUC",
+    placeholderData: (prev) => prev,
   });
 
-  console.log(events);
+  const events = eventsResponse?.data ?? [];
+  const total = eventsResponse?.total ?? 0;
+  const hasNext = page * PAGE_SIZE < total;
+  const showingFrom = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const showingTo = Math.min(page * PAGE_SIZE, total);
 
-  if (isFetching) return <h1>Loading</h1>;
+  const deleteMutation = useMutation({
+    mutationFn: (maSuKien: string) => deleteEventAPI(maSuKien),
+    onSuccess: () => {
+      toast.success("Xóa sự kiện thành công");
+      queryClient.invalidateQueries({
+        queryKey: ["fetchProfileEventByOrganizerID"],
+        exact: false,
+      });
+    },
+    onError: () => {
+      toast.error("Xóa sự kiện thất bại");
+    },
+  });
+
+  const columns: ColumnDef<OrganizerEvent>[] = [
+    {
+      accessorKey: "anhsukienngang",
+      header: "Ảnh sự kiện",
+      cell: ({ row }) => {
+        const src = row.getValue("anhsukienngang") as string | null;
+        return src ? (
+          <img
+            src={IMAGE_URL + src}
+            alt="Ảnh sự kiện"
+            className="h-16 w-28 rounded-md object-cover border"
+          />
+        ) : (
+          <div className="h-16 w-28 rounded-md border flex items-center justify-center text-xs text-gray-400">
+            Không có ảnh
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "tensukien",
+      header: "Tên sự kiện",
+      cell: ({ row }) => (
+        <div className="font-medium text-gray-900">
+          {row.getValue("tensukien")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "trangthai",
+      header: "Trạng thái",
+      cell: ({ row }) => {
+        const value = row.getValue("trangthai") as string;
+        const colorMap: Record<string, string> = {
+          CHO_DUYET: "text-yellow-600",
+          DA_DUYET: "text-green-600",
+          HUY: "text-red-600",
+          TU_CHOI: "text-red-600",
+          NHAP: "text-gray-500",
+        };
+        return (
+          <span className={colorMap[value] || "text-black"}>
+            {value.replaceAll("_", " ")}
+          </span>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Hành động",
+      cell: ({ row }) => {
+        const event = row.original;
+        const isApproved = event.trangthai === "DA_DUYET";
+
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                navigate(`/organizer/my-events/${row.original.masukien}/stats`)
+              }
+            >
+              Xem
+            </Button>
+            {!isApproved && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      `/organizer/create-event?eventId=${event.masukien}`
+                    )
+                  }
+                >
+                  Sửa
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => deleteMutation.mutate(event.masukien)}
+                  disabled={deleteMutation.isPending}
+                >
+                  Xóa
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
+  if (isLoading) return <h1>Loading</h1>;
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -62,7 +203,13 @@ export default function MyEventPage() {
           )}
         </div>
 
-        <Tabs value={tab} onValueChange={setTab}>
+        <Tabs
+          value={tab}
+          onValueChange={(value) => {
+            setTab(value);
+            setPage(1);
+          }}
+        >
           <TabsList className="bg-gray-100 rounded-xl">
             <TabsTrigger
               value="all"
@@ -94,21 +241,38 @@ export default function MyEventPage() {
         </Tabs>
       </div>
 
-      <div className="flex flex-col w-full items-center gap-4">
-        {events && events.length > 0 ? (
-          <div className="flex flex-col w-full items-center">
-            {events.map((event: any, index: number) => (
-              <EventProfileCard key={index} event={event} />
-            ))}
+      <div className="px-6 pb-10">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xl font-semibold">Sự kiện của bạn</p>
+          {isFetching && (
+            <span className="text-sm text-gray-500">Đang tải dữ liệu...</span>
+          )}
+        </div>
+        <DataTable columns={columns} data={events} />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mt-4">
+          <div className="text-sm text-gray-600">
+            {total
+              ? `Hiển thị ${showingFrom}-${showingTo} trên ${total} sự kiện`
+              : "Không có sự kiện nào"}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-[40vh] text-gray-500">
-            <div className="bg-gray-100 rounded-full p-6 shadow-sm">
-              <CalendarIcon size={48} />
-            </div>
-            <p className="mt-4 text-sm">Hiện chưa có sự kiện nào</p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              disabled={page === 1}
+            >
+              Trước
+            </Button>
+            <div>Trang {page}</div>
+            <Button
+              variant="outline"
+              onClick={() => setPage((prev) => (hasNext ? prev + 1 : prev))}
+              disabled={!hasNext}
+            >
+              Sau
+            </Button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

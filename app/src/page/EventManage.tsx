@@ -88,8 +88,7 @@ export default function EventManage() {
       header: "Hành động",
       cell: ({ row }) => {
         const event = row.original;
-        const showActions =
-          event.trangthai === "NHAP" || event.trangthai === "CHO_DUYET";
+        const showActions = event.trangthai === "CHO_DUYET";
         return (
           <div className="flex gap-2">
             <EventProfileModal

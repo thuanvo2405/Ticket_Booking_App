@@ -122,9 +122,19 @@ export const updateEventStatusAPI = async (
   return res.data.data;
 };
 
-export const fetchProfileEventsByOrganizerID = async (trangThai?: string) => {
-  const params = trangThai ? { trangThai } : {};
-  const res = await axios.get(URL + "organizer/events", { params });
+export const fetchProfileEventsByOrganizerID = async ({
+  trangThai,
+  page = 1,
+  limit = 10,
+}: {
+  trangThai?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  const params: Record<string, string | number> = { page, limit };
+  if (trangThai) params.trangThai = trangThai;
+
+  const res = await axiosInstance.get("organizer/events", { params });
   return res.data.data;
 };
 

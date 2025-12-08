@@ -176,6 +176,8 @@ export const getEvents = async (req, res, next) => {
 export const getEventByOrganizerId = async (req, res, next) => {
   try {
     const userId = req.user.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const { trangThai } = req.query;
 
     const orgQuery = await pool.query(
@@ -183,9 +185,18 @@ export const getEventByOrganizerId = async (req, res, next) => {
       [userId]
     );
 
+    if (orgQuery.rowCount === 0) {
+      return handleResponse(res, 404, "Không tìm thấy hồ sơ tổ chức");
+    }
+
     const { matochuc } = orgQuery.rows[0];
 
-    const events = await getEventByOrganizerIdService(matochuc, trangThai);
+    const events = await getEventByOrganizerIdService({
+      matochuc,
+      trangThai,
+      page,
+      limit,
+    });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", events);
   } catch (error) {

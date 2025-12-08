@@ -312,23 +312,52 @@ export const getEventsService = async ({
   };
 };
 
-export const getEventByOrganizerIdService = async (matochuc, trangThai) => {
-  let conditions = ["matochuc = $1"];
-  let params = [matochuc];
+export const getEventByOrganizerIdService = async ({
+  matochuc,
+  trangThai,
+  page = 1,
+  limit = 10,
+}) => {
+  const offset = (page - 1) * limit;
+  const conditions = ["sk.matochuc = $1"];
+  const params = [matochuc];
 
   if (trangThai) {
-    conditions.push(`trangthai = $2`);
+    conditions.push(`sk.trangthai = $${params.length + 1}`);
     params.push(trangThai);
   }
 
-  const sql = `
-    SELECT masukien, anhsukienngang, tensukien, diachi, phuong, quan, thanhpho, trangthai
-    FROM su_kien
-    WHERE ${conditions.join(" AND ")}
+  const whereClause = conditions.join(" AND ");
+
+  const dataQuery = `
+    SELECT 
+      sk.masukien,
+      sk.anhsukienngang,
+      sk.tensukien,
+      sk.trangthai,
+      lsk.tenloaisukien
+    FROM su_kien sk
+    JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
+    WHERE ${whereClause}
+    ORDER BY sk.ngaytao DESC
+    LIMIT $${params.length + 1} OFFSET $${params.length + 2};
   `;
 
-  const result = await pool.query(sql, params);
-  return result.rows;
+  const countQuery = `
+    SELECT COUNT(*) 
+    FROM su_kien sk
+    WHERE ${whereClause};
+  `;
+
+  const result = await pool.query(dataQuery, [...params, limit, offset]);
+  const totalResult = await pool.query(countQuery, params);
+
+  return {
+    data: result.rows,
+    page,
+    limit,
+    total: parseInt(totalResult.rows[0].count, 10),
+  };
 };
 
 export const getEventTypesService = async () => {
