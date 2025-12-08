@@ -12,6 +12,7 @@ import promotionRoute from "./routes/promotionRoute.js";
 import paymentRoute from "./routes/paymentRoute.js";
 import orderRoute from "./routes/orderRoute.js";
 import reportRoute from "./routes/reportRoute.js";
+import categoryRoute from "./routes/categoryRoute.js";
 import upload from "./utils/multer.js";
 import errorHandling from "./middleware/errorHandler.js";
 import "./utils/orderCleanup.js";
@@ -37,6 +38,7 @@ app.use("/v1/api", promotionRoute);
 app.use("/v1/api", paymentRoute);
 app.use("/v1/api", orderRoute);
 app.use("/v1/api", reportRoute);
+app.use("/v1/api", categoryRoute);
 
 router.post("/uploads", upload.single("image"), (req, res) => {
   const imageUrl = req.file.path;

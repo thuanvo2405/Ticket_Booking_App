@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import HomePage from "./page/HomePage";
+import HomePage from "./page/homepage";
 import Layout from "./components/layout/layout";
 import ResetPasswordPage from "./page/ResetPasswordPage";
 import ProfileLayout from "./components/layout/profilelayout";
@@ -21,6 +21,7 @@ import DashboardManage from "./page/DashboardManage";
 import SelectTicketPage from "./page/SelectTicketPage";
 import PaymentInfoPage from "./page/PaymentInfoPage";
 import PaymentResultPage from "./page/PaymentResult";
+import CategoryManage from "./page/CategoryManage";
 import AdminLoginPage from "./page/AdminLoginPage";
 import AdminProtectedRoute from "./utils/ProtectRoute";
 import MyOrderPage from "./page/MyOrderPage";
@@ -64,6 +65,7 @@ function App() {
           <Route index element={<AdminPage />} />
           <Route path="account-manage" element={<AccountManage />} />
           <Route path="event-manage" element={<EventManage />} />
+          <Route path="category-manage" element={<CategoryManage />} />
           <Route path="dashboard" element={<DashboardManage />} />
         </Route>
       </Route>

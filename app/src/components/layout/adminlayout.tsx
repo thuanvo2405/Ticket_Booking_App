@@ -71,6 +71,26 @@ export default function AdminLayout() {
               </Button>
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/admin/category-manage"
+              className={({ isActive }) =>
+                `w-full block ${
+                  isActive
+                    ? "bg-green-100 text-green-700"
+                    : "hover:bg-gray-100 text-gray-700"
+                } rounded-lg`
+              }
+            >
+              <Button
+                variant="ghost"
+                size="lg"
+                className="w-full justify-start font-medium"
+              >
+                Quản lý loại sự kiện
+              </Button>
+            </NavLink>
+          </li>
         </ul>
 
         <Button onClick={logout}>Đăng xuất</Button>

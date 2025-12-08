@@ -10,11 +10,11 @@ import {
 import {
   getSpecialEventsAPI,
   getSuggestedEventsAPI,
+  getEventTypesAPI,
 } from "@/services/eventService";
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
 import { IMAGE_URL, locations } from "../constant/constant";
-const categories = ["Âm Nhạc", "Sân Khấu", "Workshop", "Thể Thao", "Khác"];
 const categoriesSuggest = ["Âm Nhạc", "Workshop", "Khác"];
 
 function EventSkeleton() {
@@ -39,12 +39,24 @@ export default function HomePage() {
     queryKey: ["specialEvents"],
     queryFn: () => getSpecialEventsAPI(),
   });
+  const { data: categories } = useQuery({
+    queryKey: ["publicEventCategories"],
+    queryFn: () => getEventTypesAPI(),
+  });
+
+  const categoryList = categories?.map((c: any) => c.tenloaisukien) || [
+    "Âm Nhạc",
+    "Sân Khấu",
+    "Workshop",
+    "Thể Thao",
+    "Khác",
+  ];
 
   return (
     <div>
       <nav className="h-[60px] bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
         <ul className="flex h-full items-center w-[1284px] gap-3 ">
-          {categories.map((item) => (
+          {categoryList.map((item: any) => (
             <li key={item}>
               <NavLink to={`search?type=${item}`}>
                 <Button

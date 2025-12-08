@@ -337,7 +337,10 @@ export const deleteEventService = async (maSuKien) => {
 };
 
 export const getEventsByCategoryService = async () => {
-  const categories = ["Âm Nhạc", "Workshop", "Khác"];
+  const categoriesRes = await pool.query(
+    "SELECT tenloaisukien FROM loai_su_kien ORDER BY tenloaisukien ASC"
+  );
+  const categories = categoriesRes.rows.map((c) => c.tenloaisukien);
 
   const result = await pool.query(
     `SELECT 
@@ -385,8 +388,8 @@ export const getEventsByCategoryService = async () => {
 
   result.rows.forEach((e) => {
     const categoryName = e.tenloaisukien;
-    if (grouped[categoryName]) grouped[categoryName].push(e);
-    else grouped[categoryName] = [e];
+    if (!grouped[categoryName]) grouped[categoryName] = [];
+    grouped[categoryName].push(e);
   });
 
   return grouped;

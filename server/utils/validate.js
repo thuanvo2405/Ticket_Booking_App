@@ -265,3 +265,11 @@ export const UpdateTicketTypeSchema = z.object({
     .min(1, "Số lượng phát hành phải >= 1"),
   maLoaiVe: z.string().uuid("Mã loại vé không hợp lệ"),
 });
+
+export const CategorySchema = z.object({
+  tenloaisukien: z
+    .string()
+    .trim()
+    .min(2, "Tên loại sự kiện phải có ít nhất 2 ký tự")
+    .max(100, "Tên loại sự kiện quá dài"),
+});

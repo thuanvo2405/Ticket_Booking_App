@@ -11,6 +11,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Filter } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
+import { useQuery } from "@tanstack/react-query";
+import { getEventTypesAPI } from "@/services/eventService";
 
 type FilterData = {
   area?: string;
@@ -27,6 +29,18 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
   const eventType = useSearchStore((state) => state.eventType);
   const setEventType = useSearchStore((state) => state.setEventType);
   const setArea = useSearchStore((state) => state.setArea);
+  const { data: categories } = useQuery({
+    queryKey: ["publicEventCategories"],
+    queryFn: () => getEventTypesAPI(),
+  });
+
+  const categoryOptions = categories?.map((c: any) => c.tenloaisukien) || [
+    "Âm Nhạc",
+    "Sân Khấu",
+    "Thể Thao",
+    "Workshop",
+    "Khác",
+  ];
   const handleReset = () => {
     setArea("");
     setEventType("");
@@ -74,14 +88,12 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
         <div>
           <p className="font-semibold mb-2">Thể loại</p>
           <RadioGroup value={eventType} onValueChange={setEventType}>
-            {["Âm Nhạc", "Sân Khấu", "Thể Thao", "Workshop", "Khác"].map(
-              (item, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <RadioGroupItem value={item} id={`type-${i}`} />
-                  <Label htmlFor={`type-${i}`}>{item}</Label>
-                </div>
-              )
-            )}
+            {categoryOptions.map((item: any, i: number) => (
+              <div key={item} className="flex items-center space-x-2">
+                <RadioGroupItem value={item} id={`type-${i}`} />
+                <Label htmlFor={`type-${i}`}>{item}</Label>
+              </div>
+            ))}
           </RadioGroup>
         </div>
 
