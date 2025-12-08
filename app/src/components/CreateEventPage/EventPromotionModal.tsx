@@ -41,7 +41,7 @@ import type { Promotion } from "./EventPromotionSetup";
 
 export const PromotionFormSchema = z
   .object({
-    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+    maGiamGia: z.string().trim().min(1, "Mã giảm giá là bắt buộc"),
     giaTriGiam: z.number().min(1, "Giá trị giảm phải lớn hơn 0"),
     loaiGiam: z.enum(["PHAN_TRAM", "SO_TIEN"]),
     ngayBatDau: z.date(),
@@ -173,9 +173,19 @@ export default function EventPromotionModal({
       setOpen(false);
       onClose?.();
     },
+    onError: (error: any) => {
+      toast.error(
+        error?.response?.data?.message || "Cập nhật khuyến mãi không thành công"
+      );
+    },
   });
 
   const onSubmit = (values: PromotionFormValues) => {
+    if (!maSuKien) {
+      toast.error("Thiếu mã sự kiện, vui lòng tải lại trang");
+      return;
+    }
+
     if (promotion) {
       updateMutation.mutate({
         maKhuyenMai: promotion.makhuyenmai,
@@ -196,7 +206,7 @@ export default function EventPromotionModal({
         giaTriToiThieu: values.giaTriToiThieu,
         ngayBatDau: formatDate(values.ngayBatDau),
         ngayKetThuc: formatDate(values.ngayKetThuc),
-        maSuKien: maSuKien!,
+        maSuKien,
       });
     }
   };
@@ -264,7 +274,9 @@ export default function EventPromotionModal({
                         type="number"
                         min={1}
                         {...field}
-                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        onChange={(e) =>
+                          field.onChange(Number(e.target.value) || 0)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -284,10 +296,14 @@ export default function EventPromotionModal({
                       <Input
                         type="text"
                         {...field}
-                        value={field.value.toLocaleString("vi-VN")}
+                        value={
+                          Number.isFinite(field.value)
+                            ? field.value.toLocaleString("vi-VN")
+                            : ""
+                        }
                         onChange={(e) => {
                           const raw = e.target.value.replace(/\D/g, "");
-                          field.onChange(Number(raw));
+                          field.onChange(Number(raw) || 0);
                         }}
                       />
                     </FormControl>
@@ -306,10 +322,14 @@ export default function EventPromotionModal({
                       <Input
                         type="text"
                         {...field}
-                        value={field.value.toLocaleString("vi-VN")}
+                        value={
+                          Number.isFinite(field.value)
+                            ? field.value.toLocaleString("vi-VN")
+                            : ""
+                        }
                         onChange={(e) => {
                           const raw = e.target.value.replace(/\D/g, "");
-                          field.onChange(Number(raw));
+                          field.onChange(Number(raw) || 0);
                         }}
                       />
                     </FormControl>

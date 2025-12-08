@@ -56,10 +56,15 @@ export default function PaymentInfoPage() {
     setTotal(newTotal);
   }, [order, items, appliedPromo]);
 
+  const calculateOrderTotal = () =>
+    items.reduce((sum, i) => sum + i.dongia * i.soluong, 0);
+
   const applyPromotion = (promo: Promotion) => {
     const orderTotal = items.reduce((sum, i) => sum + i.dongia * i.soluong, 0);
     if (orderTotal < promo.giatritoithieu) {
-      alert(`Đơn hàng phải >= ${formatPrice(promo.giatritoithieu)} để áp dụng`);
+      toast.error(
+        `Đơn hàng phải từ ${formatPrice(promo.giatritoithieu)} mới áp dụng được mã này`
+      );
       return;
     }
     setAppliedPromo(promo);
@@ -173,15 +178,25 @@ export default function PaymentInfoPage() {
             />
             <Button
               onClick={() => {
-                const promo = promotion?.find(
-                  (p) =>
-                    p.makhuyenmai.toLowerCase() ===
-                      promoCode.trim().toLowerCase() ||
-                    p.magiamgia?.toLowerCase() ===
-                      promoCode.trim().toLowerCase()
-                );
-                if (promo) applyPromotion(promo);
-                else alert("Mã khuyến mãi không hợp lệ");
+                const code = promoCode.trim();
+                if (!code) {
+                  toast.error("Vui lòng nhập mã khuyến mãi");
+                  return;
+                }
+
+                const promo = promotion?.find((p) => {
+                  const values = [p.makhuyenmai, p.magiamgia].filter(Boolean);
+                  return values.some(
+                    (v) => v?.toLowerCase() === code.toLowerCase()
+                  );
+                });
+
+                if (!promo) {
+                  toast.error("Mã khuyến mãi không hợp lệ hoặc không tồn tại");
+                  return;
+                }
+
+                applyPromotion(promo);
               }}
               className="h-14"
             >
@@ -205,10 +220,7 @@ export default function PaymentInfoPage() {
 
           <div className="space-y-4 mt-2">
             {promotion?.map((promo) => {
-              const orderTotal = items.reduce(
-                (sum, i) => sum + i.dongia * i.soluong,
-                0
-              );
+              const orderTotal = calculateOrderTotal();
               const disabled = orderTotal < promo.giatritoithieu;
               const selected = appliedPromo?.makhuyenmai === promo.makhuyenmai;
 
