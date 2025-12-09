@@ -32,9 +32,14 @@ export const getProfileUserAPI = async () => {
   return res.data.data;
 };
 
-export const getUsersAPI = async (page = 1, limit = 10) => {
+export const getUsersAPI = async (
+  page = 1,
+  limit = 10,
+  vaitro?: "QUAN_TRI" | "TO_CHUC" | "KHACH_HANG",
+  search?: string
+) => {
   const res = await axiosInstance.get(`users`, {
-    params: { page, limit },
+    params: { page, limit, vaitro, search },
   });
   return res.data.data;
 };

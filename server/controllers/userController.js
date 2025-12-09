@@ -94,23 +94,22 @@ export const updateForAdmin = async (req, res, next) => {
 
 export const getUsers = async (req, res, next) => {
   try {
-    let { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10, vaitro, search } = req.query;
 
     page = parseInt(page);
     limit = parseInt(limit);
     const offset = (page - 1) * limit;
 
-    const users = await getUsersService(limit, offset);
-
-    const totalResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM nguoi_dung`
+    const { rows, total } = await getUsersService(
+      limit,
+      offset,
+      vaitro,
+      search
     );
-
-    const total = parseInt(totalResult.rows[0].total, 10);
     const totalPages = Math.ceil(total / limit);
 
     handleResponse(res, 200, "Lấy danh sách người dùng thành công", {
-      data: users.rows,
+      data: rows,
       total,
       totalPages,
       page,

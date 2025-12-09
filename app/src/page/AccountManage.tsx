@@ -11,6 +11,8 @@ import toast from "react-hot-toast";
 import CreateUserModal from "@/components/AdminPage/CreateUserModal";
 import { useState } from "react";
 import UpdateUserModal from "@/components/AdminPage/UpdateUserModal";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export type AccountProfile = {
   manguoidung: string;
@@ -25,11 +27,22 @@ export type AccountProfile = {
 
 export default function AccountManage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState<"all" | "admin" | "organizer" | "user">("all");
   const limit = 10;
 
+  const roleFilter =
+    tab === "admin"
+      ? "QUAN_TRI"
+      : tab === "organizer"
+      ? "TO_CHUC"
+      : tab === "user"
+      ? "KHACH_HANG"
+      : undefined;
+
   const { data } = useQuery({
-    queryKey: ["users", page],
-    queryFn: () => getUsersAPI(page),
+    queryKey: ["users", page, roleFilter, search],
+    queryFn: () => getUsersAPI(page, limit, roleFilter, search || undefined),
     placeholderData: (previous) => previous,
   });
   console.log(data);
@@ -163,9 +176,36 @@ export default function AccountManage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <p className="text-xl">Quản lý người dùng</p>
-        <CreateUserModal />
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder="Tìm kiếm tên hoặc email"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-64"
+          />
+          <CreateUserModal />
+        </div>
+      </div>
+      <div className="mt-3">
+        <Tabs
+          value={tab}
+          onValueChange={(val) => {
+            setTab(val as typeof tab);
+            setPage(1);
+          }}
+        >
+          <TabsList>
+            <TabsTrigger value="all">Tất cả</TabsTrigger>
+            <TabsTrigger value="admin">Admin</TabsTrigger>
+            <TabsTrigger value="organizer">Tổ chức</TabsTrigger>
+            <TabsTrigger value="user">Người dùng</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
       <div className="mt-4">
         <DataTable columns={columns} data={data?.data || []} />

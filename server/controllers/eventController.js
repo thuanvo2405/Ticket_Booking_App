@@ -163,6 +163,14 @@ export const updateEventStatus = async (req, res, next) => {
     const oldEvent = await isExist(maSuKien);
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
+    if (oldEvent.trangthai === "TU_CHOI" && trangThai === "CHO_DUYET") {
+      const err = new Error(
+        "Sự kiện đã bị từ chối và không thể gửi duyệt lại"
+      );
+      err.statusCode = 400;
+      throw err;
+    }
+
     const result = await updateEventStatusService(maSuKien, trangThai);
 
     handleResponse(res, 200, "Cập nhật sự kiện thành công", {

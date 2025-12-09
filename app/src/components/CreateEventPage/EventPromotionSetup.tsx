@@ -73,8 +73,11 @@ export default function EventPromotionSetup() {
       toast.success("Sự kiện đã được gửi yêu cầu duyệt!");
       navigate("/organizer/my-events");
     },
-    onError: () => {
-      toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");
+    onError: (error: any) => {
+      console.log(error);
+      toast.error(
+        error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại."
+      );
     },
   });
 

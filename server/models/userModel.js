@@ -152,15 +152,43 @@ export const toggleUserStatusService = async (manguoidung) => {
   return newStatus;
 };
 
-export const getUsersService = async (limit, offset) => {
+export const getUsersService = async (limit, offset, role, search) => {
+  const conditions = [];
+  const params = [];
+
+  if (role) {
+    conditions.push(`vaitro = $${params.length + 1}`);
+    params.push(role);
+  }
+
+  if (search) {
+    conditions.push(
+      `(LOWER(tennguoidung) LIKE $${params.length + 1} OR LOWER(email) LIKE $${
+        params.length + 1
+      })`
+    );
+    params.push(`%${search.toLowerCase()}%`);
+  }
+
+  const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
   const result = await pool.query(
-    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao, is_active, isverified
-       FROM nguoi_dung
-       ORDER BY ngaytao DESC
-       LIMIT $1 OFFSET $2`,
-    [limit, offset]
+    `
+    SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao, is_active, isverified
+    FROM nguoi_dung
+    ${whereClause}
+    ORDER BY ngaytao DESC
+    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+  `,
+    [...params, limit, offset]
   );
-  return result;
+
+  const totalResult = await pool.query(
+    `SELECT COUNT(*) AS total FROM nguoi_dung ${whereClause}`,
+    params
+  );
+
+  return { rows: result.rows, total: parseInt(totalResult.rows[0].total, 10) };
 };
 
 export const updateForAdminService = async (
