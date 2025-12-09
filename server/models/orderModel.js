@@ -25,9 +25,12 @@ export const createOrderService = async (manguoidung, items) => {
       // 2.1: Lấy loại vé + khóa dòng trong transaction
       const ticketRes = await client.query(
         `
-        SELECT giatien, soluongphathanh, soluongdaban, soluongkhoa
-        FROM loai_ve
-        WHERE maloaive = $1
+        SELECT 
+          lv.giatien, lv.soluongphathanh, lv.soluongdaban, lv.soluongkhoa,
+          sd.thoigianbatdau
+        FROM loai_ve lv
+        JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+        WHERE lv.maloaive = $1
         FOR UPDATE
         `,
         [maloaive]
@@ -37,8 +40,18 @@ export const createOrderService = async (manguoidung, items) => {
         throw new Error(`Loại vé không tồn tại`);
       }
 
-      const { giatien, soluongphathanh, soluongdaban, soluongkhoa } =
+      const {
+        giatien,
+        soluongphathanh,
+        soluongdaban,
+        soluongkhoa,
+        thoigianbatdau,
+      } =
         ticketRes.rows[0];
+
+      if (thoigianbatdau && new Date(thoigianbatdau) < new Date()) {
+        throw new Error("Suất diễn đã bắt đầu hoặc kết thúc, không thể đặt vé");
+      }
 
       const soLuongConLai = soluongphathanh - soluongdaban - soluongkhoa;
 

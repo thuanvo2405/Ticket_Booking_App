@@ -29,6 +29,8 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
   const eventType = useSearchStore((state) => state.eventType);
   const setEventType = useSearchStore((state) => state.setEventType);
   const setArea = useSearchStore((state) => state.setArea);
+  const [tempArea, setTempArea] = useState(area);
+  const [tempType, setTempType] = useState(eventType);
   const { data: categories } = useQuery({
     queryKey: ["publicEventCategories"],
     queryFn: () => getEventTypesAPI(),
@@ -42,17 +44,17 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
     "Khác",
   ];
   const handleReset = () => {
-    setArea("");
-    setEventType("");
+    setTempArea("");
+    setTempType("");
   };
 
   const handleApply = () => {
-    setArea(area);
-    setEventType(eventType);
+    setArea(tempArea);
+    setEventType(tempType);
 
     onApply?.({
-      area,
-      type: eventType,
+      area: tempArea,
+      type: tempType,
     });
     setOpen(false);
   };
@@ -69,13 +71,13 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
       <PopoverContent className="w-80 space-y-5">
         <div>
           <p className="font-semibold mb-2">Khu vực</p>
-          <RadioGroup value={area} onValueChange={setArea}>
+          <RadioGroup value={tempArea} onValueChange={setTempArea}>
             {["Toàn quốc", "Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Khác"].map(
               (item, i) => (
                 <div key={i} className="flex items-center space-x-2">
                   <RadioGroupItem
                     value={item}
-                    defaultValue={area}
+                    defaultValue={tempArea}
                     id={`area-${i}`}
                   />
                   <Label htmlFor={`area-${i}`}>{item}</Label>
@@ -87,7 +89,7 @@ export default function OptionPicker({ onApply }: OptionPickerProps) {
 
         <div>
           <p className="font-semibold mb-2">Thể loại</p>
-          <RadioGroup value={eventType} onValueChange={setEventType}>
+          <RadioGroup value={tempType} onValueChange={setTempType}>
             {categoryOptions.map((item: any, i: number) => (
               <div key={item} className="flex items-center space-x-2">
                 <RadioGroupItem value={item} id={`type-${i}`} />

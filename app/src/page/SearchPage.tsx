@@ -26,6 +26,13 @@ export default function SearchPage() {
   const page = useSearchStore((state) => state.page);
 
   useEffect(() => {
+    const nextFilters: FilterData = {};
+    if (area && area !== "Toàn quốc") nextFilters.area = area;
+    if (eventType) nextFilters.type = eventType;
+    setFilters(nextFilters);
+  }, [area, eventType]);
+
+  useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
 
     if (params.area) useSearchStore.getState().setArea(params.area);

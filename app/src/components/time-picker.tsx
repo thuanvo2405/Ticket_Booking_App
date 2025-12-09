@@ -15,6 +15,10 @@ import { vi } from "date-fns/locale";
 export default function TimePicker() {
   const { fromDate, toDate, setFromDate, setToDate } = useSearchStore();
   const [open, setOpen] = React.useState(false);
+  const [tempRange, setTempRange] = React.useState<DateRange | undefined>({
+    from: fromDate,
+    to: toDate,
+  });
 
   const getDateLabel = () => {
     if (!fromDate) return "Chọn ngày";
@@ -26,8 +30,7 @@ export default function TimePicker() {
   };
 
   const handleSelect = (range: DateRange | undefined) => {
-    setFromDate(range?.from);
-    setToDate(range?.to);
+    setTempRange(range);
   };
 
   const quickSelect = (label: string) => {
@@ -70,8 +73,7 @@ export default function TimePicker() {
         break;
     }
 
-    setFromDate(from);
-    setToDate(to);
+    setTempRange({ from, to });
   };
 
   return (
@@ -140,7 +142,7 @@ export default function TimePicker() {
             locale={vi}
             mode="range"
             defaultMonth={fromDate || new Date()}
-            selected={{ from: fromDate, to: toDate }}
+            selected={{ from: tempRange?.from, to: tempRange?.to }}
             onSelect={handleSelect}
             numberOfMonths={2}
             showOutsideDays={false}
@@ -152,15 +154,18 @@ export default function TimePicker() {
               variant="outline"
               className="flex-1 border-green-400 text-green-600 hover:bg-green-50"
               onClick={() => {
-                setFromDate(undefined);
-                setToDate(undefined);
+                setTempRange({ from: undefined, to: undefined });
               }}
             >
               Thiết lập lại
             </Button>
             <Button
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setFromDate(tempRange?.from);
+                setToDate(tempRange?.to);
+                setOpen(false);
+              }}
             >
               Áp dụng
             </Button>
