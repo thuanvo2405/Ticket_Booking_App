@@ -20,6 +20,7 @@ import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 import { EventSchema } from "../utils/validate.js";
 import { deleteFile } from "../utils/deleteImage.js";
+
 export const createEvent = async (req, res, next) => {
   try {
     const userID = req.user.user.id;

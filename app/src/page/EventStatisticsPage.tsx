@@ -1,308 +1,160 @@
-import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import {
-  getEventOrderDetailAPI,
-  getEventStatisticsAPI,
-} from "@/services/eventService";
+"use client";
+
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { format } from "date-fns";
-import { DataTable } from "@/components/data-table";
 import { type ColumnDef } from "@tanstack/react-table";
-
-type PerformanceInfo = {
-  maSuatDien: string;
-  thoiGianBatDau?: string;
-  thoiGianKetThuc?: string;
-};
-
-type OrderRow = {
-  madonhang: string;
-  ngaydatve?: string;
-  trangthai: string;
-  tennguoidung?: string;
-  tongtien: number;
-  performances?: PerformanceInfo[];
-};
-
-type OrderItemRow = {
-  maloave: string;
-  tenloaive: string;
-  soluong: number;
-  dongia: number;
-  thanhtien: number;
-  masuatdien?: string;
-  thoigianbatdau?: string;
-  thoigianketthuc?: string;
-};
-
-const currency = (value: number) =>
-  value.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-const truncate = (value: string, max = 10) =>
-  value.length > max ? `${value.slice(0, max)}...` : value;
-const formatDateTime = (value?: string, pattern = "dd/MM/yyyy HH:mm") =>
-  value ? format(new Date(value), pattern) : "N/A";
+import { DataTable } from "@/components/data-table";
+import { Progress } from "@/components/ui/progress";
+import { RadiantChart } from "@/components/RadiantChart";
+import { EventLineChart } from "@/components/EventLineChart";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function EventStatisticsPage() {
-  const { maSuKien } = useParams();
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [session, setSession] = useState("session1");
+  const [range, setRange] = useState<"24h" | "30d">("30d");
 
-  const {
-    data: stats,
-    isFetching,
-    isError,
-  } = useQuery({
-    queryKey: ["eventStatistics", maSuKien],
-    queryFn: () => getEventStatisticsAPI(maSuKien as string),
-    enabled: !!maSuKien,
-  });
+  const data30d = Array.from({ length: 30 }).map((_, i) => ({
+    date: `${i + 1}/12`,
+    tickets: Math.floor(Math.random() * 5),
+    revenue: Math.floor(Math.random() * 1000000),
+  }));
 
-  const { data: orderDetail, isFetching: loadingOrderDetail } = useQuery({
-    queryKey: ["eventOrderDetail", maSuKien, selectedOrder],
-    queryFn: () =>
-      getEventOrderDetailAPI(maSuKien as string, selectedOrder as string),
-    enabled: !!maSuKien && !!selectedOrder,
-  });
+  const data24h = Array.from({ length: 24 }).map((_, i) => ({
+    date: `${i}h`,
+    tickets: Math.floor(Math.random() * 3),
+    revenue: Math.floor(Math.random() * 300000),
+  }));
 
-  const summary = useMemo(() => {
-    if (!stats) return [];
-    return [
-      { label: "Tổng vé đã bán", value: stats.totalTickets.toString() },
-      { label: "Doanh thu sự kiện", value: currency(stats.totalRevenue) },
-      { label: "Đơn hàng đã thanh toán", value: stats.totalOrders.toString() },
-    ];
-  }, [stats]);
+  const sessionDataMap = {
+    session1: data30d,
+    session2: data30d.map((d) => ({ ...d, tickets: d.tickets + 2 })),
+    session3: data30d.map((d) => ({ ...d, tickets: d.tickets + 5 })),
+  };
 
-  const orderColumns = useMemo<ColumnDef<OrderRow>[]>(
+  const currentChartData = range === "30d" ? sessionDataMap[session] : data24h;
+
+  const ticketData = [
+    { type: "vip", price: 100000, sold: 0, total: 10, locked: 0 },
+    { type: "standard", price: 50000, sold: 5, total: 20, locked: 1 },
+  ];
+
+  const columns: ColumnDef<(typeof ticketData)[0]>[] = useMemo(
     () => [
       {
-        header: "Mã đơn",
-        accessorKey: "madonhang",
-        cell: ({ row }) => (
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger className="text-left">
-                <span className="font-medium">
-                  {truncate(row.original.madonhang)}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{row.original.madonhang}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ),
-      },
-      {
-        header: "Ngày đặt",
-        accessorKey: "ngaydatve",
-        cell: ({ row }) => formatDateTime(row.original.ngaydatve),
-      },
-      {
-        header: "Suất diễn",
-        cell: ({ row }) =>
-          row.original.performances && row.original.performances.length > 0 ? (
-            <div className="space-y-1">
-              {row.original.performances.map((p) => (
-                <div key={p.maSuatDien} className="text-xs">
-                  {p.thoiGianBatDau
-                    ? format(new Date(p.thoiGianBatDau), "dd/MM HH:mm")
-                    : ""}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <span className="text-xs text-gray-500">N/A</span>
-          ),
-      },
-      {
-        header: "Người mua",
-        accessorKey: "tennguoidung",
-      },
-      {
-        header: "Tổng tiền",
-        accessorKey: "tongtien",
-        cell: ({ row }) => (
-          <div className="text-right">{currency(row.original.tongtien)}</div>
-        ),
-      },
-      {
-        id: "actions",
-        header: "Thao tác",
-        cell: ({ row }) => (
-          <div className="text-right">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedOrder(row.original.madonhang)}
-            >
-              Xem đơn hàng
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    []
-  );
-
-  const orderItemColumns = useMemo<ColumnDef<OrderItemRow>[]>(
-    () => [
-      {
+        accessorKey: "type",
         header: "Loại vé",
-        accessorKey: "tenloaive",
+        cell: ({ row }) => (
+          <div className="capitalize font-medium">{row.getValue("type")}</div>
+        ),
       },
       {
-        header: "Suất diễn",
+        accessorKey: "price",
+        header: "Giá bán",
         cell: ({ row }) => (
-          <div className="text-xs">
-            {row.original.thoigianbatdau
-              ? format(new Date(row.original.thoigianbatdau), "dd/MM HH:mm")
-              : ""}
+          <div>
+            {(row.getValue("price") as number).toLocaleString("vi-VN")}đ
           </div>
         ),
       },
       {
-        header: "Số lượng",
-        accessorKey: "soluong",
-        cell: ({ row }) => (
-          <div className="text-right">{row.original.soluong}</div>
-        ),
+        accessorKey: "sold",
+        header: "Đã bán",
+        cell: ({ row }) => {
+          const sold = row.getValue("sold") as number;
+          const total = row.original.total;
+          return (
+            <div className="font-semibold">
+              {sold} / {total}
+            </div>
+          );
+        },
       },
       {
-        header: "Đơn giá",
-        accessorKey: "dongia",
-        cell: ({ row }) => (
-          <div className="text-right">{currency(row.original.dongia)}</div>
-        ),
+        accessorKey: "locked",
+        header: "Bị khoá",
+        cell: ({ row }) => <div>{row.getValue("locked")}</div>,
       },
       {
-        header: "Thành tiền",
-        accessorKey: "thanhtien",
-        cell: ({ row }) => (
-          <div className="text-right">{currency(row.original.thanhtien)}</div>
-        ),
+        id: "percent",
+        header: () => <div className="text-right">Tỉ lệ bán</div>,
+        cell: ({ row }) => {
+          const { sold, total } = row.original;
+          const percent = total > 0 ? (sold / total) * 100 : 0;
+
+          return (
+            <div className="flex items-center justify-end gap-3">
+              <div className="w-40">
+                <Progress value={percent} className="h-3 bg-gray-200" />
+              </div>
+              <span className="text-sm font-semibold">
+                {percent.toFixed(0)}%
+              </span>
+            </div>
+          );
+        },
       },
     ],
     []
   );
-
-  if (isFetching) return <p className="p-4">Đang tải thống kê...</p>;
-  if (isError || !stats)
-    return <p className="p-4 text-red-600">Không thể tải thống kê.</p>;
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-green-700">
-              Thống kê sự kiện
-            </h1>
-          </div>
-        </div>
+    <div className="p-4 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">Thống kê sự kiện</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {summary.map((item) => (
-            <Card key={item.label} className="border-green-200">
-              <CardHeader>
-                <CardTitle className="text-sm text-gray-600">
-                  {item.label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-semibold text-green-700">
-                  {item.value}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Danh sách đơn hàng</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {stats.orders && stats.orders.length > 0 ? (
-              <DataTable<OrderRow, unknown>
-                columns={orderColumns}
-                data={stats.orders}
-              />
-            ) : (
-              <p className="text-sm text-gray-600">Chưa có đơn hàng nào.</p>
-            )}
-          </CardContent>
-        </Card>
+        <Select onValueChange={setSession} defaultValue={session}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Chọn suất diễn" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="session1">Suất 1 (10:00)</SelectItem>
+            <SelectItem value="session2">Suất 2 (14:00)</SelectItem>
+            <SelectItem value="session3">Suất 3 (20:00)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <Dialog
-        open={!!selectedOrder}
-        onOpenChange={() => setSelectedOrder(null)}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Chi tiết đơn hàng</DialogTitle>
-            <DialogDescription>
-              Mã đơn: {selectedOrder || "N/A"}
-            </DialogDescription>
-          </DialogHeader>
+      <div className="grid grid-cols-2 gap-2">
+        <RadiantChart
+          text="Doanh thu"
+          unit="đ"
+          value={10000000}
+          totalValue={10000000}
+        />
+        <RadiantChart text="Vé" unit="vé" value={500} totalValue={1000} />
+      </div>
 
-          {loadingOrderDetail ? (
-            <p className="text-sm text-gray-600">Đang tải...</p>
-          ) : orderDetail ? (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2 text-sm">
-                <div className="flex gap-3">
-                  <span className="text-gray-600">Trạng thái:</span>
-                  <span className="font-medium">
-                    {orderDetail.order.trangthai}
-                  </span>
-                </div>
-                <div className="flex gap-3">
-                  <span className="text-gray-600">Tổng tiền:</span>
-                  <span className="font-medium">
-                    {currency(orderDetail.order.tongtien)}
-                  </span>
-                </div>
-                <div className="flex gap-3">
-                  <span className="text-gray-600">Ngày đặt:</span>
-                  <span>
-                    {orderDetail.order.ngaydatve
-                      ? format(
-                          new Date(orderDetail.order.ngaydatve),
-                          "dd/MM/yyyy HH:mm"
-                        )
-                      : "N/A"}
-                  </span>
-                </div>
-              </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setRange("24h")}
+          className={`px-4 py-2 rounded-lg border ${
+            range === "24h" ? "bg-white text-black" : ""
+          }`}
+        >
+          24 giờ
+        </button>
 
-              <DataTable<OrderItemRow, unknown>
-                columns={orderItemColumns}
-                data={orderDetail.items}
-              />
-            </div>
-          ) : (
-            <p className="text-sm text-red-500">
-              Không thể tải chi tiết đơn hàng.
-            </p>
-          )}
-        </DialogContent>
-      </Dialog>
+        <button
+          onClick={() => setRange("30d")}
+          className={`px-4 py-2 rounded-lg border ${
+            range === "30d" ? "bg-white text-black" : ""
+          }`}
+        >
+          30 ngày
+        </button>
+      </div>
+
+      <EventLineChart data={currentChartData} />
+
+      <div>
+        <h2 className="text-xl font-bold mb-2">Vé đã bán</h2>
+        <DataTable columns={columns} data={ticketData} />
+      </div>
     </div>
   );
 }

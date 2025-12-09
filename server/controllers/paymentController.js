@@ -11,8 +11,6 @@ var accessKey = "F8BBA842ECF85";
 var secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
 
 export const updatePayment = async (req, res, next) => {
-  console.log("tui da ỏ day");
-  console.log(req.body);
   try {
     const {
       orderId,
@@ -125,7 +123,7 @@ export const prepareMomoPayment = async (madonhang) => {
   const requestId = orderId;
   const orderInfo = `Thanh toán đơn hàng ${madonhang}`;
   const redirectUrl = `http://localhost:5173/payment-result?madonhang=${madonhang}`;
-  const ipnUrl = "https://347a09e7357c.ngrok-free.app/v1/api/callback-payment";
+  const ipnUrl = "https://da37134eda87.ngrok-free.app/v1/api/callback-payment";
   const requestType = "payWithMethod";
   const expiry = order.thoi_han_thanh_toan?.getTime() || null;
   const extraData = JSON.stringify({ expiry, madonhang });
