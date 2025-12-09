@@ -21,4 +21,6 @@ export interface Promotion {
   loaigiam: "PHAN_TRAM" | "SO_TIEN";
   giatrigiam: number;
   giatritoithieu: number;
+  ngaybatdau?: string;
+  ngayketthuc?: string;
 }

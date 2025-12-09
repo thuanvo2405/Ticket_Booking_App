@@ -6,6 +6,46 @@ import {
   updatePromotionService,
 } from "../models/promotionModel.js";
 import { PromotionSchema, UpdatePromotionSchema } from "../utils/validate.js";
+import pool from "../config/db.js";
+
+const getLastPerformanceStart = async (maSuKien) => {
+  const res = await pool.query(
+    "SELECT MAX(thoigianbatdau) AS last_start FROM suat_dien WHERE masukien = $1",
+    [maSuKien]
+  );
+  return res.rows[0]?.last_start ? new Date(res.rows[0].last_start) : null;
+};
+
+const assertPromotionDateRange = async (ngayBatDau, ngayKetThuc, maSuKien) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const start = new Date(ngayBatDau);
+  const end = new Date(ngayKetThuc);
+
+  if (start < today) {
+    const err = new Error("Ngày bắt đầu khuyến mãi không được nhỏ hơn hôm nay");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const lastStart = await getLastPerformanceStart(maSuKien);
+  if (!lastStart) {
+    const err = new Error(
+      "Sự kiện chưa có suất diễn, không thể tạo khuyến mãi"
+    );
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (end >= lastStart) {
+    const err = new Error(
+      "Ngày kết thúc khuyến mãi phải trước suất diễn cuối cùng của sự kiện"
+    );
+    err.statusCode = 400;
+    throw err;
+  }
+};
 
 export const getPromotions = async (req, res, next) => {
   try {
@@ -25,6 +65,12 @@ export const getPromotions = async (req, res, next) => {
 export const createPromotion = async (req, res, next) => {
   try {
     const validateData = PromotionSchema.parse(req.body);
+
+    await assertPromotionDateRange(
+      validateData.ngayBatDau,
+      validateData.ngayKetThuc,
+      validateData.maSuKien
+    );
 
     await createPromotionService(
       validateData.maGiamGia,
@@ -47,6 +93,18 @@ export const updatePromotion = async (req, res, next) => {
   try {
     const { maKhuyenMai } = req.params;
     const validateData = UpdatePromotionSchema.parse(req.body);
+
+    const promoLookup = await pool.query(
+      "SELECT masukien FROM khuyen_mai WHERE makhuyenmai = $1",
+      [maKhuyenMai]
+    );
+    const maSuKien = promoLookup.rows[0]?.masukien;
+
+    await assertPromotionDateRange(
+      validateData.ngayBatDau,
+      validateData.ngayKetThuc,
+      maSuKien
+    );
 
     await updatePromotionService(
       maKhuyenMai,

@@ -148,7 +148,9 @@ export default function EventPromotionModal({
       setOpen(false);
     },
     onError: (error: any) => {
-      toast.error("Lỗi tạo khuyến mãi: " + (error.message || error));
+      toast.error(
+        "Lỗi tạo khuyến mãi: " + (error?.response?.data?.message || error)
+      );
     },
   });
 

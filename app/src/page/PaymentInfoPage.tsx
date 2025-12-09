@@ -63,7 +63,9 @@ export default function PaymentInfoPage() {
     const orderTotal = items.reduce((sum, i) => sum + i.dongia * i.soluong, 0);
     if (orderTotal < promo.giatritoithieu) {
       toast.error(
-        `Đơn hàng phải từ ${formatPrice(promo.giatritoithieu)} mới áp dụng được mã này`
+        `Đơn hàng phải từ ${formatPrice(
+          promo.giatritoithieu
+        )} mới áp dụng được mã này`
       );
       return;
     }
@@ -196,6 +198,19 @@ export default function PaymentInfoPage() {
                   return;
                 }
 
+                const now = new Date();
+                const start = promo.ngaybatdau
+                  ? new Date(promo.ngaybatdau)
+                  : null;
+                const end = promo.ngayketthuc
+                  ? new Date(promo.ngayketthuc)
+                  : null;
+
+                if ((start && now < start) || (end && now > end)) {
+                  toast.error("Mã khuyến mãi đã hết hạn hoặc chưa bắt đầu");
+                  return;
+                }
+
                 applyPromotion(promo);
               }}
               className="h-14"
@@ -223,16 +238,31 @@ export default function PaymentInfoPage() {
               const orderTotal = calculateOrderTotal();
               const disabled = orderTotal < promo.giatritoithieu;
               const selected = appliedPromo?.makhuyenmai === promo.makhuyenmai;
+              const now = new Date();
+              const start = promo.ngaybatdau
+                ? new Date(promo.ngaybatdau)
+                : null;
+              const end = promo.ngayketthuc
+                ? new Date(promo.ngayketthuc)
+                : null;
+              const dateInvalid = (start && now < start) || (end && now > end);
 
               return (
                 <div
                   key={promo.makhuyenmai}
-                  onClick={() => !disabled && applyPromotion(promo)}
+                  onClick={() => {
+                    if (disabled) return;
+                    if (dateInvalid) {
+                      toast.error("Mã khuyến mãi đã hết hạn hoặc chưa bắt đầu");
+                      return;
+                    }
+                    applyPromotion(promo);
+                  }}
                   className={`
                     p-5 rounded-xl border transition-all cursor-pointer
                     shadow-sm bg-white
                     ${
-                      disabled
+                      disabled || dateInvalid
                         ? "opacity-50 cursor-not-allowed"
                         : "hover:shadow-md hover:bg-gray-50"
                     }
@@ -254,9 +284,18 @@ export default function PaymentInfoPage() {
                         : formatPrice(promo.giatrigiam)}
                     </span>
                   </div>
-                  <p className="text-sm mt-1 text-gray-500">
-                    Áp dụng cho đơn từ {formatPrice(promo.giatritoithieu)}
-                  </p>
+                  <div className="text-sm mt-1 text-gray-500 space-y-1">
+                    <p>
+                      Áp dụng cho đơn từ {formatPrice(promo.giatritoithieu)}
+                    </p>
+                    {start || end ? (
+                      <p>
+                        Hiệu lực:{" "}
+                        {start ? start.toLocaleDateString("vi-VN") : "—"} đến{" "}
+                        {end ? end.toLocaleDateString("vi-VN") : "—"}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
               );
             })}
