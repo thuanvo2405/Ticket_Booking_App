@@ -65,6 +65,44 @@ export const updateProfileUser = async (req, res, next) => {
 export const toggleUserStatus = async (req, res, next) => {
   try {
     const { manguoidung } = req.params;
+    const currentUserId = req.user?.user?.id;
+
+    if (currentUserId && String(currentUserId) === String(manguoidung)) {
+      const err = new Error("Bạn không thể tự khóa tài khoản của chính mình");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    const targetUser = await pool.query(
+      `
+      SELECT manguoidung, vaitro, is_active
+      FROM nguoi_dung
+      WHERE manguoidung = $1
+    `,
+      [manguoidung]
+    );
+
+    if (targetUser.rowCount === 0) {
+      const err = new Error("Người dùng không tồn tại");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    const { vaitro, is_active: isActive } = targetUser.rows[0];
+    const newStatus = !isActive;
+
+    if (vaitro === "QUAN_TRI" && !newStatus) {
+      const activeAdminCountRes = await pool.query(
+        "SELECT COUNT(*) AS total FROM nguoi_dung WHERE vaitro = 'QUAN_TRI' AND is_active = true"
+      );
+      const activeAdminCount = parseInt(activeAdminCountRes.rows[0].total, 10);
+
+      if (activeAdminCount <= 1) {
+        const err = new Error("Không thể khóa admin duy nhất còn lại");
+        err.statusCode = 400;
+        throw err;
+      }
+    }
 
     const status = await toggleUserStatusService(manguoidung);
 

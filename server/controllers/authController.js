@@ -29,15 +29,9 @@ dotenv.config();
 export const signup = async (req, res, next) => {
   const { tennguoidung, email, matkhau } = signUpSchema.parse(req.body);
 
-  const emailNormalized = email.trim().toLowerCase();
-
   try {
     const hashedPassword = await bcrypt.hash(matkhau, 10);
-    const user = await signUpService(
-      tennguoidung,
-      emailNormalized,
-      hashedPassword
-    );
+    const user = await signUpService(tennguoidung, email, hashedPassword);
 
     const verifyToken = jwt.sign(
       { userId: user.manguoidung },
@@ -45,7 +39,7 @@ export const signup = async (req, res, next) => {
       { expiresIn: "1h" }
     );
 
-    await sendVerificationEmail(emailNormalized, verifyToken);
+    await sendVerificationEmail(email, verifyToken);
 
     res.status(200).json({
       message:

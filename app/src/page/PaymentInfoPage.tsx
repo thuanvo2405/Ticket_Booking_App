@@ -275,18 +275,19 @@ export default function PaymentInfoPage() {
                 >
                   <div className="flex justify-between items-center text-lg font-semibold">
                     <span className="flex items-center gap-1">
-                      <Tag className="w-4 h-4" />{" "}
+                      <Tag className="w-4 h-4" />
                       {promo.magiamgia || promo.makhuyenmai}
                     </span>
                     <span>
                       {promo.loaigiam === "PHAN_TRAM"
                         ? `${promo.giatrigiam}%`
-                        : formatPrice(promo.giatrigiam)}
+                        : formatPrice(Number(promo.giatrigiam))}
                     </span>
                   </div>
                   <div className="text-sm mt-1 text-gray-500 space-y-1">
                     <p>
-                      Áp dụng cho đơn từ {formatPrice(promo.giatritoithieu)}
+                      Áp dụng cho đơn từ{" "}
+                      {formatPrice(Number(promo.giatritoithieu))}
                     </p>
                     {start || end ? (
                       <p>

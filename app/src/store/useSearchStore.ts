@@ -14,6 +14,7 @@ interface SearchStore {
   total: number;
 
   setTenSuKien: (tenSuKien: string) => void;
+  setLimit: (limit: number) => void;
   setEventType: (eventType: string) => void;
   setArea: (area: string) => void;
   setFromDate: (fromDate?: Date) => void;
@@ -35,6 +36,7 @@ export const useSearchStore = create<SearchStore>((set, get) => ({
   total: 0,
 
   setTenSuKien: (tenSuKien) => set({ tenSuKien }),
+  setLimit: (limit) => set({ limit }),
   setEventType: (eventType) => set({ eventType }),
   setArea: (area) => set({ area }),
   setFromDate: (fromDate) => set({ fromDate }),

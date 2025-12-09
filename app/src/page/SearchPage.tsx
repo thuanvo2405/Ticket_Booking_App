@@ -6,6 +6,7 @@ import { SearchX, X } from "lucide-react";
 import { useSearchStore } from "@/store/useSearchStore";
 import { useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface FilterData {
   area?: string;
@@ -24,6 +25,11 @@ export default function SearchPage() {
   const fromDate = useSearchStore((state) => state.fromDate);
   const toDate = useSearchStore((state) => state.toDate);
   const page = useSearchStore((state) => state.page);
+  const limit = useSearchStore((state) => state.limit);
+  const total = useSearchStore((state) => state.total);
+  const setPage = useSearchStore((state) => state.setPage);
+  const totalPages = Math.max(1, Math.ceil((total || 0) / (limit || 1)));
+  const setLimit = useSearchStore((state) => state.setLimit);
 
   useEffect(() => {
     const nextFilters: FilterData = {};
@@ -41,6 +47,7 @@ export default function SearchPage() {
       useSearchStore.getState().setFromDate(new Date(params.from));
     if (params.to) useSearchStore.getState().setToDate(new Date(params.to));
     if (params.page) useSearchStore.getState().setPage(Number(params.page));
+    if (params.limit) setLimit(Number(params.limit));
   }, []);
 
   useEffect(() => {
@@ -51,13 +58,14 @@ export default function SearchPage() {
     if (fromDate) params.from = format(fromDate, "yyyy-MM-dd");
     if (toDate) params.to = format(toDate, "yyyy-MM-dd");
     if (page) params.page = String(page);
+    if (limit) params.limit = String(limit);
 
     setSearchParams(params);
-  }, [area, eventType, fromDate, toDate, page]);
+  }, [area, eventType, fromDate, toDate, page, limit]);
 
   useEffect(() => {
     searchEvents();
-  }, [area, eventType, fromDate, toDate, page]);
+  }, [area, eventType, fromDate, toDate, page, limit]);
 
   const handleApplyFilter = (data: FilterData) => setFilters(data);
 
@@ -107,19 +115,47 @@ export default function SearchPage() {
           <p className="text-xl font-medium">Không có sự kiện phù hợp</p>
         </div>
       ) : (
-        <div className="grid grid-cols-4 gap-3">
-          {events.map((item: any) => (
-            <EventCard
-              key={item.masukien}
-              maSuKien={item.masukien}
-              tenSuKien={item.tensukien}
-              anhBanner={item.anhsukienngang}
-              thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
-              giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
-              trangthai={item.trangthai}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-4 gap-3">
+            {events.map((item: any) => (
+              <EventCard
+                key={item.masukien}
+                maSuKien={item.masukien}
+                tenSuKien={item.tensukien}
+                anhBanner={item.anhsukienngang}
+                thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
+                giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
+                trangthai={item.trangthai}
+              />
+            ))}
+          </div>
+
+          <div className="flex justify-center items-center my-4 gap-2 text-sm">
+            <Button
+              variant="outline"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+            >
+              Trước
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Button
+                key={p}
+                variant={p === page ? "default" : "outline"}
+                onClick={() => setPage(p)}
+              >
+                {p}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              onClick={() => setPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+            >
+              Sau
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

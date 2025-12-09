@@ -110,6 +110,11 @@ export default function MyOrderPage() {
       accessorKey: "thoihanthanhtoan",
       header: "Hạn thanh toán",
       cell: ({ row }) => {
+        const status = row.getValue("trangthai") as string;
+        if (status === "DA_THANH_TOAN") {
+          return <span className="text-green-600 font-semibold">Đã thanh toán</span>;
+        }
+
         const deadline = new Date(row.getValue("thoihanthanhtoan"));
         const now = new Date();
 

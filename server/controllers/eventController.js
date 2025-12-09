@@ -77,6 +77,17 @@ export const createEvent = async (req, res, next) => {
     if (!Array.isArray(anhSuKienDoc) || anhSuKienDoc.length === 0)
       throw new Error("Ảnh sự kiện dọc là bắt buộc");
 
+    const eventTypeCheck = await pool.query(
+      "SELECT 1 FROM loai_su_kien WHERE maloaisukien = $1",
+      [maLoaiSuKien]
+    );
+
+    if (eventTypeCheck.rowCount === 0) {
+      const err = new Error("Loại sự kiện không tồn tại");
+      err.statusCode = 400;
+      throw err;
+    }
+
     const diaChiAnhNgang = anhSuKienNgang[0].path;
     const diaChiAnhDoc = anhSuKienDoc[0].path;
 
@@ -164,9 +175,7 @@ export const updateEventStatus = async (req, res, next) => {
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
     if (oldEvent.trangthai === "TU_CHOI" && trangThai === "CHO_DUYET") {
-      const err = new Error(
-        "Sự kiện đã bị từ chối và không thể gửi duyệt lại"
-      );
+      const err = new Error("Sự kiện đã bị từ chối và không thể gửi duyệt lại");
       err.statusCode = 400;
       throw err;
     }

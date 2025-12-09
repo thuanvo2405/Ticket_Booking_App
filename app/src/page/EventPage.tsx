@@ -10,13 +10,15 @@ import { formatPrice } from "@/utils/convert";
 import TicketInfo from "@/components/ticket-info";
 import EventCard from "@/components/event-card";
 import { useRef } from "react";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function EventPage() {
   const ticketInfoRef = useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("maSuKien") || "";
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["fetchingEventById", maSuKien],
     queryFn: () => getEventByIdAPI(maSuKien!),
     enabled: !!maSuKien,
@@ -28,6 +30,31 @@ export default function EventPage() {
   });
 
   if (isLoading || fetchingSuggetEvent) return <h1>Loading</h1>;
+  if (isError || !data)
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center ">
+        <div className="bg-white border border-gray-200 shadow-lg rounded-2xl p-10 flex flex-col items-center gap-4 max-w-lg text-center">
+          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+            <AlertTriangle className="text-red-500" size={28} />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Sự kiện không tồn tại
+          </h2>
+          <p className="text-gray-600">
+            Mã sự kiện không hợp lệ hoặc đã bị xóa. Vui lòng kiểm tra lại hoặc
+            tiếp tục khám phá sự kiện khác.
+          </p>
+          <div className="flex gap-3 mt-2">
+            <Button asChild variant="outline">
+              <a href="/">Về trang chủ</a>
+            </Button>
+            <Button asChild className="bg-green-600 hover:bg-green-700">
+              <a href="/search">Tìm sự kiện</a>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div className="w-[1284px] mx-auto mt-4">
