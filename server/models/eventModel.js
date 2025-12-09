@@ -597,58 +597,236 @@ export const getMaybeLikeEventService = async () => {
   return result.rows;
 };
 
-export const getEventStatisticsService = async (maSuKien) => {
-  const totalsRes = await pool.query(
-    `
-    SELECT 
-      COALESCE(SUM(ct.soluong), 0) AS total_tickets,
-      COALESCE(SUM(dh.tongtien), 0) AS total_revenue,
-      COUNT(DISTINCT dh.madonhang) FILTER (WHERE dh.trangthai = 'DA_THANH_TOAN') AS total_orders
-    FROM don_hang dh
-    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
-    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
-    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
-    WHERE sd.masukien = $1
-      AND dh.trangthai = 'DA_THANH_TOAN'
-  `,
-    [maSuKien]
-  );
+const toSafeNumber = (value) => Number(value ?? 0);
 
-  const ordersRes = await pool.query(
-    `
-    SELECT DISTINCT 
-      dh.madonhang,
-      dh.trangthai,
-      dh.tongtien,
-      dh.ngaydatve,
-      dh.thoigianthanhtoan,
-      nd.tennguoidung,
-      jsonb_agg(
-        DISTINCT jsonb_build_object(
-          'maSuatDien', sd.masuatdien,
-          'thoiGianBatDau', sd.thoigianbatdau,
-          'thoiGianKetThuc', sd.thoigianketthuc
-        )
-      ) FILTER (WHERE sd.masuatdien IS NOT NULL) AS performances
-    FROM don_hang dh
-    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
-    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
-    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
-    JOIN nguoi_dung nd ON nd.manguoidung = dh.manguoidung
-    WHERE sd.masukien = $1
-      AND dh.trangthai = 'DA_THANH_TOAN'
-    GROUP BY dh.madonhang, dh.trangthai, dh.tongtien, dh.ngaydatve, dh.thoigianthanhtoan, nd.tennguoidung
-    ORDER BY dh.ngaydatve DESC
-  `,
-    [maSuKien]
-  );
+const buildChartSeries = (rows, windowSize, mode) => {
+  const byKey = rows.reduce((acc, row) => {
+    const date = mode === "daily" ? new Date(row.date) : new Date(row.hour);
+    if (Number.isNaN(date.getTime())) return acc;
+    const key =
+      mode === "daily" ? date.toISOString().slice(0, 10) : date.toISOString().slice(0, 13);
+    acc.set(key, {
+      tickets: toSafeNumber(row.tickets),
+      revenue: toSafeNumber(row.revenue),
+    });
+    return acc;
+  }, new Map());
+
+  const now = new Date();
+  const series = [];
+  const cursor = new Date(now);
+
+  for (let i = windowSize - 1; i >= 0; i--) {
+    if (mode === "daily") {
+      const day = new Date(cursor);
+      day.setHours(0, 0, 0, 0);
+      day.setDate(cursor.getDate() - i);
+      const key = day.toISOString().slice(0, 10);
+      const label = `${day.getDate().toString().padStart(2, "0")}/${(
+        day.getMonth() + 1
+      )
+        .toString()
+        .padStart(2, "0")}`;
+      const point = byKey.get(key);
+      series.push({
+        date: label,
+        tickets: point?.tickets ?? 0,
+        revenue: point?.revenue ?? 0,
+      });
+    } else {
+      const hour = new Date(cursor);
+      hour.setMinutes(0, 0, 0);
+      hour.setHours(cursor.getHours() - i);
+      const key = hour.toISOString().slice(0, 13);
+      const label = `${hour.getHours().toString().padStart(2, "0")}:00`;
+      const point = byKey.get(key);
+      series.push({
+        date: label,
+        tickets: point?.tickets ?? 0,
+        revenue: point?.revenue ?? 0,
+      });
+    }
+  }
+
+  return series;
+};
+
+export const getEventOverviewService = async (maSuKien) => {
+  const [totalsRes, capacityRes, sessionsRes] = await Promise.all([
+    pool.query(
+      `
+      SELECT 
+        COALESCE(SUM(ct.soluong), 0) AS total_tickets,
+        COALESCE(SUM(ct.thanhtien), 0) AS total_revenue,
+        COUNT(DISTINCT dh.madonhang) FILTER (WHERE dh.trangthai = 'DA_THANH_TOAN') AS total_orders
+      FROM don_hang dh
+      JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+      JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+      JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+      WHERE sd.masukien = $1
+        AND dh.trangthai = 'DA_THANH_TOAN'
+    `,
+      [maSuKien]
+    ),
+    pool.query(
+      `
+      SELECT 
+        COALESCE(SUM(lv.soluongphathanh), 0) AS total_tickets,
+        COALESCE(SUM(lv.soluongdaban), 0) AS sold_tickets,
+        COALESCE(SUM(lv.soluongkhoa), 0) AS locked_tickets,
+        COALESCE(SUM(lv.giatien * lv.soluongphathanh), 0) AS potential_revenue
+      FROM loai_ve lv
+      JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+      WHERE sd.masukien = $1
+    `,
+      [maSuKien]
+    ),
+    pool.query(
+      `
+      SELECT 
+        sd.masuatdien,
+        sd.thoigianbatdau,
+        sd.thoigianketthuc,
+        COALESCE(SUM(lv.soluongphathanh), 0) AS total_tickets,
+        COALESCE(SUM(lv.soluongdaban), 0) AS sold_tickets,
+        COALESCE(SUM(lv.soluongkhoa), 0) AS locked_tickets,
+        COALESCE(SUM(lv.giatien * lv.soluongphathanh), 0) AS potential_revenue,
+        COALESCE(SUM(lv.giatien * lv.soluongdaban), 0) AS revenue
+      FROM suat_dien sd
+      LEFT JOIN loai_ve lv ON lv.masuatdien = sd.masuatdien
+      WHERE sd.masukien = $1
+      GROUP BY sd.masuatdien
+      ORDER BY sd.thoigianbatdau ASC
+    `,
+      [maSuKien]
+    ),
+  ]);
+
+  const sessions = sessionsRes.rows.map((session) => ({
+    maSuatDien: session.masuatdien,
+    thoiGianBatDau: session.thoigianbatdau,
+    thoiGianKetThuc: session.thoigianketthuc,
+    totalTickets: toSafeNumber(session.total_tickets),
+    soldTickets: toSafeNumber(session.sold_tickets),
+    lockedTickets: toSafeNumber(session.locked_tickets),
+    potentialRevenue: toSafeNumber(session.potential_revenue),
+    revenue: toSafeNumber(session.revenue),
+  }));
 
   return {
-    totalTickets: Number(totalsRes.rows[0].total_tickets),
-    totalRevenue: Number(totalsRes.rows[0].total_revenue),
-    totalOrders: Number(totalsRes.rows[0].total_orders),
-    orders: ordersRes.rows,
+    overview: {
+      totalTickets: toSafeNumber(capacityRes.rows[0].total_tickets),
+      soldTickets: toSafeNumber(capacityRes.rows[0].sold_tickets),
+      lockedTickets: toSafeNumber(capacityRes.rows[0].locked_tickets),
+      totalRevenue: toSafeNumber(totalsRes.rows[0].total_revenue),
+      potentialRevenue: toSafeNumber(capacityRes.rows[0].potential_revenue),
+      totalOrders: toSafeNumber(totalsRes.rows[0].total_orders),
+    },
+    sessions,
   };
+};
+
+export const getSessionStatisticsService = async (maSuKien, maSuatDien) => {
+  const [baseRes, ticketTypesRes, revenueRes] = await Promise.all([
+    pool.query(
+      `
+      SELECT 
+        COALESCE(SUM(lv.soluongphathanh), 0) AS total_tickets,
+        COALESCE(SUM(lv.soluongdaban), 0) AS sold_tickets,
+        COALESCE(SUM(lv.soluongkhoa), 0) AS locked_tickets,
+        COALESCE(SUM(lv.giatien * lv.soluongphathanh), 0) AS potential_revenue
+      FROM loai_ve lv
+      JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+      WHERE sd.masuatdien = $1 AND sd.masukien = $2
+    `,
+      [maSuatDien, maSuKien]
+    ),
+    pool.query(
+      `
+      SELECT 
+        lv.maloaive,
+        lv.tenloaive,
+        lv.giatien,
+        lv.soluongphathanh,
+        lv.soluongdaban,
+        lv.soluongkhoa
+      FROM loai_ve lv
+      JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+      WHERE sd.masuatdien = $1 AND sd.masukien = $2
+      ORDER BY lv.giatien ASC
+    `,
+      [maSuatDien, maSuKien]
+    ),
+    pool.query(
+      `
+      SELECT 
+        COALESCE(SUM(ct.soluong), 0) AS sold_tickets,
+        COALESCE(SUM(ct.thanhtien), 0) AS revenue
+      FROM don_hang dh
+      JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+      JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+      WHERE dh.trangthai = 'DA_THANH_TOAN'
+        AND lv.masuatdien = $1
+    `,
+      [maSuatDien]
+    ),
+  ]);
+
+  return {
+    session: {
+      maSuatDien,
+      soldTickets: toSafeNumber(baseRes.rows[0].sold_tickets),
+      totalTickets: toSafeNumber(baseRes.rows[0].total_tickets),
+      lockedTickets: toSafeNumber(baseRes.rows[0].locked_tickets),
+      revenue: toSafeNumber(revenueRes.rows[0].revenue),
+      potentialRevenue: toSafeNumber(baseRes.rows[0].potential_revenue),
+      ticketTypes: ticketTypesRes.rows.map((row) => ({
+        type: row.tenloaive,
+        price: toSafeNumber(row.giatien),
+        sold: toSafeNumber(row.soluongdaban),
+        total: toSafeNumber(row.soluongphathanh),
+        locked: toSafeNumber(row.soluongkhoa),
+        maLoaiVe: row.maloaive,
+      })),
+    },
+  };
+};
+
+export const getSessionChartService = async (maSuatDien, range) => {
+  const isDaily = range === "30d";
+  const windowSize = isDaily ? 30 : 24;
+  const query = isDaily
+    ? `
+    SELECT 
+      DATE(dh.thoigianthanhtoan) AS date,
+      SUM(ct.soluong) AS tickets,
+      SUM(ct.thanhtien) AS revenue
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    WHERE dh.trangthai = 'DA_THANH_TOAN'
+      AND lv.masuatdien = $1
+      AND dh.thoigianthanhtoan >= NOW() - INTERVAL '30 days'
+    GROUP BY DATE(dh.thoigianthanhtoan)
+    ORDER BY date ASC
+  `
+    : `
+    SELECT 
+      DATE_TRUNC('hour', dh.thoigianthanhtoan) AS hour,
+      SUM(ct.soluong) AS tickets,
+      SUM(ct.thanhtien) AS revenue
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    WHERE dh.trangthai = 'DA_THANH_TOAN'
+      AND lv.masuatdien = $1
+      AND dh.thoigianthanhtoan >= NOW() - INTERVAL '24 hours'
+    GROUP BY DATE_TRUNC('hour', dh.thoigianthanhtoan)
+    ORDER BY hour ASC
+  `;
+
+  const res = await pool.query(query, [maSuatDien]);
+  return buildChartSeries(res.rows, windowSize, isDaily ? "daily" : "hourly");
 };
 
 export const getOrderDetailForEventService = async (maSuKien, maDonHang) => {
