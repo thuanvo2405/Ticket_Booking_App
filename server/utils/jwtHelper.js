@@ -9,11 +9,7 @@ function jwtTokens(user) {
     expiresIn: "10d",
   });
 
-  const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "20d",
-  });
-
-  return { accessToken, refreshToken };
+  return { accessToken };
 }
 
 export { jwtTokens };

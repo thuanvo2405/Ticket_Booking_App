@@ -11,7 +11,6 @@ export interface AuthContextProps {
   userProfile: { tennguoidung: string; anhdaidien: string } | null;
   token: {
     accessToken: string;
-    refreshToken: string;
   } | null;
   signup: (
     email: string,
@@ -28,7 +27,7 @@ export interface AuthContextProps {
   resetPassword: () => void;
   updateUserAndToken: (
     newUser: { manguoidung: number; vaitro: string },
-    newTokens: { accessToken: string; refreshToken: string }
+    newTokens: { accessToken: string }
   ) => void;
 }
 
@@ -39,7 +38,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [token, setToken] = useState<{
     accessToken: string;
-    refreshToken: string;
   } | null>(null);
 
   const [user, setUser] = useState<{
@@ -198,7 +196,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateUserAndToken = (
     newUser: { manguoidung: number; vaitro: string },
-    newTokens: { accessToken: string; refreshToken: string }
+    newTokens: { accessToken: string }
   ) => {
     setUser(newUser);
     setToken(newTokens);

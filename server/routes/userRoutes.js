@@ -2,8 +2,6 @@ import express from "express";
 import {
   signup,
   login,
-  getRefreshToken,
-  deleteRefreshToken,
   resendVerificationEmail,
   verifyEmail,
   forgotPassword,
@@ -27,8 +25,6 @@ const router = express.Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/refresh_token", getRefreshToken);
-router.delete("/refresh_token", deleteRefreshToken);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
 router.patch("/password", authenticateToken, resetPasswordByUserId);

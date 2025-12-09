@@ -80,8 +80,6 @@ export const login = async (req, res, next) => {
     }
 
     const tokens = jwtTokens(user);
-
-    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
     const { manguoidung, vaitro } = user;
 
     handleResponse(res, 200, "Login successful", {
@@ -112,8 +110,6 @@ export const loginForAdmin = async (req, res, next) => {
     }
 
     const tokens = jwtTokens(user);
-
-    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
     const { manguoidung, vaitro } = user;
 
     handleResponse(res, 200, "Login successful", {
@@ -139,38 +135,6 @@ export const signupForAdmin = async (req, res, next) => {
     );
 
     handleResponse(res, 200, "Tạo người dùng mới thành công", user);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const getRefreshToken = async (req, res, next) => {
-  try {
-    const refreshToken = req.cookies.refresh_token;
-    if (!refreshToken) {
-      return res.status(401).json({ error: "null refresh token" });
-    }
-    jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-      (error, user) => {
-        if (error) {
-          return res.status(401).json({ error: error.message });
-        }
-        let tokens = jwtTokens(user);
-        res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
-        res.json(tokens);
-      }
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const deleteRefreshToken = async (req, res, next) => {
-  try {
-    res.clearCookie("refresh_token");
-    return res.status(200).json({ message: "refresh token deleted" });
   } catch (error) {
     next(error);
   }
