@@ -6,7 +6,7 @@ import {
   deletePromotionAPI,
   getPromotionAPI,
 } from "@/services/promotionService";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { type ColumnDef } from "@tanstack/react-table";
 import { useEventStore } from "@/store/useEventStore";
 import {
@@ -37,6 +37,7 @@ export type Promotion = {
 
 export default function EventPromotionSetup() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const maSuKien = searchParams.get("eventId");
   const { setPrevStep } = useEventStore();
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(
@@ -70,6 +71,7 @@ export default function EventPromotionSetup() {
         exact: false,
       });
       toast.success("Sự kiện đã được gửi yêu cầu duyệt!");
+      navigate("/organizer/my-events");
     },
     onError: () => {
       toast.error("Đã có lỗi xảy ra. Vui lòng thử lại.");

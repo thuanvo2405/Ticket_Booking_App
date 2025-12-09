@@ -129,7 +129,7 @@ export default function MyEventPage() {
       header: "Hành động",
       cell: ({ row }) => {
         const event = row.original;
-        const isApproved = event.trangthai === "DA_DUYET";
+        const isApproved = event.trangthai !== "NHAP";
 
         return (
           <div className="flex gap-2">
@@ -155,6 +155,7 @@ export default function MyEventPage() {
                 >
                   Sửa
                 </Button>
+
                 <Button
                   variant="destructive"
                   size="sm"
