@@ -11,7 +11,9 @@ import {
   getEventsByCategory,
   getEventsForUser,
   getSpecialEvent,
-  getEventStatistics,
+  getEventOverview,
+  getSessionStatistics,
+  getEventCharts,
   getOrderDetailForEvent,
   getMaybeLikeEvent,
 } from "../controllers/eventController.js";
@@ -38,8 +40,21 @@ router.get(
   "/event/:maSuKien/statistics",
   authenticateToken,
   checkRole(["TO_CHUC"]),
-  getEventStatistics
+  getEventOverview
 );
+router.get(
+  "/event/:maSuKien/session/:maSuatDien",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getSessionStatistics
+);
+router.get(
+  "/event/:maSuKien/charts",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getEventCharts
+);
+
 router.get(
   "/event/:maSuKien/orders/:madonhang",
   authenticateToken,

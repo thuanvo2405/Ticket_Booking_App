@@ -12,7 +12,9 @@ import {
   getEventsByCategoryService,
   getEventsForUserService,
   getSpecialEventService,
-  getEventStatisticsService,
+  getEventOverviewService,
+  getSessionStatisticsService,
+  getSessionChartService,
   getOrderDetailForEventService,
   getMaybeLikeEventService,
 } from "../models/eventModel.js";
@@ -20,6 +22,47 @@ import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 import { EventSchema } from "../utils/validate.js";
 import { deleteFile } from "../utils/deleteImage.js";
+
+const ensureOrganizerOwnsEvent = async (userID, maSuKien) => {
+  const { matochuc } = await getOrganizerID(userID);
+  if (!matochuc) {
+    const err = new Error("Không tìm thấy mã tổ chức");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const eventRes = await pool.query(
+    "SELECT matochuc FROM su_kien WHERE masukien = $1",
+    [maSuKien]
+  );
+
+  if (eventRes.rowCount === 0) {
+    const err = new Error("Sự kiện không tồn tại");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  if (eventRes.rows[0].matochuc !== matochuc) {
+    const err = new Error("Bạn không có quyền xem sự kiện này");
+    err.statusCode = 403;
+    throw err;
+  }
+
+  return { matochuc };
+};
+
+const ensureSessionBelongsToEvent = async (maSuKien, maSuatDien) => {
+  const res = await pool.query(
+    "SELECT 1 FROM suat_dien WHERE masuatdien = $1 AND masukien = $2",
+    [maSuatDien, maSuKien]
+  );
+
+  if (res.rowCount === 0) {
+    const err = new Error("Suất diễn không tồn tại trong sự kiện này");
+    err.statusCode = 404;
+    throw err;
+  }
+};
 
 export const createEvent = async (req, res, next) => {
   try {
@@ -281,32 +324,56 @@ export const getMaybeLikeEvent = async (req, res, next) => {
   }
 };
 
-export const getEventStatistics = async (req, res, next) => {
+export const getEventOverview = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
     const { maSuKien } = req.params;
 
-    const { matochuc } = await getOrganizerID(userID);
-    if (!matochuc) {
-      return handleResponse(res, 400, "Không tìm thấy mã tổ chức");
+    await ensureOrganizerOwnsEvent(userID, maSuKien);
+    const data = await getEventOverviewService(maSuKien);
+
+    handleResponse(res, 200, "Lấy thống kê sự kiện thành công", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSessionStatistics = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+    const { maSuKien, maSuatDien } = req.params;
+
+    await ensureOrganizerOwnsEvent(userID, maSuKien);
+    await ensureSessionBelongsToEvent(maSuKien, maSuatDien);
+
+    const data = await getSessionStatisticsService(maSuKien, maSuatDien);
+
+    handleResponse(res, 200, "Lấy thống kê suất diễn thành công", data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventCharts = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+    const { maSuKien } = req.params;
+    const { session: maSuatDien, range = "30d" } = req.query;
+
+    if (!maSuatDien) {
+      return handleResponse(res, 400, "Thiếu session");
     }
 
-    const eventRes = await pool.query(
-      "SELECT matochuc FROM su_kien WHERE masukien = $1",
-      [maSuKien]
-    );
-
-    if (eventRes.rowCount === 0) {
-      return handleResponse(res, 404, "Sự kiện không tồn tại");
+    if (range !== "30d" && range !== "24h") {
+      return handleResponse(res, 400, "Range không hợp lệ (24h|30d)");
     }
 
-    if (eventRes.rows[0].matochuc !== matochuc) {
-      return handleResponse(res, 403, "Bạn không có quyền xem sự kiện này");
-    }
+    await ensureOrganizerOwnsEvent(userID, maSuKien);
+    await ensureSessionBelongsToEvent(maSuKien, maSuatDien);
 
-    const stats = await getEventStatisticsService(maSuKien);
+    const data = await getSessionChartService(maSuatDien, range);
 
-    handleResponse(res, 200, "Lấy thống kê sự kiện thành công", stats);
+    handleResponse(res, 200, "Lấy dữ liệu biểu đồ thành công", { data });
   } catch (error) {
     next(error);
   }

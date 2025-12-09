@@ -1,6 +1,6 @@
-"use client";
-
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/data-table";
 import { Progress } from "@/components/ui/progress";
@@ -13,37 +13,112 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  getEventOverviewAPI,
+  getSessionStatisticsAPI,
+  getEventChartsAPI,
+} from "@/services/eventService";
+import { formatFullDateTime, formatPrice } from "@/utils/convert";
+
+type ChartPoint = {
+  date: string;
+  tickets: number;
+  revenue: number;
+};
+
+type TicketRow = {
+  maLoaiVe: string;
+  type: string;
+  price: number;
+  sold: number;
+  total: number;
+  locked: number;
+};
+
+type SessionOverview = {
+  maSuatDien: string;
+  thoiGianBatDau: string;
+  thoiGianKetThuc: string | null;
+  totalTickets: number;
+  soldTickets: number;
+  lockedTickets: number;
+  potentialRevenue: number;
+  revenue: number;
+};
+
+type EventOverviewResponse = {
+  overview: {
+    totalTickets: number;
+    soldTickets: number;
+    lockedTickets: number;
+    totalRevenue: number;
+    potentialRevenue: number;
+    totalOrders: number;
+  };
+  sessions: SessionOverview[];
+};
+
+type SessionStatisticsResponse = {
+  session: {
+    maSuatDien: string;
+    soldTickets: number;
+    totalTickets: number;
+    lockedTickets: number;
+    revenue: number;
+    potentialRevenue: number;
+    ticketTypes: {
+      maLoaiVe: string;
+      type: string;
+      price: number;
+      sold: number;
+      total: number;
+      locked: number;
+    }[];
+  };
+};
 
 export default function EventStatisticsPage() {
-  const [session, setSession] = useState("session1");
+  const { maSuKien } = useParams<{ maSuKien: string }>();
+  const [session, setSession] = useState<string | null>(null);
   const [range, setRange] = useState<"24h" | "30d">("30d");
 
-  const data30d = Array.from({ length: 30 }).map((_, i) => ({
-    date: `${i + 1}/12`,
-    tickets: Math.floor(Math.random() * 5),
-    revenue: Math.floor(Math.random() * 1000000),
-  }));
+  const {
+    data: overviewData,
+    isLoading: loadingOverview,
+    isError: overviewError,
+  } = useQuery<EventOverviewResponse>({
+    queryKey: ["event-overview", maSuKien],
+    queryFn: () => getEventOverviewAPI(maSuKien || ""),
+    enabled: Boolean(maSuKien),
+  });
 
-  const data24h = Array.from({ length: 24 }).map((_, i) => ({
-    date: `${i}h`,
-    tickets: Math.floor(Math.random() * 3),
-    revenue: Math.floor(Math.random() * 300000),
-  }));
+  useEffect(() => {
+    if (overviewData?.sessions?.length && !session) {
+      setSession(overviewData.sessions[0].maSuatDien);
+    }
+  }, [overviewData, session]);
 
-  const sessionDataMap = {
-    session1: data30d,
-    session2: data30d.map((d) => ({ ...d, tickets: d.tickets + 2 })),
-    session3: data30d.map((d) => ({ ...d, tickets: d.tickets + 5 })),
-  };
+  const {
+    data: sessionData,
+    isLoading: loadingSession,
+    isError: sessionError,
+  } = useQuery<SessionStatisticsResponse>({
+    queryKey: ["event-session", maSuKien, session],
+    queryFn: () => getSessionStatisticsAPI(maSuKien || "", session || ""),
+    enabled: Boolean(maSuKien && session),
+  });
 
-  const currentChartData = range === "30d" ? sessionDataMap[session] : data24h;
+  const {
+    data: chartRes,
+    isLoading: loadingChart,
+    isError: chartError,
+  } = useQuery<{ data: ChartPoint[] }>({
+    queryKey: ["event-chart", maSuKien, session, range],
+    queryFn: () => getEventChartsAPI(maSuKien || "", session || "", range),
+    enabled: Boolean(maSuKien && session),
+  });
 
-  const ticketData = [
-    { type: "vip", price: 100000, sold: 0, total: 10, locked: 0 },
-    { type: "standard", price: 50000, sold: 5, total: 20, locked: 1 },
-  ];
-
-  const columns: ColumnDef<(typeof ticketData)[0]>[] = useMemo(
+  const columns: ColumnDef<TicketRow>[] = useMemo(
     () => [
       {
         accessorKey: "type",
@@ -56,9 +131,7 @@ export default function EventStatisticsPage() {
         accessorKey: "price",
         header: "Giá bán",
         cell: ({ row }) => (
-          <div>
-            {(row.getValue("price") as number).toLocaleString("vi-VN")}đ
-          </div>
+          <div>{formatPrice(row.getValue("price") as number)}</div>
         ),
       },
       {
@@ -102,19 +175,48 @@ export default function EventStatisticsPage() {
     []
   );
 
+  const ticketData: TicketRow[] = useMemo(() => {
+    if (!sessionData?.session) return [];
+    return sessionData.session.ticketTypes.map((ticket) => ({
+      maLoaiVe: ticket.maLoaiVe,
+      type: ticket.type,
+      price: ticket.price,
+      sold: ticket.sold,
+      total: ticket.total,
+      locked: ticket.locked,
+    }));
+  }, [sessionData?.session]);
+
+  const chartData = chartRes?.data ?? [];
+  console.log(chartData);
+
+  if (loadingOverview || loadingSession || loadingChart)
+    return <div className="p-4">Đang tải thống kê...</div>;
+  if (overviewError || sessionError || chartError || !overviewData)
+    return <div className="p-4">Không thể tải dữ liệu thống kê</div>;
+
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Thống kê sự kiện</h1>
 
-        <Select onValueChange={setSession} defaultValue={session}>
-          <SelectTrigger className="w-[200px]">
+        <Select
+          onValueChange={setSession}
+          value={session ?? undefined}
+          disabled={!overviewData.sessions.length}
+        >
+          <SelectTrigger className="w-[260px]">
             <SelectValue placeholder="Chọn suất diễn" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="session1">Suất 1 (10:00)</SelectItem>
-            <SelectItem value="session2">Suất 2 (14:00)</SelectItem>
-            <SelectItem value="session3">Suất 3 (20:00)</SelectItem>
+            {overviewData.sessions.map((item) => (
+              <SelectItem key={item.maSuatDien} value={item.maSuatDien}>
+                {formatFullDateTime(
+                  item.thoiGianBatDau,
+                  item.thoiGianKetThuc || item.thoiGianBatDau
+                )}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -123,10 +225,19 @@ export default function EventStatisticsPage() {
         <RadiantChart
           text="Doanh thu"
           unit="đ"
-          value={10000000}
-          totalValue={10000000}
+          value={sessionData?.session.revenue ?? 0}
+          totalValue={
+            sessionData?.session.potentialRevenue ??
+            sessionData?.session.revenue ??
+            0
+          }
         />
-        <RadiantChart text="Vé" unit="vé" value={500} totalValue={1000} />
+        <RadiantChart
+          text="Vé"
+          unit="vé"
+          value={sessionData?.session.soldTickets ?? 0}
+          totalValue={sessionData?.session.totalTickets ?? 0}
+        />
       </div>
 
       <div className="flex gap-2">
@@ -149,7 +260,7 @@ export default function EventStatisticsPage() {
         </button>
       </div>
 
-      <EventLineChart data={currentChartData} />
+      <EventLineChart data={chartData} />
 
       <div>
         <h2 className="text-xl font-bold mb-2">Vé đã bán</h2>

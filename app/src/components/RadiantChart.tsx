@@ -62,8 +62,8 @@ export function RadiantChart({
         >
           <RadialBarChart
             data={chartData}
-            startAngle={0}
-            endAngle={250}
+            startAngle={90}
+            endAngle={90 + (percent / 100) * 360}
             innerRadius={80}
             outerRadius={110}
           >

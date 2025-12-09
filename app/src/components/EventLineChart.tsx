@@ -22,9 +22,11 @@ export function EventLineChart({ data }: Props) {
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" />
           <XAxis dataKey="date" tick={{ fill: "#ccc" }} />
-          <YAxis tick={{ fill: "#ccc" }} />
+          <YAxis yAxisId="left" tick={{ fill: "#ccc" }} />
+          <YAxis yAxisId="right" orientation="right" tick={{ fill: "#ccc" }} />
           <Tooltip />
           <Line
+            yAxisId="left"
             type="monotone"
             dataKey="tickets"
             stroke="#22c55e"
@@ -32,6 +34,7 @@ export function EventLineChart({ data }: Props) {
             name="Số vé"
           />
           <Line
+            yAxisId="right"
             type="monotone"
             dataKey="revenue"
             stroke="#a855f7"

@@ -64,7 +64,7 @@ export default function DashboardPage() {
   if (isFetching || fetchingRevenue) return <h1>Loading</h1>;
   return (
     <div>
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-4 mb-4">
         <DashBoardCard
           title="Tổng số lượng vé đã bán"
           value={summaryReport.totalTicket}

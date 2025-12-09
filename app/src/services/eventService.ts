@@ -163,8 +163,29 @@ export const getMaybeLikeEventsAPI = async () => {
   return res.data.data;
 };
 
-export const getEventStatisticsAPI = async (maSuKien: string) => {
+export const getEventOverviewAPI = async (maSuKien: string) => {
   const res = await axiosInstance.get(`event/${maSuKien}/statistics`);
+  return res.data.data;
+};
+
+export const getSessionStatisticsAPI = async (
+  maSuKien: string,
+  maSuatDien: string
+) => {
+  const res = await axiosInstance.get(
+    `event/${maSuKien}/session/${maSuatDien}`
+  );
+  return res.data.data;
+};
+
+export const getEventChartsAPI = async (
+  maSuKien: string,
+  maSuatDien: string,
+  range: "30d" | "24h"
+) => {
+  const res = await axiosInstance.get(
+    `event/${maSuKien}/charts?session=${maSuatDien}&range=${range}`
+  );
   return res.data.data;
 };
 
