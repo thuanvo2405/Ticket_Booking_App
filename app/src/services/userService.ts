@@ -41,7 +41,7 @@ export const getUsersAPI = async (page = 1, limit = 10) => {
 
 export const toggleUserStatusAPI = async (manguoidung: string) => {
   const res = await axiosInstance.patch(`toggle-status/${manguoidung}`);
-  return res.data.status;
+  return res.data.data;
 };
 
 export const createUserAPI = async ({

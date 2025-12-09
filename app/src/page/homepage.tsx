@@ -54,8 +54,8 @@ export default function HomePage() {
 
   return (
     <div>
-      <nav className="h-[60px] bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
-        <ul className="flex h-full items-center w-[1284px] gap-3 ">
+      <nav className="py-2 bg-white shadow-sm w-full flex items-center justify-center mb-4 border-b border-green-200">
+        <ul className="flex flex-wrap h-full items-center w-[1284px] gap-3">
           {categoryList.map((item: any) => (
             <li key={item}>
               <NavLink to={`search?type=${item}`}>

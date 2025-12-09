@@ -127,12 +127,18 @@ export const updateProfileUserService = async (
 
 export const toggleUserStatusService = async (manguoidung) => {
   const result = await pool.query(
-    "SELECT is_active FROM nguoi_dung WHERE manguoidung = $1",
+    "SELECT is_active, isverified FROM nguoi_dung WHERE manguoidung = $1",
     [manguoidung]
   );
 
   if (result.rowCount === 0) {
     throw new Error("Người dùng không tồn tại");
+  }
+
+  if (!result.rows[0].isverified) {
+    const err = new Error("Người dùng chưa xác thực, không thể khóa");
+    err.statusCode = 400;
+    throw err;
   }
 
   const current = result.rows[0].is_active;
@@ -148,7 +154,7 @@ export const toggleUserStatusService = async (manguoidung) => {
 
 export const getUsersService = async (limit, offset) => {
   const result = await pool.query(
-    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao, is_active
+    `SELECT manguoidung, tennguoidung, email, vaitro, anhdaidien, ngaytao, is_active, isverified
        FROM nguoi_dung
        ORDER BY ngaytao DESC
        LIMIT $1 OFFSET $2`,

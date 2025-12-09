@@ -4,6 +4,7 @@ import DashBoardCard from "@/components/AdminPage/DashBoardCard";
 import { useQuery } from "@tanstack/react-query";
 import { getSummaryReportAPI } from "@/services/reportService";
 import LineChartRevenue from "@/components/AdminPage/LineChartRevenue";
+import { formatPrice } from "@/utils/convert";
 
 export default function AdminPage() {
   const { data, isFetching } = useQuery({
@@ -38,10 +39,7 @@ export default function AdminPage() {
         />
         <DashBoardCard
           title="Doanh thu hôm nay"
-          value={data.revenueToday.toLocaleString("vi-VN", {
-            style: "currency",
-            currency: "VND",
-          })}
+          value={formatPrice(Number(data.revenueToday))}
           icon={<HandCoins className="text-red-500" />}
         />
       </div>

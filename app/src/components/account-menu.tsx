@@ -16,7 +16,6 @@ export function AccountMenu() {
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
   const { userProfile } = useAuth();
-  console.log(userProfile);
 
   return (
     <DropdownMenu onOpenChange={setOpen}>

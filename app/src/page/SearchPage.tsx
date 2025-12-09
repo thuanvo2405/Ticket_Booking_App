@@ -109,6 +109,7 @@ export default function SearchPage() {
               anhBanner={item.anhsukienngang}
               thoiGianBatDau={item?.suat_dien?.[0]?.thoigianbatdau}
               giaTien={item?.suat_dien?.[0]?.loaiVe?.[0].giaTien}
+              trangthai={item.trangthai}
             />
           ))}
         </div>

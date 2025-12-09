@@ -16,6 +16,7 @@ import categoryRoute from "./routes/categoryRoute.js";
 import upload from "./utils/multer.js";
 import errorHandling from "./middleware/errorHandler.js";
 import "./utils/orderCleanup.js";
+import "./utils/eventCleanup.js";
 
 dotenv.config();
 

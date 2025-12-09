@@ -20,6 +20,7 @@ export type AccountProfile = {
   anhdaidien: string;
   ngaytao: string;
   is_active: boolean;
+  isverified: boolean;
 };
 
 export default function AccountManage() {
@@ -39,12 +40,14 @@ export default function AccountManage() {
     mutationFn: (manguoidung: string) => toggleUserStatusAPI(manguoidung),
     onSuccess: (data) => {
       toast.success(
-        data?.status ? "Tài khoản đã được mở khóa" : "Tài khoản đã bị khóa"
+        data?.is_active ? "Tài khoản đã được mở khóa" : "Tài khoản đã bị khóa"
       );
       queryClient.invalidateQueries({ queryKey: ["users", page] });
     },
-    onError: () => {
-      toast.error("Cập nhật trạng thái thất bại");
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || "Cập nhật trạng thái thất bại";
+      toast.error(message);
     },
   });
 
@@ -101,6 +104,21 @@ export default function AccountManage() {
       },
     },
     {
+      accessorKey: "isverified",
+      header: "Xác thực",
+      cell: ({ row }) => (
+        <span
+          className={`px-2 py-1 text-xs font-semibold rounded ${
+            row.original.isverified
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {row.original.isverified ? "Đã xác thực" : "Chưa xác thực"}
+        </span>
+      ),
+    },
+    {
       id: "actions",
       header: "Hành động",
       cell: ({ row }) => (
@@ -141,6 +159,8 @@ export default function AccountManage() {
     },
   ];
 
+  const totalPages = data?.totalPages ?? 0;
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -159,14 +179,14 @@ export default function AccountManage() {
           Previous
         </Button>
 
-        <div>Trang {page}</div>
+        <div>
+          Trang {page} / {totalPages || 1}
+        </div>
 
         <Button
           variant="outline"
-          onClick={() =>
-            setPage((p) => (p * limit < (data?.total ?? 0) ? p + 1 : p))
-          }
-          disabled={page * limit >= (data?.total ?? 0)}
+          onClick={() => setPage((p) => (p < totalPages ? p + 1 : p))}
+          disabled={page >= totalPages || totalPages === 0}
         >
           Next
         </Button>

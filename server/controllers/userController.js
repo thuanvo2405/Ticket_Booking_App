@@ -68,11 +68,9 @@ export const toggleUserStatus = async (req, res, next) => {
 
     const status = await toggleUserStatusService(manguoidung);
 
-    handleResponse(
-      res,
-      200,
-      `Cập nhật trạng thái thành: ${status ? "HOẠT ĐỘNG" : "KHÓA"}`
-    );
+    handleResponse(res, 200, "Cập nhật trạng thái thành công", {
+      is_active: status,
+    });
   } catch (error) {
     next(error);
   }
@@ -108,10 +106,13 @@ export const getUsers = async (req, res, next) => {
       `SELECT COUNT(*) AS total FROM nguoi_dung`
     );
 
-    const total = totalResult.rows[0].total;
+    const total = parseInt(totalResult.rows[0].total, 10);
+    const totalPages = Math.ceil(total / limit);
+
     handleResponse(res, 200, "Lấy danh sách người dùng thành công", {
       data: users.rows,
-      total: parseInt(total),
+      total,
+      totalPages,
       page,
       limit,
     });
