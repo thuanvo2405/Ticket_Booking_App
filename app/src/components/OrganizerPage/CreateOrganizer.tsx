@@ -50,7 +50,7 @@ export default function CreateOrganizer() {
     },
 
     onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Tạo hồ sơ thất bại 😢");
+      toast.error(err?.response?.data?.error || "Tạo hồ sơ thất bại 😢");
     },
   });
 

@@ -27,8 +27,6 @@ export default function EventPage() {
     queryFn: getMaybeLikeEventsAPI,
   });
 
-  console.log(data);
-
   if (isLoading || fetchingSuggetEvent) return <h1>Loading</h1>;
 
   return (

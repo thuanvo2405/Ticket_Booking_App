@@ -35,7 +35,7 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const convertRevenueData = (data: any) => {
-  if (!data) return [];
+  if (!data || data.length === 0) return [];
 
   return data.map((item: any) => {
     const date = new Date(item.month + "-01");
@@ -59,9 +59,19 @@ export default function DashboardPage() {
     queryFn: getMonthlyRevenueOrganzierAPI,
   });
 
-  console.log(monthlyRevenue);
-
   if (isFetching || fetchingRevenue) return <h1>Loading</h1>;
+
+  const hasSummary =
+    summaryReport &&
+    typeof summaryReport.totalTicket !== "undefined" &&
+    typeof summaryReport.totalOrder !== "undefined" &&
+    typeof summaryReport.totalRevenue !== "undefined" &&
+    typeof summaryReport.totalEvent !== "undefined";
+
+  const revenueData = convertRevenueData(monthlyRevenue?.data);
+
+  if (!hasSummary) return <div className="p-4">Không có dữ liệu</div>;
+
   return (
     <div>
       <div className="grid grid-cols-4 gap-4 mb-4">
@@ -92,26 +102,27 @@ export default function DashboardPage() {
           <CardDescription>Tháng 1 - Tháng 12 2025</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig}>
-            <BarChart
-              accessibilityLayer
-              data={convertRevenueData(monthlyRevenue.data)}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-              <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
-            </BarChart>
-          </ChartContainer>
+          {revenueData.length === 0 ? (
+            <div className="text-sm text-gray-500">Chưa có dữ liệu doanh thu</div>
+          ) : (
+            <ChartContainer config={chartConfig}>
+              <BarChart accessibilityLayer data={revenueData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 3)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={8} />
+              </BarChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -584,6 +584,7 @@ export const getMaybeLikeEventService = async () => {
       SELECT 
         sk.masukien,
         sk.anhsukienngang,
+        sk.tensukien,
         np.thoigianbatdau AS suat_dien,
         np.min_price AS gia
       FROM su_kien sk
@@ -604,7 +605,9 @@ const buildChartSeries = (rows, windowSize, mode) => {
     const date = mode === "daily" ? new Date(row.date) : new Date(row.hour);
     if (Number.isNaN(date.getTime())) return acc;
     const key =
-      mode === "daily" ? date.toISOString().slice(0, 10) : date.toISOString().slice(0, 13);
+      mode === "daily"
+        ? date.toISOString().slice(0, 10)
+        : date.toISOString().slice(0, 13);
     acc.set(key, {
       tickets: toSafeNumber(row.tickets),
       revenue: toSafeNumber(row.revenue),
