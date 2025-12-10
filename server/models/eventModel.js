@@ -498,6 +498,11 @@ export const getEventsForUserService = async ({
       tc.tentochuc,
       lsk.tenloaisukien,
       (
+        SELECT MIN(sd.thoigianbatdau)
+        FROM suat_dien sd
+        WHERE sd.masukien = sk.masukien
+      ) AS min_start,
+      (
         SELECT json_agg(
           json_build_object(
             'maSuatDien', sd.masuatdien,
@@ -523,7 +528,14 @@ export const getEventsForUserService = async ({
     JOIN to_chuc tc ON tc.matochuc = sk.matochuc
     JOIN loai_su_kien lsk ON lsk.maloaisukien = sk.maloaisukien
     ${whereClause}
-    ORDER BY sk.ngaytao DESC
+    ORDER BY 
+      CASE 
+        WHEN (
+          SELECT MIN(sd.thoigianbatdau) FROM suat_dien sd WHERE sd.masukien = sk.masukien
+        ) >= NOW() THEN 0
+        ELSE 1
+      END,
+      min_start ASC NULLS LAST
     LIMIT ${limit} OFFSET ${offset};
   `;
 
