@@ -205,6 +205,7 @@ export const searchEventsForUserAPI = async ({
   khuVuc,
   tenLoaiSuKien,
   tenSuKien,
+  signal,
 }: {
   page?: number;
   limit?: number;
@@ -214,6 +215,7 @@ export const searchEventsForUserAPI = async ({
   tenLoaiSuKien?: string;
   maToChuc?: string;
   tenSuKien?: string;
+  signal?: AbortSignal;
 }) => {
   const params = new URLSearchParams();
 
@@ -226,6 +228,8 @@ export const searchEventsForUserAPI = async ({
   if (tenLoaiSuKien) params.append("tenLoaiSuKien", tenLoaiSuKien);
   if (tenSuKien) params.append("tenSuKien", tenSuKien);
 
-  const res = await axios.get(`${URL}user/events?${params.toString()}`);
+  const res = await axios.get(`${URL}user/events?${params.toString()}`, {
+    signal,
+  });
   return res.data.data;
 };
