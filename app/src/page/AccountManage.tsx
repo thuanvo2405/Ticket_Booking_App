@@ -45,7 +45,6 @@ export default function AccountManage() {
     queryFn: () => getUsersAPI(page, limit, roleFilter, search || undefined),
     placeholderData: (previous) => previous,
   });
-  console.log(data);
 
   const queryClient = useQueryClient();
 

@@ -22,6 +22,10 @@ export const createOrderService = async (manguoidung, items) => {
     for (const item of items) {
       const { maloaive, soluong } = item;
 
+      if (!Number.isInteger(soluong) || soluong <= 0) {
+        throw new Error("Số lượng vé phải > 0");
+      }
+
       // 2.1: Lấy loại vé + khóa dòng trong transaction
       const ticketRes = await client.query(
         `
@@ -46,8 +50,7 @@ export const createOrderService = async (manguoidung, items) => {
         soluongdaban,
         soluongkhoa,
         thoigianbatdau,
-      } =
-        ticketRes.rows[0];
+      } = ticketRes.rows[0];
 
       if (thoigianbatdau && new Date(thoigianbatdau) < new Date()) {
         throw new Error("Suất diễn đã bắt đầu hoặc kết thúc, không thể đặt vé");

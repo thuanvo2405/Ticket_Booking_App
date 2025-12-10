@@ -35,7 +35,6 @@ export default function ProfilePage() {
     queryKey: ["fetchCurrentUser"],
     queryFn: getProfileUserAPI,
   });
-  console.log(data);
 
   useEffect(() => {
     if (data) {

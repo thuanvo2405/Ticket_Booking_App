@@ -229,13 +229,11 @@ export const forgotPassword = async (req, res, next) => {
     if (!user) {
       throw new Error("Rất tiếc tài khoản không tồn tại");
     }
-    const token = jwt.sign(
-      { manguoidung: user.manguoidung },
-      process.env.EMAIL_TOKEN_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
+
+    const dynamicSecret = `${process.env.EMAIL_TOKEN_SECRET}${user.matkhau}`;
+    const token = jwt.sign({ manguoidung: user.manguoidung }, dynamicSecret, {
+      expiresIn: "15m",
+    });
 
     await sendResetPasswordMail(email, token);
 
@@ -248,6 +246,9 @@ export const forgotPassword = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.query;
+    if (!token) {
+      return res.status(400).json({ error: "Link của bạn có thể đã hết hạn" });
+    }
 
     const password = z
       .string()
@@ -259,8 +260,32 @@ export const resetPassword = async (req, res, next) => {
       })
       .parse(req.body.password);
 
-    const payload = jwt.verify(token, process.env.EMAIL_TOKEN_SECRET);
-    const manguoidung = payload.manguoidung;
+    const decoded = jwt.decode(token);
+    const manguoidung = decoded.manguoidung;
+    if (!manguoidung) {
+      return res.status(400).json({ error: "Token không hợp lệ" });
+    }
+
+    const userRes = await pool.query(
+      "SELECT matkhau FROM nguoi_dung WHERE manguoidung = $1",
+      [manguoidung]
+    );
+
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ error: "Người dùng không tồn tại" });
+    }
+
+    const currentHashed = userRes.rows[0].matkhau;
+    const dynamicSecret = `${process.env.EMAIL_TOKEN_SECRET}${currentHashed}`;
+
+    jwt.verify(token, dynamicSecret);
+
+    const isSamePassword = await bcrypt.compare(password, currentHashed);
+    if (isSamePassword) {
+      return res
+        .status(400)
+        .json({ error: "Mật khẩu mới không được trùng mật khẩu hiện tại" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, saltRound);
 
@@ -269,12 +294,16 @@ export const resetPassword = async (req, res, next) => {
       [hashedPassword, manguoidung]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: "Người dùng không tồn tại" });
-    }
-
     handleResponse(res, 200, "Mật khẩu đã thay đổi thành công!");
   } catch (error) {
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    ) {
+      return res.status(400).json({
+        error: "Link đặt lại có thể của bạn đã hết hạn, vui lòng thử lại",
+      });
+    }
     next(error);
   }
 };
@@ -299,6 +328,13 @@ export const resetPasswordByUserId = async (req, res, next) => {
     const isMatch = await bcrypt.compare(matkhauhientai, currentHashed);
     if (!isMatch) {
       return res.status(400).json({ error: "Mật khẩu hiện tại không đúng" });
+    }
+
+    const isSameNewPassword = await bcrypt.compare(matkhaumoi, currentHashed);
+    if (isSameNewPassword) {
+      return res
+        .status(400)
+        .json({ error: "Mật khẩu mới không được trùng mật khẩu hiện tại" });
     }
 
     const hashedPassword = await bcrypt.hash(matkhaumoi, 10);

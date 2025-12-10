@@ -10,7 +10,6 @@ export const deleteFile = (fileName) => {
     const filePath = path.join(__dirname, "..", fileName);
     if (fs.existsSync(filePath) && fileName !== "uploads/default-avatar.png") {
       fs.unlinkSync(filePath);
-      console.log("Đã xóa ảnh cũ:", fileName);
     }
   } catch (err) {
     console.error("Xóa ảnh cũ thất bại:", err.message);

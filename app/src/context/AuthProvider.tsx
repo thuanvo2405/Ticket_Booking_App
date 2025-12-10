@@ -24,7 +24,6 @@ export interface AuthContextProps {
     React.SetStateAction<{ tennguoidung: string; anhdaidien: string } | null>
   >;
   isLoggedIn: () => boolean;
-  resetPassword: () => void;
   updateUserAndToken: (
     newUser: { manguoidung: number; vaitro: string },
     newTokens: { accessToken: string }
@@ -136,7 +135,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
     } catch (error: any) {
-      console.log(error.response);
       toast.error(error.response?.data?.error || "Có lỗi gì đó xảy ra");
       return false;
     }
@@ -190,10 +188,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     navigate("/");
   };
 
-  const resetPassword = () => {
-    console.log("Hi");
-  };
-
   const updateUserAndToken = (
     newUser: { manguoidung: number; vaitro: string },
     newTokens: { accessToken: string }
@@ -224,7 +218,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userProfile,
         setUserProfile,
         isLoggedIn,
-        resetPassword,
         updateUserAndToken,
       }}
     >

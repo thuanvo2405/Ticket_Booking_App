@@ -41,7 +41,6 @@ type ResetFormValues = z.infer<typeof resetSchema>;
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  console.log(token);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -56,7 +55,6 @@ export default function ResetPasswordPage() {
   const onSubmit = async (values: ResetFormValues) => {
     try {
       setLoading(true);
-      console.log(`${URL}reset-password?token=${token}`);
       await axios.post(`${URL}reset-password?token=${token}`, {
         password: values.password,
       });
@@ -64,7 +62,7 @@ export default function ResetPasswordPage() {
       toast.success("Đặt lại mật khẩu thành công! 🎉");
       navigate("/");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.response.data.error || "Đã có lỗi gì đó xảy ra");
     } finally {
       setLoading(false);
     }

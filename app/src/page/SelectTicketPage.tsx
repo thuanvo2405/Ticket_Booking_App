@@ -61,7 +61,6 @@ export default function SelectTicketPage() {
     return <div>Loading...</div>;
   }
 
-  console.log(total);
   return (
     <div className=" w-full grid grid-cols-[5fr_2fr] p-4">
       <div className="relative">

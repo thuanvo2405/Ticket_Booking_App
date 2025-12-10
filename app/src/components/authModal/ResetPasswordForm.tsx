@@ -37,7 +37,6 @@ export default function ResetPasswordForm({
   const isSubmitting = form.formState.isSubmitting;
 
   async function onSubmit(values: z.infer<typeof resetPasswordSchema>) {
-    console.log(URL);
     try {
       await axios.post(`${URL}forgot-password`, {
         email: values.email,

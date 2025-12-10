@@ -16,7 +16,6 @@ export type Ticket = {
 
 export default function DetailOrderPage() {
   const { madonhang } = useParams();
-  console.log(madonhang);
   const { data: orderData, isFetching: orderLoading } = useQuery<{
     order: Order;
     items: Item[];
@@ -66,7 +65,6 @@ export default function DetailOrderPage() {
     },
   ];
 
-  console.log(ticketData);
   return (
     <div className="p-6 space-y-8 max-w-6xl mx-auto">
       <div className="bg-white p-6 rounded-xl shadow space-y-2">

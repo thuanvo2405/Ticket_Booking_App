@@ -62,7 +62,6 @@ export const updatePayment = async (req, res, next) => {
 
     // ====== 4. IF PAYMENT FAILED ======
     if (resultCode !== 0) {
-      console.log("❌ Payment failed:", message);
       return res.status(200).json({
         message: "Payment failed",
         madonhang,

@@ -47,7 +47,6 @@ export default function DetailTicketModal({
   thanhpho,
   thoigianbatdau,
 }: DetailTicketModalProps) {
-  console.log(tensukien);
   return (
     <Dialog>
       <form>

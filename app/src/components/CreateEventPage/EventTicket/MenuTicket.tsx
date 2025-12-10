@@ -80,8 +80,6 @@ export default function MenuTicket({
     enabled: !!masuatdien,
   });
 
-  console.log(data);
-
   const deletePerformance = useMutation({
     mutationFn: () => deletePerformaneAPI(masuatdien),
     onSuccess: () => {

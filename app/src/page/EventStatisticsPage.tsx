@@ -188,7 +188,6 @@ export default function EventStatisticsPage() {
   }, [sessionData?.session]);
 
   const chartData = chartRes?.data ?? [];
-  console.log(chartData);
 
   if (loadingOverview || loadingSession || loadingChart)
     return <div className="p-4">Đang tải thống kê...</div>;

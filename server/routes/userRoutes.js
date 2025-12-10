@@ -32,10 +32,6 @@ router.patch("/password", authenticateToken, resetPasswordByUserId);
 router.post("/resend-verification", resendVerificationEmail);
 router.get("/verify-email", verifyEmail);
 
-router.get("/test", checkRole(["KHACH_HANG"]), (req, res) => {
-  res.send("hello 123");
-});
-
 router.get("/profile", authenticateToken, getProfileUser);
 router.patch(
   "/profile",

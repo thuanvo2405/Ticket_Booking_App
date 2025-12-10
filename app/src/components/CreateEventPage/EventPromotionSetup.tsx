@@ -74,7 +74,6 @@ export default function EventPromotionSetup() {
       navigate("/organizer/my-events");
     },
     onError: (error: any) => {
-      console.log(error);
       toast.error(
         error?.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại."
       );
