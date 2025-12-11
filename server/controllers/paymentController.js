@@ -56,11 +56,15 @@ export const updatePayment = async (req, res, next) => {
       `SELECT trangthai, makhuyenmai FROM don_hang WHERE madonhang = $1`,
       [madonhang]
     );
+
     if (!orderStatus.length) {
-      return res.status(400).json({ message: "Order not found" });
+      return res.status(400).json({ message: "Không tìm thấy đơn hàng" });
     }
 
-    // ====== 4. IF PAYMENT FAILED ======
+    if (orderStatus.trangthai === "DA_HET_HAN") {
+      return res.status(400).json({ message: "Đơn hàng đã hết hạn" });
+    }
+
     if (resultCode !== 0) {
       return res.status(200).json({
         message: "Payment failed",

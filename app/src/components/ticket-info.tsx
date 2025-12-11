@@ -47,7 +47,10 @@ const TicketInfo = forwardRef<
                   <ChevronRight size={18} />
                 )}
                 <span className="font-medium">
-                  {formatFullDateTime(item.thoigianbatdau, item.thoigianketthuc)}
+                  {formatFullDateTime(
+                    item.thoigianbatdau,
+                    item.thoigianketthuc
+                  )}
                 </span>
                 {allTicketsSoldOut && (
                   <span className="ml-2 rounded-full bg-red-600/80 px-3 py-1 text-xs font-semibold">

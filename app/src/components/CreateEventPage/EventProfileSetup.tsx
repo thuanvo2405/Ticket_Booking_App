@@ -145,6 +145,7 @@ const formats = [
 export default function CreateEventInfoStep() {
   const [poster, setPoster] = useState<File | null>(null);
   const [banner, setBanner] = useState<File | null>(null);
+  const [isSaveOnly, setIsSaveOnly] = useState(false);
   const { setStep, setMaSuKien } = useEventStore();
 
   const [searchParams] = useSearchParams();
@@ -252,32 +253,34 @@ export default function CreateEventInfoStep() {
       } catch (error) {
         toast.error("Lỗi tạo sự kiện: " + error);
       }
-    } else {
-      if (!poster || !banner) {
-        toast.error("Vui lòng chọn đầy đủ hình ảnh!");
-        return;
-      }
+      return;
+    }
+    if (!isSaveOnly) {
+      return;
+    }
 
-      try {
-        await updateEventAPI(
-          maSuKien,
-          data.tenSuKien,
-          banner,
-          poster,
-          data.moTa ?? "",
-          data.diaChi,
-          data.phuongXa,
-          data.quanHuyen,
-          data.tinhThanh,
-          data.maloaisukien
-        );
+    if (!poster || !banner) {
+      toast.error("Vui lòng chọn đầy đủ hình ảnh!");
+      return;
+    }
 
-        setStep(2);
+    try {
+      await updateEventAPI(
+        maSuKien,
+        data.tenSuKien,
+        banner,
+        poster,
+        data.moTa ?? "",
+        data.diaChi,
+        data.phuongXa,
+        data.quanHuyen,
+        data.tinhThanh,
+        data.maloaisukien
+      );
 
-        toast.success("Cập nhật sự kiện thành công");
-      } catch (error) {
-        toast.error("Lỗi cập nhật sự kiện: " + error);
-      }
+      toast.success("Đã lưu thay đổi");
+    } catch (error) {
+      toast.error("Lỗi cập nhật sự kiện: " + error);
     }
   };
 
@@ -527,10 +530,34 @@ export default function CreateEventInfoStep() {
             />
           </div>
 
-          <div className="flex justify-end pt-6 border-t mt-10">
-            <Button type="submit" className="w-32">
-              Tiếp tục
-            </Button>
+          <div className="flex justify-end pt-6 border-t mt-10 gap-2">
+            {maSuKien && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-32"
+                onClick={() => {
+                  setIsSaveOnly(true);
+                  form.handleSubmit(onSubmit)();
+                }}
+              >
+                Lưu
+              </Button>
+            )}
+
+            {maSuKien ? (
+              <Button type="button" className="w-32" onClick={() => setStep(2)}>
+                Tiếp tục
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                className="w-32"
+                onClick={() => setIsSaveOnly(false)}
+              >
+                Tiếp tục
+              </Button>
+            )}
           </div>
         </form>
       </Form>
