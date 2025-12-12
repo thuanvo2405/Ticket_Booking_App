@@ -189,6 +189,16 @@ export const getEventChartsAPI = async (
   return res.data.data;
 };
 
+export const getEventOrdersAPI = async (
+  maSuKien: string,
+  params?: { page?: number; limit?: number; search?: string }
+) => {
+  const res = await axiosInstance.get(`event/${maSuKien}/orders`, {
+    params,
+  });
+  return res.data.data;
+};
+
 export const getEventOrderDetailAPI = async (
   maSuKien: string,
   madonhang: string

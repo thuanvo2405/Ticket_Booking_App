@@ -8,8 +8,10 @@ const TicketInfo = forwardRef<
   {
     suat_dien: any;
     maSuKien: string;
+    isLoggedIn: boolean;
+    onRequireLogin: () => void;
   }
->(({ suat_dien, maSuKien }, ref) => {
+>(({ suat_dien, maSuKien, isLoggedIn, onRequireLogin }, ref) => {
   const [activeIndex, setActiveIndex] = useState<string | null>(null);
   const toggleSession = (index: string) =>
     setActiveIndex((prev) => (prev === index ? null : index));
@@ -69,6 +71,13 @@ const TicketInfo = forwardRef<
                   if (isExpired || allTicketsSoldOut) {
                     e.preventDefault();
                     e.stopPropagation();
+                    return;
+                  }
+
+                  if (!isLoggedIn) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onRequireLogin();
                   }
                 }}
                 aria-disabled={isExpired || allTicketsSoldOut}

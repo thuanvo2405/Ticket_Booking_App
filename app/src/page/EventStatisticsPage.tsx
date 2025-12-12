@@ -6,6 +6,7 @@ import { DataTable } from "@/components/data-table";
 import { Progress } from "@/components/ui/progress";
 import { RadiantChart } from "@/components/RadiantChart";
 import { EventLineChart } from "@/components/EventLineChart";
+import { EventOrdersTable } from "@/components/EventOrdersTable";
 import {
   Select,
   SelectTrigger,
@@ -265,6 +266,8 @@ export default function EventStatisticsPage() {
         <h2 className="text-xl font-bold mb-2">Vé đã bán</h2>
         <DataTable columns={columns} data={ticketData} />
       </div>
+
+      <EventOrdersTable maSuKien={maSuKien || ""} />
     </div>
   );
 }

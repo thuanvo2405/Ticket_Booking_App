@@ -15,6 +15,7 @@ import {
   getEventOverviewService,
   getSessionStatisticsService,
   getSessionChartService,
+  getOrdersForEventService,
   getOrderDetailForEventService,
   getMaybeLikeEventService,
 } from "../models/eventModel.js";
@@ -391,6 +392,29 @@ export const getEventCharts = async (req, res, next) => {
     const data = await getSessionChartService(maSuatDien, range);
 
     handleResponse(res, 200, "Lấy dữ liệu biểu đồ thành công", { data });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEventOrders = async (req, res, next) => {
+  try {
+    const userID = req.user.user.id;
+    const { maSuKien } = req.params;
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 10;
+    const rawSearch = (req.query.search || "").toString().trim();
+
+    await ensureOrganizerOwnsEvent(userID, maSuKien);
+
+    const data = await getOrdersForEventService({
+      maSuKien,
+      page,
+      limit,
+      search: rawSearch || undefined,
+    });
+
+    handleResponse(res, 200, "Lấy danh sách đơn hàng thành công", data);
   } catch (error) {
     next(error);
   }

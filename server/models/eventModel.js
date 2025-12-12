@@ -844,6 +844,84 @@ export const getSessionChartService = async (maSuatDien, range) => {
   return buildChartSeries(res.rows, windowSize, isDaily ? "daily" : "hourly");
 };
 
+export const getOrdersForEventService = async ({
+  maSuKien,
+  page = 1,
+  limit = 10,
+  search,
+}) => {
+  const offset = (page - 1) * limit;
+
+  const params = [maSuKien];
+  const searchClause = search
+    ? `AND (
+        LOWER(dh.madonhang::text) LIKE $${params.length + 1}
+        OR LOWER(nd.tennguoidung) LIKE $${params.length + 1}
+        OR LOWER(nd.email) LIKE $${params.length + 1}
+      )`
+    : "";
+
+  if (search) {
+    params.push(`%${search.toLowerCase()}%`);
+  }
+
+  const baseQuery = `
+    FROM don_hang dh
+    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    JOIN nguoi_dung nd ON nd.manguoidung = dh.manguoidung
+    WHERE sd.masukien = $1
+      AND dh.trangthai = 'DA_THANH_TOAN'
+      ${searchClause}
+  `;
+
+  const dataRes = await pool.query(
+    `
+    SELECT 
+      dh.madonhang,
+      dh.trangthai,
+      dh.tongtien,
+      dh.ngaydatve,
+      dh.thoigianthanhtoan,
+      nd.tennguoidung,
+      nd.email,
+      SUM(ct.soluong) AS total_tickets
+    ${baseQuery}
+    GROUP BY 
+      dh.madonhang, dh.trangthai, dh.tongtien, dh.ngaydatve, dh.thoigianthanhtoan,
+      nd.tennguoidung, nd.email
+    ORDER BY dh.thoigianthanhtoan DESC NULLS LAST, dh.ngaydatve DESC
+    LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+  `,
+    [...params, limit, offset]
+  );
+
+  const countRes = await pool.query(
+    `
+    SELECT COUNT(DISTINCT dh.madonhang) AS total
+    ${baseQuery}
+  `,
+    params
+  );
+
+  return {
+    orders: dataRes.rows.map((row) => ({
+      madonhang: row.madonhang,
+      trangthai: row.trangthai,
+      tongtien: toSafeNumber(row.tongtien),
+      ngaydatve: row.ngaydatve,
+      thoigianthanhtoan: row.thoigianthanhtoan,
+      tennguoidung: row.tennguoidung,
+      email: row.email,
+      totalTickets: toSafeNumber(row.total_tickets),
+    })),
+    total: toSafeNumber(countRes.rows[0]?.total),
+    page: page,
+    limit: limit,
+  };
+};
+
 export const getOrderDetailForEventService = async (maSuKien, maDonHang) => {
   const orderRes = await pool.query(
     `

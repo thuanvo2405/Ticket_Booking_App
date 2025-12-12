@@ -14,6 +14,7 @@ import {
   getEventOverview,
   getSessionStatistics,
   getEventCharts,
+  getEventOrders,
   getOrderDetailForEvent,
   getMaybeLikeEvent,
 } from "../controllers/eventController.js";
@@ -53,6 +54,12 @@ router.get(
   authenticateToken,
   checkRole(["TO_CHUC"]),
   getEventCharts
+);
+router.get(
+  "/event/:maSuKien/orders",
+  authenticateToken,
+  checkRole(["TO_CHUC"]),
+  getEventOrders
 );
 
 router.get(

@@ -9,14 +9,20 @@ import { IMAGE_URL } from "@/constant/constant";
 import { formatPrice } from "@/utils/convert";
 import TicketInfo from "@/components/ticket-info";
 import EventCard from "@/components/event-card";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import AuthModal from "@/components/authModal/AuthModal";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function EventPage() {
   const ticketInfoRef = useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
   const maSuKien = searchParams.get("maSuKien") || "";
+  const { isLoggedIn } = useAuth();
+  const [authModalOpen, setAuthModalOpen] = useState<
+    null | "login" | "register"
+  >(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["fetchingEventById", maSuKien],
@@ -121,6 +127,8 @@ export default function EventPage() {
           ref={ticketInfoRef}
           suat_dien={data.suat_dien}
           maSuKien={maSuKien}
+          isLoggedIn={isLoggedIn()}
+          onRequireLogin={() => setAuthModalOpen("login")}
         />
         <div className="shadow-xl border mt-10 rounded-2xl p-4">
           <p className="text-xl font-semibold text-center border-b-1 py-3">
@@ -156,6 +164,12 @@ export default function EventPage() {
           ))}
         </div>
       </footer>
+      {authModalOpen && (
+        <AuthModal
+          initialTab={authModalOpen}
+          onClose={() => setAuthModalOpen(null)}
+        />
+      )}
     </div>
   );
 }
