@@ -126,13 +126,17 @@ export const fetchProfileEventsByOrganizerID = async ({
   trangThai,
   page = 1,
   limit = 10,
+  search,
 }: {
   trangThai?: string;
   page?: number;
   limit?: number;
+  search?: string;
 }) => {
   const params: Record<string, string | number> = { page, limit };
   if (trangThai) params.trangThai = trangThai;
+  const searchValue = search?.trim();
+  if (searchValue) params.tenSuKien = searchValue;
 
   const res = await axiosInstance.get("organizer/events", { params });
   return res.data.data;

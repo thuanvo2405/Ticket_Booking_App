@@ -240,7 +240,7 @@ export const getEventByOrganizerId = async (req, res, next) => {
     const userId = req.user.user.id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const { trangThai } = req.query;
+    const { trangThai, tenSuKien } = req.query;
 
     const orgQuery = await pool.query(
       "SELECT matochuc FROM to_chuc WHERE manguoidung = $1",
@@ -258,6 +258,7 @@ export const getEventByOrganizerId = async (req, res, next) => {
       trangThai,
       page,
       limit,
+      tenSuKien,
     });
 
     handleResponse(res, 200, "Lấy dữ liệu sự kiện thành công", events);

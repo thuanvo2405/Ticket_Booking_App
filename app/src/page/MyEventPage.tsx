@@ -35,6 +35,8 @@ const PAGE_SIZE = 10;
 export default function MyEventPage() {
   const [tab, setTab] = useState("all");
   const [page, setPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -46,12 +48,13 @@ export default function MyEventPage() {
     isFetching,
     isLoading,
   } = useQuery({
-    queryKey: ["fetchProfileEventByOrganizerID", tab, page],
+    queryKey: ["fetchProfileEventByOrganizerID", tab, page, searchQuery],
     queryFn: () =>
       fetchProfileEventsByOrganizerID({
         trangThai: statusFilter,
         page,
         limit: PAGE_SIZE,
+        search: searchQuery,
       }),
     enabled: user?.vaitro === "TO_CHUC",
     placeholderData: (prev) => prev,
@@ -172,6 +175,11 @@ export default function MyEventPage() {
     },
   ];
 
+  const handleSearch = () => {
+    setPage(1);
+    setSearchQuery(searchInput.trim());
+  };
+
   if (isLoading) return <h1>Loading</h1>;
 
   return (
@@ -183,15 +191,25 @@ export default function MyEventPage() {
             <Input
               placeholder="Tìm kiếm sự kiện"
               className="bg-transparent border-none focus-visible:ring-0 text-black placeholder:text-gray-500"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
             />
           </div>
-          <Button className="bg-black text-white hover:bg-gray-800">
+          <Button
+            className="bg-black text-white hover:bg-gray-800"
+            onClick={handleSearch}
+          >
             Tìm kiếm
           </Button>
           {user?.vaitro === "TO_CHUC" ? (
-            <Button className="bg-black text-white hover:bg-gray-800">
-              <Link to="/organizer/create-event">Tạo Sự Kiện</Link>
-            </Button>
+            <Link to="/organizer/create-event">
+              <Button className="bg-black text-white hover:bg-gray-800">
+                Tạo Sự Kiện
+              </Button>
+            </Link>
           ) : (
             <Button
               className="bg-black text-white hover:bg-gray-800"

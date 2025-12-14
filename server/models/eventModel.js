@@ -317,6 +317,7 @@ export const getEventByOrganizerIdService = async ({
   trangThai,
   page = 1,
   limit = 10,
+  tenSuKien,
 }) => {
   const offset = (page - 1) * limit;
   const conditions = ["sk.matochuc = $1"];
@@ -325,6 +326,12 @@ export const getEventByOrganizerIdService = async ({
   if (trangThai) {
     conditions.push(`sk.trangthai = $${params.length + 1}`);
     params.push(trangThai);
+  }
+
+  const searchTerm = tenSuKien?.trim();
+  if (searchTerm) {
+    conditions.push(`sk.tensukien ILIKE $${params.length + 1}`);
+    params.push(`%${searchTerm}%`);
   }
 
   const whereClause = conditions.join(" AND ");
