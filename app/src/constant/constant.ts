@@ -1,6 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL;
-export const URL = API_URL + "v1/api/";
-export const IMAGE_URL = API_URL;
+
+export const URL = `${API_URL}/v1/api/`;
+export const IMAGE_URL = `${API_URL}/`;
 
 export const USER_ROLE = {
   NGUOI_DUNG: "NGUOI_DUNG",
