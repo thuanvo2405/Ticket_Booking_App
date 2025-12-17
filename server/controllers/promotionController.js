@@ -16,6 +16,35 @@ const getLastPerformanceStart = async (maSuKien) => {
   return res.rows[0]?.last_start ? new Date(res.rows[0].last_start) : null;
 };
 
+const assertUniquePromotionCode = async (
+  maGiamGia,
+  maSuKien,
+  excludeMaKhuyenMai = null
+) => {
+  const params = [maGiamGia, maSuKien];
+  let query = `
+    SELECT 1
+    FROM khuyen_mai
+    WHERE LOWER(magiamgia) = LOWER($1)
+      AND masukien = $2
+  `;
+
+  if (excludeMaKhuyenMai) {
+    query += " AND makhuyenmai <> $3";
+    params.push(excludeMaKhuyenMai);
+  }
+
+  const res = await pool.query(query, params);
+
+  if (res.rowCount > 0) {
+    const err = new Error(
+      "Mã giảm giá đã tồn tại trong sự kiện này, vui lòng chọn mã khác"
+    );
+    err.statusCode = 400;
+    throw err;
+  }
+};
+
 const assertPromotionDateRange = async (ngayBatDau, ngayKetThuc, maSuKien) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -66,6 +95,11 @@ export const createPromotion = async (req, res, next) => {
   try {
     const validateData = PromotionSchema.parse(req.body);
 
+    await assertUniquePromotionCode(
+      validateData.maGiamGia,
+      validateData.maSuKien
+    );
+
     await assertPromotionDateRange(
       validateData.ngayBatDau,
       validateData.ngayKetThuc,
@@ -100,6 +134,17 @@ export const updatePromotion = async (req, res, next) => {
     );
     const maSuKien = promoLookup.rows[0]?.masukien;
 
+    if (!maSuKien) {
+      const err = new Error("Khuyến mãi không tồn tại");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    await assertUniquePromotionCode(
+      validateData.maGiamGia,
+      maSuKien,
+      maKhuyenMai
+    );
     await assertPromotionDateRange(
       validateData.ngayBatDau,
       validateData.ngayKetThuc,

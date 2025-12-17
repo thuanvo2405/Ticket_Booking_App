@@ -84,6 +84,8 @@ export default function EventPromotionModal({
   const maSuKien = searchParams.get("eventId");
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [amountValue, setAmountValue] = useState(10000);
+  const [percentValue, setPercentValue] = useState(10);
 
   useEffect(() => {
     if (promotion) {
@@ -117,6 +119,16 @@ export default function EventPromotionModal({
       });
     }
   }, [promotion]);
+
+  const loaiGiam = form.watch("loaiGiam");
+
+  useEffect(() => {
+    if (loaiGiam === "SO_TIEN") {
+      form.setValue("giaTriGiam", amountValue);
+    } else {
+      form.setValue("giaTriGiam", percentValue);
+    }
+  }, [loaiGiam]);
 
   const createPromotionMutation = useMutation({
     mutationFn: ({
@@ -293,19 +305,32 @@ export default function EventPromotionModal({
                 name="giaTriGiam"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Giá trị giảm</FormLabel>
+                    <FormLabel>
+                      Giá trị giảm {loaiGiam === "PHAN_TRAM" ? "(%)" : "(VNĐ)"}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="text"
-                        {...field}
                         value={
                           Number.isFinite(field.value)
                             ? field.value.toLocaleString("vi-VN")
                             : ""
                         }
+                        placeholder={
+                          loaiGiam === "PHAN_TRAM"
+                            ? "Ví dụ: 10"
+                            : "Ví dụ: 10.000"
+                        }
                         onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, "");
-                          field.onChange(Number(raw) || 0);
+                          const raw =
+                            Number(e.target.value.replace(/\D/g, "")) || 0;
+                          field.onChange(raw);
+
+                          if (loaiGiam === "SO_TIEN") {
+                            setAmountValue(raw);
+                          } else {
+                            setPercentValue(raw);
+                          }
                         }}
                       />
                     </FormControl>
