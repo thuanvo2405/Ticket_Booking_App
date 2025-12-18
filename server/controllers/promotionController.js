@@ -7,6 +7,7 @@ import {
 } from "../models/promotionModel.js";
 import { PromotionSchema, UpdatePromotionSchema } from "../utils/validate.js";
 import pool from "../config/db.js";
+import { isEventNhap } from "../models/eventModel.js";
 
 const getLastPerformanceStart = async (maSuKien) => {
   const res = await pool.query(
@@ -106,6 +107,12 @@ export const createPromotion = async (req, res, next) => {
       validateData.maSuKien
     );
 
+    if (!(await isEventNhap(validateData.maSuKien))) {
+      const err = new Error("Chỉ có thể cập nhật sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
+      throw err;
+    }
+
     await createPromotionService(
       validateData.maGiamGia,
       validateData.giaTriGiam,
@@ -137,6 +144,12 @@ export const updatePromotion = async (req, res, next) => {
     if (!maSuKien) {
       const err = new Error("Khuyến mãi không tồn tại");
       err.statusCode = 404;
+      throw err;
+    }
+
+    if (!(await isEventNhap(validateData.maSuKien))) {
+      const err = new Error("Chỉ có thể cập nhật sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
       throw err;
     }
 

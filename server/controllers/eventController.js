@@ -127,6 +127,12 @@ export const updateEvent = async (req, res, next) => {
     const oldEvent = await isExist(maSuKien);
     if (!oldEvent) throw new Error("Sự kiện không tồn tại");
 
+    if (!(await isEventNhap(maSuKien))) {
+      const err = new Error("Chỉ có thể cập nhật sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
+      throw err;
+    }
+
     const { matochuc } = await getOrganizerID(userID);
 
     const newAnhNgang = req.files?.anhSuKienNgang?.[0];

@@ -119,6 +119,17 @@ export const isExist = async (maSuKien) => {
   return result.rows[0];
 };
 
+export const isEventNhap = async (maSuKien) => {
+  const result = await pool.query(
+    `SELECT trangthai FROM su_kien WHERE maSuKien = $1`,
+    [maSuKien]
+  );
+
+  if (result.rows.length === 0) return false;
+
+  return result.rows[0].trangthai === "NHAP";
+};
+
 export const getEventByIdService = async (maSuKien) => {
   const result = await pool.query(
     ` SELECT 
