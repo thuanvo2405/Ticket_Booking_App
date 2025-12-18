@@ -38,6 +38,10 @@ export async function validateCouponService(makhuyenmai) {
 
   const now = new Date();
 
+  if (coupon.soluongphathanh - coupon.soluongdasudung <= 0) {
+    throw new Error("Mã khuyến mãi đã hết lượt sử dụng");
+  }
+
   if (now < coupon.ngaybatdau || now > coupon.ngayketthuc) {
     throw new Error("Mã khuyến mãi không còn hiệu lực");
   }
