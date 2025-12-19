@@ -118,22 +118,33 @@ export const getTotalEventForAdminService = async (maToChuc) => {
   return Number(result.rows[0].total_event);
 };
 
-export const getMonthlyRevenueForAdminService = async (maToChuc) => {
+export const getRevenueByDateRangeService = async (
+  maToChuc,
+  fromDate,
+  toDate
+) => {
   const query = `
     SELECT 
-        TO_CHAR(dh.thoigianthanhtoan, 'YYYY-MM') AS month,
-        SUM(dh.tongtien) AS revenue
-    FROM don_hang dh
-    JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
-    JOIN loai_ve lv ON lv.maloaive = ct.maloaive
-    JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
-    JOIN su_kien sk ON sk.masukien = sd.masukien
-    WHERE sk.matochuc = $1
+        d.date::date AS date,
+        COALESCE(
+          SUM(
+            CASE WHEN sk.matochuc IS NOT NULL THEN dh.tongtien ELSE 0 END
+          ),
+          0
+        ) AS revenue
+    FROM generate_series($2::date, $3::date, INTERVAL '1 day') AS d(date)
+    LEFT JOIN don_hang dh
+      ON DATE(dh.thoigianthanhtoan) = d.date
       AND dh.trangthai = 'DA_THANH_TOAN'
-    GROUP BY month
-    ORDER BY month;
+    LEFT JOIN chi_tiet_don_hang ct ON ct.madonhang = dh.madonhang
+    LEFT JOIN loai_ve lv ON lv.maloaive = ct.maloaive
+    LEFT JOIN suat_dien sd ON sd.masuatdien = lv.masuatdien
+    LEFT JOIN su_kien sk ON sk.masukien = sd.masukien AND sk.matochuc = $1
+    GROUP BY d.date
+    ORDER BY d.date;
   `;
 
-  const result = await pool.query(query, [maToChuc]);
+  const result = await pool.query(query, [maToChuc, fromDate, toDate]);
+
   return result.rows;
 };

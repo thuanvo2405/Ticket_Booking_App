@@ -17,7 +17,16 @@ export const getRevenueAPI = async (from: string, to: string) => {
   return res.data.data;
 };
 
-export const getMonthlyRevenueOrganzierAPI = async () => {
-  const res = await axiosInstance.get("organizer/report-revenue");
+export const getDailyRevenueOrganizerAPI = async (
+  fromDate: string,
+  toDate: string
+) => {
+  const res = await axiosInstance.get("organizer/report-revenue", {
+    params: {
+      fromDate,
+      toDate,
+    },
+  });
+
   return res.data.data;
 };

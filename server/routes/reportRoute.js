@@ -7,7 +7,7 @@ import {
   getRevenue,
   getSummary,
   getSummaryForOrganizer,
-  getMonthlyRevenueForAdmin,
+  getRevenueByDateRangeForAdmin,
 } from "../controllers/reportController.js";
 import { authenticateToken } from "../middleware/authorization.js";
 import checkRole from "../middleware/verifyRole.js";
@@ -67,7 +67,7 @@ router.get(
   "/organizer/report-revenue",
   authenticateToken,
   checkRole(["TO_CHUC"]),
-  getMonthlyRevenueForAdmin
+  getRevenueByDateRangeForAdmin
 );
 
 export default router;
