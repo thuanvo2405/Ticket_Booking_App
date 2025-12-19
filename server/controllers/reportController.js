@@ -129,13 +129,25 @@ export const getRevenue = async (req, res, next) => {
   try {
     const { from, to } = req.query;
 
+    if (!from || !to) {
+      return handleResponse(
+        res,
+        400,
+        "Vui lòng cung cấp đầy đủ ngày bắt đầu và ngày kết thúc"
+      );
+    }
+
     const result = await getRevenueServive(from, to);
+    const formattedResult = result.map((item) => ({
+      date: item.date,
+      doanhthu: Number(item.revenue ?? 0),
+    }));
 
     handleResponse(
       res,
       200,
       "Lấy báo cáo doanh thu theo khoảng ngày thành công",
-      result
+      formattedResult
     );
   } catch (error) {
     next(error);
