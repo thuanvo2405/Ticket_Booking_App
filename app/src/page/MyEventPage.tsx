@@ -82,6 +82,14 @@ export default function MyEventPage() {
 
   const columns: ColumnDef<OrganizerEvent>[] = [
     {
+      accessorKey: "STT",
+      header: "STT",
+      cell: ({ row }) => {
+        const index = row.index + 1 + (page - 1) * PAGE_SIZE;
+        return <span>{index}</span>;
+      },
+    },
+    {
       accessorKey: "anhsukienngang",
       header: "Ảnh sự kiện",
       cell: ({ row }) => {
