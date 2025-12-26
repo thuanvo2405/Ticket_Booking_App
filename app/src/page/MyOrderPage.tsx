@@ -24,13 +24,20 @@ export type UserOrder = {
   thoigianthantoan: string | null;
 };
 
+type UserOrderResponse = {
+  items: UserOrder[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
 export default function MyOrderPage() {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  const { data } = useQuery({
-    queryKey: ["userOrders", page],
-    queryFn: () => getOrdersByUserIDAPI(),
+  const { data } = useQuery<UserOrderResponse>({
+    queryKey: ["userOrders", page, limit],
+    queryFn: () => getOrdersByUserIDAPI(page, limit),
     placeholderData: (prev) => prev,
   });
 
@@ -112,7 +119,9 @@ export default function MyOrderPage() {
       cell: ({ row }) => {
         const status = row.getValue("trangthai") as string;
         if (status === "DA_THANH_TOAN") {
-          return <span className="text-green-600 font-semibold">Đã thanh toán</span>;
+          return (
+            <span className="text-green-600 font-semibold">Đã thanh toán</span>
+          );
         }
 
         const deadline = new Date(row.getValue("thoihanthanhtoan"));
@@ -153,7 +162,7 @@ export default function MyOrderPage() {
     <div>
       <h2 className="text-xl font-semibold mb-4">Đơn hàng của bạn</h2>
 
-      <DataTable columns={userOrderColumns} data={data || []} />
+      <DataTable columns={userOrderColumns} data={data?.items || []} />
 
       <div className="flex justify-end items-center gap-2 mt-4">
         <Button

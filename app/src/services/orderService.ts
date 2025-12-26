@@ -22,7 +22,9 @@ export const retryCheckoutAPI = async (madonhang: string) => {
   return res.data.data;
 };
 
-export const getOrdersByUserIDAPI = async () => {
-  const res = await axiosInstance.get("user/orders");
+export const getOrdersByUserIDAPI = async (page: number, limit: number) => {
+  const res = await axiosInstance.get(
+    `user/orders?page=${page}&limit=${limit}`
+  );
   return res.data.data;
 };

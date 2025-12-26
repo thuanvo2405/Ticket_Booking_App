@@ -145,17 +145,37 @@ export const getOrderDetailByIdService = async (madonhang) => {
   };
 };
 
-export const getOrdersByUserIdService = async (manguoidung) => {
-  const result = await pool.query(
+export const getOrdersByUserIdService = async (manguoidung, page, limit) => {
+  const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+  const safeLimit = Number.isInteger(limit) && limit > 0 ? limit : 10;
+  const offset = (safePage - 1) * safeLimit;
+
+  const totalRes = await pool.query(
     `
-    SELECT *
+    SELECT COUNT(*) AS total
     FROM don_hang
     WHERE manguoidung = $1
     `,
     [manguoidung]
   );
 
-  return result.rows;
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM don_hang
+    WHERE manguoidung = $1 
+    ORDER BY ngaydatve DESC
+    LIMIT $2 OFFSET $3
+    `,
+    [manguoidung, safeLimit, offset]
+  );
+
+  return {
+    items: result.rows,
+    total: Number(totalRes.rows[0].total),
+    page: safePage,
+    limit: safeLimit,
+  };
 };
 
 export const getOrderDetailService = async (madonhang) => {

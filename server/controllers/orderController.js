@@ -46,7 +46,9 @@ export const getOrderById = async (req, res, next) => {
 export const getOrdersByUserId = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
-    const data = await getOrdersByUserIdService(userID);
+    const page = Number.parseInt(req.query.page, 10);
+    const limit = Number.parseInt(req.query.limit, 10);
+    const data = await getOrdersByUserIdService(userID, page, limit);
     handleResponse(res, 200, "Lấy tổng đơn hàng theo id người dùng", data);
   } catch (err) {
     next(err);
