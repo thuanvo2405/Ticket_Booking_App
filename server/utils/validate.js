@@ -3,6 +3,7 @@ import { z } from "zod";
 export const EventSchema = z.object({
   tenSuKien: z
     .string()
+    .trim()
     .min(1, "Tên sự kiện là bắt buộc")
     .max(255, "Tên sự kiện không được vượt quá 255 ký tự"),
   diaChi: z
@@ -19,6 +20,7 @@ export const EventSchema = z.object({
 export const TicketTypeSchema = z.object({
   tenLoaiVe: z
     .string()
+    .trim()
     .min(1, "Tên loại vé là bắt buộc")
     .max(100, "Tên loại vé không được vượt quá 100 ký tự"),
   moTa: z.string().optional(),
@@ -63,7 +65,7 @@ export const PerformanceSchema = z
 
 export const PromotionSchema = z
   .object({
-    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc").trim(),
     giaTriGiam: z
       .number()
       .refine((val) => val > 0, "Giá trị giảm phải lớn hơn 0"),
@@ -111,7 +113,7 @@ export const PromotionSchema = z
 
 export const UpdatePromotionSchema = z
   .object({
-    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc"),
+    maGiamGia: z.string().min(1, "Mã giảm giá là bắt buộc").trim(),
     giaTriGiam: z
       .number()
       .refine((val) => val > 0, "Giá trị giảm phải lớn hơn 0"),
@@ -254,6 +256,7 @@ export const UpdatePerformanceSchema = z
 export const UpdateTicketTypeSchema = z.object({
   tenLoaiVe: z
     .string()
+    .trim()
     .min(1, "Tên loại vé là bắt buộc")
     .max(100, "Tên loại vé không được vượt quá 100 ký tự"),
   moTa: z.string().optional(),

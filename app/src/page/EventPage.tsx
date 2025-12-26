@@ -6,7 +6,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { IMAGE_URL } from "@/constant/constant";
-import { formatPrice } from "@/utils/convert";
+import { formatFullDateTime, formatPrice } from "@/utils/convert";
 import TicketInfo from "@/components/ticket-info";
 import EventCard from "@/components/event-card";
 import { useRef, useState } from "react";
@@ -61,7 +61,6 @@ export default function EventPage() {
         </div>
       </div>
     );
-
   return (
     <div className="w-[1284px] mx-auto mt-4">
       <div className="flex bg-gray-900 text-white rounded-3xl overflow-hidden mx-auto shadow-xl">
@@ -73,7 +72,11 @@ export default function EventPage() {
 
             <div className="mt-6 space-y-3 text-sm">
               <p className="flex items-center gap-2 text-green-400">
-                📅 17:30 - 19:30, 01 Tháng 11, 2025
+                📅{" "}
+                {formatFullDateTime(
+                  data?.suat_dien[0]?.thoigianbatdau,
+                  data?.suat_dien[0]?.thoigianketthuc
+                )}
               </p>
               {data.suat_dien.length > 1 && (
                 <p className="text-gray-300">

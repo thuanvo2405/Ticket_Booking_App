@@ -1,6 +1,6 @@
 // utils/orderCleanup.js
 import cron from "node-cron";
-import pool from "../config/db.js"; // PostgreSQL pool
+import pool from "../config/db.js";
 
 cron.schedule("*/1 * * * *", async () => {
   console.log(` ⏳ Cron Job: Kiểm tra đơn hàng hết hạn...`);
@@ -39,6 +39,21 @@ cron.schedule("*/1 * * * *", async () => {
              SET soluongkhoa = GREATEST(soluongkhoa - $1, 0)
              WHERE maloaiVe = $2`,
             [item.soluong, item.maloaive]
+          );
+        }
+
+        const { rows: orderRow } = await client.query(
+          `SELECT makhuyenmai FROM don_hang WHERE madonhang = $1`,
+          [madonhang]
+        );
+        const makhuyenmai = orderRow[0]?.makhuyenmai;
+
+        if (makhuyenmai) {
+          await client.query(
+            `UPDATE khuyen_mai
+             SET soluongdasudung = GREATEST(soluongdasudung - 1, 0)
+             WHERE makhuyenmai = $1`,
+            [makhuyenmai]
           );
         }
 

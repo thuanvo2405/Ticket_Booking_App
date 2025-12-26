@@ -481,9 +481,7 @@ export const getEventsForUserService = async ({
 
   if (tenLoaiSuKien) {
     if (tenLoaiSuKien === "Khác") {
-      conditions.push(
-        `lsk.tenloaisukien NOT IN ('Âm Nhạc', 'Sân Khấu', 'Thể Thao','Workshop')`
-      );
+      conditions.push(`lsk.tenloaisukien = 'Khác'`);
     } else {
       params.push(tenLoaiSuKien);
       conditions.push(`lsk.tenloaisukien = $${params.length}`);
@@ -553,7 +551,7 @@ export const getEventsForUserService = async ({
         ) >= NOW() THEN 0
         ELSE 1
       END,
-      min_start ASC NULLS LAST
+      min_start DESC NULLS LAST
     LIMIT ${limit} OFFSET ${offset};
   `;
 
