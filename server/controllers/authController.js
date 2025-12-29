@@ -148,9 +148,8 @@ export const verifyEmail = async (req, res, next) => {
     if (userRes.rows.length === 0) {
       return handleResponse(res, 404, "Người dùng không tồn tại");
     }
-
     if (userRes.rows[0].isverified) {
-      return handleResponse(res, 200, "Email đã được xác thực trước đó");
+      return handleResponse(res, 200, "Email đã được xác thực thành công");
     }
 
     await pool.query(

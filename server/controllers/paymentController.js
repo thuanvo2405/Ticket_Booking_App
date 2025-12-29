@@ -133,6 +133,7 @@ export const prepareMomoPayment = async (madonhang) => {
 
   const redirectUrl = `${frontendUrl}/payment-result?madonhang=${madonhang}`;
   const ipnUrl = `${backendUrl}/v1/api/callback-payment`;
+  console.log(ipnUrl);
   const requestType = "payWithMethod";
   const expiry = order.thoi_han_thanh_toan?.getTime() || null;
   const extraData = JSON.stringify({ expiry, madonhang });

@@ -147,7 +147,7 @@ export const updatePromotion = async (req, res, next) => {
       throw err;
     }
 
-    if (!(await isEventNhap(validateData.maSuKien))) {
+    if (!(await isEventNhap(maSuKien))) {
       const err = new Error("Chỉ có thể cập nhật sự kiện ở trạng thái nháp");
       err.statusCode = 400;
       throw err;

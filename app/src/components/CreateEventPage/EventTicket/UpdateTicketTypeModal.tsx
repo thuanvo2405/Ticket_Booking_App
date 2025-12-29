@@ -70,7 +70,7 @@ export function UpdateTicketTypeModal({
     }: UpdateTicketTypeSchemaType) =>
       updateTicketTypeAPI(tenLoaiVe, giaTien, soLuongPhatHanh, maLoaiVe, moTa),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["ticketTypes"] });
+      queryClient.invalidateQueries({});
       toast.success("Cập nhật loại vé thành công");
       setOpen(false);
     },

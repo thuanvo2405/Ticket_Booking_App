@@ -143,7 +143,7 @@ export default function MyOrderPage() {
         const order = row.original;
 
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-3 items-center">
             <NavLink to={`/my-order/${row.original.madonhang}`}>Xem</NavLink>
             {order.trangthai === "CHO_THANH_TOAN" && (
               <Button

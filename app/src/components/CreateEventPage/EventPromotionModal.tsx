@@ -117,6 +117,10 @@ export default function EventPromotionModal({
         soLuongPhatHanh: promotion.soluongphathanh,
         giaTriToiThieu: Number(promotion.giatritoithieu),
       });
+    } else {
+      form.reset();
+      setAmountValue(10000);
+      setPercentValue(10);
     }
   }, [promotion]);
 
@@ -225,8 +229,18 @@ export default function EventPromotionModal({
     }
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      form.reset();
+      setAmountValue(10000);
+      setPercentValue(10);
+      onClose?.();
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline">Thêm khuyến mãi</Button>
       </DialogTrigger>
