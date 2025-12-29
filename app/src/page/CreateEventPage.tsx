@@ -12,15 +12,17 @@ const steps = [
 ];
 
 export default function CreateEventPage() {
-  const { step, setMaSuKien } = useEventStore();
+  const { step, setMaSuKien, resetAll } = useEventStore();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("eventId");
 
   useEffect(() => {
     if (eventId) {
       setMaSuKien(eventId);
+      return;
     }
-  }, [eventId, setMaSuKien]);
+    resetAll();
+  }, [eventId, setMaSuKien, resetAll]);
 
   return (
     <div className="shadow-2xl rounded-2xl overflow-hidden">

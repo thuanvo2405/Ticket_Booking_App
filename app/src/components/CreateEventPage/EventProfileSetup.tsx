@@ -197,6 +197,24 @@ export default function CreateEventInfoStep() {
     }
   }, [maSuKien, data]);
 
+  useEffect(() => {
+    if (maSuKien) {
+      return;
+    }
+    form.reset({
+      tenSuKien: "",
+      maloaisukien: "",
+      tinhThanh: "",
+      quanHuyen: "",
+      phuongXa: "",
+      diaChi: "",
+      moTa: "",
+    });
+    setPoster(null);
+    setBanner(null);
+    setIsSaveOnly(false);
+  }, [maSuKien, form]);
+
   const city = form.watch("tinhThanh");
   const district = form.watch("quanHuyen");
   const ward = form.watch("phuongXa");
