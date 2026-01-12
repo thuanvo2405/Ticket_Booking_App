@@ -81,16 +81,22 @@ export default function EventManage() {
       header: "Trạng thái",
       cell: ({ row }) => {
         const value = row.getValue("trangthai") as string;
-        const colorMap: Record<string, string> = {
-          CHO_DUYET: "text-yellow-600",
-          DA_DUYET: "text-green-600",
-          HUY: "text-red-600",
-          TU_CHOI: "text-red-600",
-          NHAP: "text-gray-500",
-        };
+
+        const statusMap: Record<string, { label: string; className: string }> =
+          {
+            CHO_DUYET: { label: "Chờ duyệt", className: "text-yellow-600" },
+            DA_DUYET: { label: "Đã duyệt", className: "text-green-600" },
+            TU_CHOI: { label: "Từ chối", className: "text-red-600" },
+            HUY: { label: "Hủy", className: "text-red-600" },
+            NHAP: { label: "Nháp", className: "text-gray-500" },
+            DA_DIEN_RA: { label: "Đã diễn ra", className: "text-blue-600" },
+          };
+
+        const status = statusMap[value];
+
         return (
-          <span className={colorMap[value] || "text-black"}>
-            {value.replaceAll("_", " ")}
+          <span className={status?.className || "text-black"}>
+            {status?.label || value}
           </span>
         );
       },
