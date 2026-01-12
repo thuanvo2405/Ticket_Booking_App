@@ -23,6 +23,7 @@ import { getOrganizerID } from "../models/organizerModel.js";
 import pool from "../config/db.js";
 import { EventSchema } from "../utils/validate.js";
 import { deleteFile } from "../utils/deleteImage.js";
+import { isEventNhap } from "../models/eventModel.js";
 
 const ensureOrganizerOwnsEvent = async (userID, maSuKien) => {
   const { matochuc } = await getOrganizerID(userID);

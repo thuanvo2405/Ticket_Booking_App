@@ -42,7 +42,18 @@ const eventSchema = z.object({
   quanHuyen: z.string().min(1, "Vui lòng chọn Quận/Huyện"),
   phuongXa: z.string().min(1, "Vui lòng chọn Phường/Xã"),
   diaChi: z.string().min(1, "Vui lòng nhập địa chỉ cụ thể"),
-  moTa: z.string().optional(),
+  moTa: z.string().refine(
+    (val) => {
+      const plainText = val
+        .replace(/<(.|\n)*?>/g, "")
+        .replace(/&nbsp;/g, "")
+        .trim();
+      return plainText.length > 0;
+    },
+    {
+      message: "Vui lòng nhập mô tả sự kiện",
+    }
+  ),
 });
 
 type EventForm = z.infer<typeof eventSchema>;
@@ -268,8 +279,8 @@ export default function CreateEventInfoStep() {
         setStep(2);
 
         toast.success("Tạo sự kiện thành công");
-      } catch (error) {
-        toast.error("Lỗi tạo sự kiện: " + error);
+      } catch (error: any) {
+        toast.error("Lỗi tạo sự kiện: " + error?.response?.data?.message);
       }
       return;
     }
@@ -297,8 +308,8 @@ export default function CreateEventInfoStep() {
       );
 
       toast.success("Đã lưu thay đổi");
-    } catch (error) {
-      toast.error("Lỗi cập nhật sự kiện: " + error);
+    } catch (error: any) {
+      toast.error("Lỗi cập nhật sự kiện: " + error?.response?.data?.message);
     }
   };
 
@@ -532,6 +543,11 @@ export default function CreateEventInfoStep() {
 
           <div className="space-y-3">
             <FormLabel>Giới thiệu sự kiện</FormLabel>
+            {form.formState.errors.moTa && (
+              <p className="text-sm text-red-500">
+                {form.formState.errors.moTa.message}
+              </p>
+            )}
             <Controller
               name="moTa"
               control={form.control}

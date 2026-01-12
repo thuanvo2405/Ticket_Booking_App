@@ -14,7 +14,19 @@ export const EventSchema = z.object({
   quan: z.string().min(1, "Quận/Huyện là bắt buộc"),
   thanhPho: z.string().min(1, "Tỉnh/Thành là bắt buộc"),
   maLoaiSuKien: z.string().min(1, "Loại sự kiện là bắt buộc"),
-  moTa: z.string().optional(),
+  moTa: z.string().refine(
+    (val) => {
+      const plainText = val
+        .replace(/<(.|\n)*?>/g, "")
+        .replace(/&nbsp;/g, "")
+        .trim();
+
+      return plainText.length > 0;
+    },
+    {
+      message: "Mô tả là bắt buộc",
+    }
+  ),
 });
 
 export const TicketTypeSchema = z.object({
