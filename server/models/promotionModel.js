@@ -35,7 +35,7 @@ export const createPromotionService = async (
 };
 
 export const deletePromotionService = async (maKhuyenMai) => {
-  await pool.query("DELETE FROM khuyen_mai WHERE maGiamGia = $1", [
+  await pool.query("DELETE FROM khuyen_mai WHERE makhuyenmai = $1", [
     maKhuyenMai,
   ]);
 };

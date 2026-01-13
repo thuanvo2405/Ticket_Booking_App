@@ -16,6 +16,8 @@ import {
   UpdatePerformanceSchema,
   UpdateTicketTypeSchema,
 } from "../utils/validate.js";
+import pool from "../config/db.js";
+import { isEventNhap } from "../models/eventModel.js";
 
 export const createTicketType = async (req, res, next) => {
   try {
@@ -68,7 +70,31 @@ export const getPerformane = async (req, res, next) => {
 export const deletePerformance = async (req, res, next) => {
   try {
     const { maSuatDien } = req.query;
-    const result = await deletePerformanceService(maSuatDien);
+    const { rows } = await pool.query(
+      `
+      SELECT sd.masukien
+      FROM suat_dien sd
+      WHERE sd.masuatdien = $1
+      `,
+      [maSuatDien]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy suất diễn hoặc sự kiện",
+      });
+    }
+
+    const masukien = rows[0].masukien;
+
+    if (!(await isEventNhap(masukien))) {
+      const err = new Error("Chỉ có thể xóa sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
+      throw err;
+    }
+
+    await deletePerformanceService(maSuatDien);
+
     handleResponse(res, 201, "Xóa thông tin suất diễn thành công");
   } catch (error) {
     next(error);
@@ -90,6 +116,30 @@ export const getTicketType = async (req, res, next) => {
 export const deleteTicketType = async (req, res, next) => {
   try {
     const { maLoaiVe } = req.query;
+
+    const { rows } = await pool.query(
+      `
+      SELECT sd.masukien
+      FROM loai_ve lv
+      JOIN suat_dien sd ON lv.masuatdien = sd.masuatdien
+      WHERE lv.maloaive = $1
+      `,
+      [maLoaiVe]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy loại vé hoặc suất diễn",
+      });
+    }
+
+    const masukien = rows[0].masukien;
+
+    if (!(await isEventNhap(masukien))) {
+      const err = new Error("Chỉ có thể xóa sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
+      throw err;
+    }
     await deleteTicketTypeService(maLoaiVe);
     handleResponse(res, 201, "Xóa thông tin loại vé thành công");
   } catch (error) {

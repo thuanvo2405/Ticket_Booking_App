@@ -182,10 +182,29 @@ export const updatePromotion = async (req, res, next) => {
 };
 
 export const deletePromotion = async (req, res, next) => {
+  const { maKhuyenMai } = req.query;
+  console.log(maKhuyenMai);
+
   try {
-    const { maKhuyenMai } = req.query;
     if (!maKhuyenMai) throw new Error("Thiếu mã giảm giá để xóa");
 
+    const maSuKien = await pool
+      .query("SELECT masukien FROM khuyen_mai WHERE makhuyenmai = $1", [
+        maKhuyenMai,
+      ])
+      .then((r) => r.rows[0]?.masukien);
+
+    if (!maSuKien) {
+      const err = new Error("Khuyến mãi không tồn tại");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    if (!(await isEventNhap(maSuKien))) {
+      const err = new Error("Chỉ có thể xóa sự kiện ở trạng thái nháp");
+      err.statusCode = 400;
+      throw err;
+    }
     await deletePromotionService(maKhuyenMai);
 
     handleResponse(res, 200, "Xóa mã giảm giá thành công");

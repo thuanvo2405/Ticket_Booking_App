@@ -54,7 +54,7 @@ export default function EventPromotionSetup() {
 
   const handleDelete = useMutation({
     mutationFn: async (row: Promotion) => {
-      await deletePromotionAPI(row.magiamgia);
+      await deletePromotionAPI(row.makhuyenmai);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({

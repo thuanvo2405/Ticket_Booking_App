@@ -40,7 +40,7 @@ export default function CreatePerformance({ close }: CreatePerformance) {
           queryKey: ["fetchPerformance", maSuKien],
         });
       }
-      toast.success("Tạo performance thành công");
+      toast.success("Tạo suất diễn thành công");
       close();
     },
     onError: (error: any) => {
@@ -58,7 +58,7 @@ export default function CreatePerformance({ close }: CreatePerformance) {
           });
         }
       } else {
-        toast.error("Lỗi tạo performance: " + (error.message || error));
+        toast.error("Lỗi tạo suất diễn: " + (error.message || error));
       }
     },
   });
