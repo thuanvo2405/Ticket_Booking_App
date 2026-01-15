@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 import { useEventStore } from "@/store/useEventStore";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Spinner } from "../ui/spinner";
 
 const eventSchema = z.object({
   tenSuKien: z.string().min(1, "Vui lòng nhập tên sự kiện"),
@@ -189,7 +190,7 @@ export default function CreateEventInfoStep() {
     enabled: !!maSuKien,
   });
 
-  isLoading && <div>Loading...</div>;
+  isLoading && <Spinner />;
 
   useEffect(() => {
     if (maSuKien && data) {

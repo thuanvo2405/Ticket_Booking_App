@@ -34,6 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Spinner } from "@/components/ui/spinner";
 
 const chartConfig = {
   desktop: {
@@ -110,7 +111,7 @@ export default function DashboardPage() {
     enabled,
   });
 
-  if (fetchingSummary || fetchingRevenue) return <h1>Loading...</h1>;
+  if (fetchingSummary || fetchingRevenue) return <Spinner />;
   if (!summaryReport) return <div className="p-4">Không có dữ liệu</div>;
 
   const revenueData = (dailyRevenue?.data ?? []).map((item: any) => ({

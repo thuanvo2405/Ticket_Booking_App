@@ -70,7 +70,11 @@ export const updatePayment = async (req, res, next) => {
       return res.status(400).json({ message: "Đơn hàng đã hết hạn" });
     }
 
-    if (resultCode !== 0) {
+    if (orderStatus.trangthai === "DA_THANH_TOAN") {
+      return res.status(400).json({ message: "Đơn hàng đã thanh toán" });
+    }
+
+    if (Number(resultCode) !== 0) {
       return res.status(200).json({
         message: "Payment failed",
         madonhang,

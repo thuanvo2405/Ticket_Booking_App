@@ -70,6 +70,17 @@ export const createEvent = async (req, res, next) => {
   try {
     const userID = req.user.user.id;
 
+    const maToChuc = await pool.query(
+      "SELECT matochuc FROM to_chuc WHERE manguoidung = $1",
+      [userID]
+    );
+
+    if (maToChuc.rowCount === 0) {
+      const err = new Error("Vui lòng tạo hồ sơ tổ chức trước khi tạo sự kiện");
+      err.statusCode = 403;
+      throw err;
+    }
+
     const { tenSuKien, moTa, diaChi, phuong, quan, thanhPho, maLoaiSuKien } =
       EventSchema.parse(req.body);
 

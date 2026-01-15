@@ -15,6 +15,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { NavLink } from "react-router";
 import { IMAGE_URL, locations } from "../constant/constant";
+import { Spinner } from "@/components/ui/spinner";
 const categoriesSuggest = ["Âm Nhạc", "Workshop", "Khác"];
 
 function EventSkeleton() {
@@ -174,7 +175,7 @@ export default function HomePage() {
                   />
                 ))
               ) : (
-                <div>Loading...</div>
+                <Spinner />
               )}
             </div>
           </div>

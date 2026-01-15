@@ -1,5 +1,6 @@
 import CreateOrganizer from "@/components/OrganizerPage/CreateOrganizer";
 import EditOrganizer from "@/components/OrganizerPage/EditOrganizer";
+import { Spinner } from "@/components/ui/spinner";
 import { IMAGE_URL } from "@/constant/constant";
 import { useAuth } from "@/context/AuthProvider";
 import { getOrganizerProfileAPI } from "@/services/organizerService";
@@ -15,7 +16,7 @@ export default function OrganizerPage() {
   });
 
   if (user?.vaitro !== "TO_CHUC") return <CreateOrganizer />;
-  if (isFetching) return <h1>Loading...</h1>;
+  if (isFetching) return <Spinner />;
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 max-w-4xl mx-auto mt-8">

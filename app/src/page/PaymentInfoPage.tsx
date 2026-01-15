@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom";
 import Counter from "@/components/counter";
 import { type Item, type Order, type Promotion } from "@/constant/types";
 import toast from "react-hot-toast";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function PaymentInfoPage() {
   const { madonhang, maSuKien } = useParams();
@@ -88,7 +89,7 @@ export default function PaymentInfoPage() {
   });
 
   if (orderLoading || promoLoading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (

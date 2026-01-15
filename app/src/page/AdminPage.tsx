@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getSummaryReportAPI } from "@/services/reportService";
 import LineChartRevenue from "@/components/AdminPage/LineChartRevenue";
 import { formatPrice } from "@/utils/convert";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function AdminPage() {
   const { data, isFetching } = useQuery({
@@ -15,7 +16,9 @@ export default function AdminPage() {
   if (isFetching || !data)
     return (
       <div className="flex justify-center items-center h-screen">
-        <h1 className="text-xl font-semibold text-gray-600">Loading...</h1>
+        <h1 className="text-xl font-semibold text-gray-600">
+          <Spinner />
+        </h1>
       </div>
     );
 

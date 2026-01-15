@@ -9,6 +9,7 @@ import { useTicketStore } from "@/store/useTicketStore";
 import { useEffect } from "react";
 import { createOrderAPI } from "@/services/orderService";
 import toast from "react-hot-toast";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SelectTicketPage() {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export default function SelectTicketPage() {
   }, [maSuatDien]);
 
   if (isFetching) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (
