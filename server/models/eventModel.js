@@ -616,6 +616,7 @@ export const getMaybeLikeEventService = async () => {
       FROM su_kien sk
       JOIN next_performance np 
         ON np.masukien = sk.masukien AND np.rn = 1
+      WHERE sk.trangthai = 'DA_DUYET'
       ORDER BY RANDOM()
       LIMIT 8;
     `
