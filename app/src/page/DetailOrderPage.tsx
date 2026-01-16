@@ -30,7 +30,7 @@ export default function DetailOrderPage() {
     enabled: !!madonhang,
   });
   if (orderLoading && ticketLoading) return <h1>Loading</h1>;
-
+  console.log(ticketData);
   const columns: ColumnDef<Ticket>[] = [
     {
       accessorKey: "mave",
@@ -39,6 +39,15 @@ export default function DetailOrderPage() {
     {
       accessorKey: "tenloaive",
       header: "Tên loại vé",
+    },
+    {
+      accessorKey: "trangthai",
+      header: "Trạng thái",
+      cell: ({ getValue }) => {
+        const value = getValue();
+
+        return value === "DA_SU_DUNG" ? "Đã sử dụng" : "Chưa sử dụng";
+      },
     },
     {
       accessorKey: "qrcode",

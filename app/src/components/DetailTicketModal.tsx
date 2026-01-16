@@ -23,18 +23,6 @@ interface DetailTicketModalProps {
   thoigianbatdau: string;
 }
 
-export const ticket = {
-  maDon: "20375834500",
-  soThuTu: "20375",
-  qrCode:
-    "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=20375834500",
-  suKien: {
-    ten: "ĐÓN HÈ CÙNG SUBICHA",
-    diaChi: "17 Bà Huyện Thanh Quan, Phường 6, Quận 3, Tp Hồ Chí Minh",
-    thoigian: "16:00 - 20:00, 25 tháng 06, 2023",
-  },
-};
-
 export default function DetailTicketModal({
   qrCode,
   tenloaive,

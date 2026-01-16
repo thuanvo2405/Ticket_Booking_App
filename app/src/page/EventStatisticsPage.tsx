@@ -119,6 +119,8 @@ export default function EventStatisticsPage() {
     enabled: Boolean(maSuKien && session),
   });
 
+  console.log(session);
+
   const columns: ColumnDef<TicketRow>[] = useMemo(
     () => [
       {

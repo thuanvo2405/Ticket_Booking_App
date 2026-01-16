@@ -12,7 +12,7 @@ router.post("/checkin", async (req, res, next) => {
 
     const result = await checkinService(qrCode, maSuatDien);
 
-    handleResponse(res, 200, result);
+    handleResponse(res, 200, "Check-in thành công", result);
   } catch (error) {
     next(error);
   }
@@ -27,7 +27,7 @@ router.get("/checkin-stats", async (req, res, next) => {
     }
 
     const result = await getCheckinStatsService(maSuatDien);
-    handleResponse(res, 200, result);
+    handleResponse(res, 200, "lấy báo cáo thành công", result);
   } catch (error) {
     next(error);
   }

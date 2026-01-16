@@ -27,6 +27,7 @@ import AdminProtectedRoute from "./utils/ProtectRoute";
 import MyOrderPage from "./page/MyOrderPage";
 import DetailOrderPage from "./page/DetailOrderPage";
 import EventStatisticsPage from "./page/EventStatisticsPage";
+import CheckinPage from "./page/CheckinPage";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
           path="my-events/:maSuKien/stats"
           element={<EventStatisticsPage />}
         />
+        <Route path="checkin" element={<CheckinPage />} />
       </Route>
       <Route path="/admin/login" element={<AdminLoginPage />} />
 
