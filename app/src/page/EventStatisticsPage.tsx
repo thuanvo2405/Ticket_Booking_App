@@ -20,6 +20,8 @@ import {
   getEventChartsAPI,
 } from "@/services/eventService";
 import { formatFullDateTime, formatPrice } from "@/utils/convert";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 type ChartPoint = {
   date: string;
@@ -98,6 +100,8 @@ export default function EventStatisticsPage() {
       setSession(overviewData.sessions[0].maSuatDien);
     }
   }, [overviewData, session]);
+
+  const navigate = useNavigate();
 
   const {
     data: sessionData,
@@ -201,26 +205,35 @@ export default function EventStatisticsPage() {
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Thống kê sự kiện</h1>
-
-        <Select
-          onValueChange={setSession}
-          value={session ?? undefined}
-          disabled={!overviewData.sessions.length}
-        >
-          <SelectTrigger className="w-[260px]">
-            <SelectValue placeholder="Chọn suất diễn" />
-          </SelectTrigger>
-          <SelectContent>
-            {overviewData.sessions.map((item) => (
-              <SelectItem key={item.maSuatDien} value={item.maSuatDien}>
-                {formatFullDateTime(
-                  item.thoiGianBatDau,
-                  item.thoiGianKetThuc || item.thoiGianBatDau
-                )}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2 items-center">
+          <Button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+            onClick={() => {
+              if (session) navigate(`/organizer/checkin/${session}`);
+            }}
+          >
+            Check-in vé
+          </Button>
+          <Select
+            onValueChange={setSession}
+            value={session ?? undefined}
+            disabled={!overviewData.sessions.length}
+          >
+            <SelectTrigger className="w-[260px]">
+              <SelectValue placeholder="Chọn suất diễn" />
+            </SelectTrigger>
+            <SelectContent>
+              {overviewData.sessions.map((item) => (
+                <SelectItem key={item.maSuatDien} value={item.maSuatDien}>
+                  {formatFullDateTime(
+                    item.thoiGianBatDau,
+                    item.thoiGianKetThuc || item.thoiGianBatDau
+                  )}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-2">

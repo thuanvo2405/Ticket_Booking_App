@@ -12,8 +12,8 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import QRCheck from "@/components/QRCheck";
-
-const MA_SUAT_DIEN = "b267f9fc-5c99-4353-abe1-11c625b2d76f";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export type LoaiVeStats = {
   maloaiVe: string;
@@ -42,17 +42,28 @@ export const columns: ColumnDef<LoaiVeStats>[] = [
 
 const CheckinPage = () => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { maSuatDien } = useParams<{ maSuatDien: string }>();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["checkin-stats", MA_SUAT_DIEN],
-    queryFn: () => getCheckinStatsAPI(MA_SUAT_DIEN),
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["checkin-stats", maSuatDien],
+    queryFn: () => getCheckinStatsAPI(maSuatDien || ""),
   });
 
   if (isLoading) return <p>Đang tải dữ liệu...</p>;
 
   return (
     <div className="space-y-6">
-      <Button onClick={() => setOpen(true)}>Check-in</Button>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          onClick={() => navigate(-1)} // quay về trang trước
+        >
+          Quay về
+        </Button>
+
+        <Button onClick={() => setOpen(true)}>Check-in</Button>
+      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-lg">
@@ -60,8 +71,12 @@ const CheckinPage = () => {
             <DialogTitle>Check-in vé</DialogTitle>
           </DialogHeader>
 
-          {open && (
-            <QRCheck key={open ? "open" : "closed"} maSuatDien={MA_SUAT_DIEN} />
+          {open && maSuatDien && (
+            <QRCheck
+              key={open ? "open" : "closed"}
+              maSuatDien={maSuatDien}
+              onSuccess={() => refetch()}
+            />
           )}
         </DialogContent>
       </Dialog>

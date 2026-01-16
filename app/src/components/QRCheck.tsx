@@ -6,10 +6,14 @@ import { checkinAPI } from "@/services/checkinService";
 interface QRCheckProps {
   maSuatDien: string;
   onClose?: () => void;
+  onSuccess?: () => void;
 }
 
-const QRCheck: React.FC<QRCheckProps> = ({ maSuatDien, onClose }) => {
-  console.log(1);
+const QRCheck: React.FC<QRCheckProps> = ({
+  maSuatDien,
+  onClose,
+  onSuccess,
+}) => {
   const [isPaused, setIsPaused] = useState(false);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
 
@@ -17,6 +21,7 @@ const QRCheck: React.FC<QRCheckProps> = ({ maSuatDien, onClose }) => {
     mutationFn: (qrCode: string) => checkinAPI(qrCode, maSuatDien),
     onSuccess: (data) => {
       setResultMessage(`Check-in thành công: ${data.message}`);
+      if (onSuccess) onSuccess();
     },
     onError: (err: any) => {
       setResultMessage(

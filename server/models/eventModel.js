@@ -243,9 +243,7 @@ export const getEventsService = async ({
 
   if (tenLoaiSuKien) {
     if (tenLoaiSuKien === "Khác") {
-      conditions.push(
-        `lsk.tenloaisukien NOT IN ('Âm Nhạc', 'Sân Khấu và Nghệ Thuật', 'Thể Thao')`
-      );
+      conditions.push(`lsk.tenloaisukien = 'Khác'`);
     } else {
       conditions.push(`lsk.tenloaisukien = $${params.length + 1}`);
       params.push(tenLoaiSuKien);

@@ -58,7 +58,7 @@ function App() {
           path="my-events/:maSuKien/stats"
           element={<EventStatisticsPage />}
         />
-        <Route path="checkin" element={<CheckinPage />} />
+        <Route path="checkin/:maSuatDien" element={<CheckinPage />} />
       </Route>
       <Route path="/admin/login" element={<AdminLoginPage />} />
 
