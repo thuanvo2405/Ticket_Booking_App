@@ -13,6 +13,7 @@ import paymentRoute from "./routes/paymentRoute.js";
 import orderRoute from "./routes/orderRoute.js";
 import reportRoute from "./routes/reportRoute.js";
 import categoryRoute from "./routes/categoryRoute.js";
+import checkinRoute from "./routes/checkinRoute.js";
 import upload from "./utils/multer.js";
 import errorHandling from "./middleware/errorHandler.js";
 import "./utils/orderCleanup.js";
@@ -48,6 +49,7 @@ app.use("/v1/api", paymentRoute);
 app.use("/v1/api", orderRoute);
 app.use("/v1/api", reportRoute);
 app.use("/v1/api", categoryRoute);
+app.use("/v1/api", checkinRoute);
 
 router.post("/uploads", upload.single("image"), (req, res) => {
   const imageUrl = req.file.path;
