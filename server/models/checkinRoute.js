@@ -1,7 +1,6 @@
 import pool from "../config/db.js";
 export const checkinService = async (qrCode, maSuatDien) => {
   const client = await pool.connect();
-
   try {
     await client.query("BEGIN");
 
@@ -14,7 +13,7 @@ export const checkinService = async (qrCode, maSuatDien) => {
        JOIN suat_dien sd ON lv.masuatdien = sd.masuatdien
        WHERE v.qrcode = $1
        FOR UPDATE`,
-      [qrCode]
+      [qrCode],
     );
 
     if (ticketRes.rowCount === 0) {
@@ -42,7 +41,7 @@ export const checkinService = async (qrCode, maSuatDien) => {
    WHERE qrcode = $1
    AND trangthai = 'CHUA_SU_DUNG'
    RETURNING trangthai, qrcode`,
-      [qrCode]
+      [qrCode],
     );
 
     if (updateRes.rowCount === 0) {
@@ -71,7 +70,7 @@ export const getCheckinStatsService = async (maSuatDien) => {
       JOIN loai_ve lv ON v.maloaive = lv.maloaive
       WHERE lv.masuatdien = $1
       `,
-    [maSuatDien]
+    [maSuatDien],
   );
 
   const tongVe = Number(tongQuanRes.rows[0].tong_ve);
@@ -92,7 +91,7 @@ export const getCheckinStatsService = async (maSuatDien) => {
       GROUP BY lv.maloaive, lv.tenloaive, lv.giatien
       ORDER BY lv.giatien ASC
       `,
-    [maSuatDien]
+    [maSuatDien],
   );
 
   const theoLoaiVe = theoLoaiVeRes.rows.map((row) => {

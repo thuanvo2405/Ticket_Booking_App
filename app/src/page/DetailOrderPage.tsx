@@ -85,10 +85,11 @@ export default function DetailOrderPage() {
         </p>
         <p>
           <span className="font-semibold mr-2">Trạng thái:</span>
-          <span className="text-green-600 font-semibold">
-            {orderData?.order.trangthai === "DA_THANH_TOAN"
-              ? "Đã thanh toán"
-              : ""}
+          <span className="font-semibold">
+            {orderData?.order.trangthai === "DA_THANH_TOAN" && "Đã thanh toán"}
+            {orderData?.order.trangthai === "CHO_THANH_TOAN" &&
+              "Chờ thanh toán"}
+              {orderData?.order.trangthai === "HET_HAN" && "Hết hạn thanh toán"}
           </span>
         </p>
         <p>
