@@ -33,7 +33,7 @@ const TicketInfo = forwardRef<
         const isExpired = end ? end < now : false;
         const tickets = item.loaiVe || [];
         const allTicketsSoldOut = tickets.every(
-          (ticket: any) => (ticket.soLuongConLai ?? 0) <= 0
+          (ticket: any) => (ticket.soLuongConLai ?? 0) <= 0,
         );
 
         return (
@@ -51,7 +51,7 @@ const TicketInfo = forwardRef<
                 <span className="font-medium">
                   {formatFullDateTime(
                     item.thoigianbatdau,
-                    item.thoigianketthuc
+                    item.thoigianketthuc,
                   )}
                 </span>
                 {allTicketsSoldOut && (
@@ -85,8 +85,8 @@ const TicketInfo = forwardRef<
                 {isExpired
                   ? "Đã hết hạn"
                   : allTicketsSoldOut
-                  ? "Hết vé"
-                  : "Mua vé ngay"}
+                    ? "Hết vé"
+                    : "Mua vé ngay"}
               </NavLink>
             </div>
 
@@ -98,23 +98,33 @@ const TicketInfo = forwardRef<
                   return (
                     <div
                       key={idx}
-                      className="flex justify-between items-center px-6 py-3 text-gray-200 hover:bg-[#333] transition"
+                      className="px-6 py-3 text-gray-200 hover:bg-[#333] transition"
                     >
-                      <span className="font-semibold">{ticket.tenLoaiVe}</span>
-                      <div className="flex items-center gap-3">
-                        {soldOut && (
-                          <span className="rounded-full bg-red-600/80 px-3 py-1 text-xs font-semibold">
-                            Hết vé
-                          </span>
-                        )}
-                        <span
-                          className={`font-medium ${
-                            soldOut ? "text-gray-400" : "text-green-500"
-                          }`}
-                        >
-                          {formatPrice(ticket.giaTien)}
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold">
+                          {ticket.tenLoaiVe}
                         </span>
+                        <div className="flex items-center gap-3">
+                          {soldOut && (
+                            <span className="rounded-full bg-red-600/80 px-3 py-1 text-xs font-semibold">
+                              Hết vé
+                            </span>
+                          )}
+                          <span
+                            className={`font-medium ${
+                              soldOut ? "text-gray-400" : "text-green-500"
+                            }`}
+                          >
+                            {formatPrice(ticket.giaTien)}
+                          </span>
+                        </div>
                       </div>
+
+                      {ticket.moTa && (
+                        <div className="mt-2 rounded-md bg-[#1f1f1f] px-3 py-2 text-sm text-gray-400">
+                          {ticket.moTa}
+                        </div>
+                      )}
                     </div>
                   );
                 })}

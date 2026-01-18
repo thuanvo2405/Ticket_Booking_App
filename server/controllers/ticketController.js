@@ -32,7 +32,7 @@ export const createTicketType = async (req, res, next) => {
       data.moTa || null,
       data.giaTien,
       data.soLuongPhatHanh,
-      data.maSuatDien
+      data.maSuatDien,
     );
 
     handleResponse(res, 201, "Tạo loại vé thành công", result);
@@ -48,7 +48,7 @@ export const createPerformance = async (req, res, next) => {
     const result = await createPerformanceService(
       data.thoiGianBatDau,
       data.thoiGianKetThuc,
-      data.maSuKien
+      data.maSuKien,
     );
 
     handleResponse(res, 201, "Tạo suất diễn thành công", result);
@@ -76,7 +76,7 @@ export const deletePerformance = async (req, res, next) => {
       FROM suat_dien sd
       WHERE sd.masuatdien = $1
       `,
-      [maSuatDien]
+      [maSuatDien],
     );
 
     if (rows.length === 0) {
@@ -124,7 +124,7 @@ export const deleteTicketType = async (req, res, next) => {
       JOIN suat_dien sd ON lv.masuatdien = sd.masuatdien
       WHERE lv.maloaive = $1
       `,
-      [maLoaiVe]
+      [maLoaiVe],
     );
 
     if (rows.length === 0) {
@@ -170,7 +170,7 @@ export const updateTicketType = async (req, res, next) => {
       data.moTa || null,
       data.giaTien,
       data.soLuongPhatHanh,
-      data.maLoaiVe
+      data.maLoaiVe,
     );
 
     handleResponse(res, 200, "Cập nhật loại vé thành công", result);
@@ -185,7 +185,7 @@ export const updatePerformance = async (req, res, next) => {
     const result = await updatePerformanceService(
       data.thoiGianBatDau,
       data.thoiGianKetThuc,
-      data.maSuatDien
+      data.maSuatDien,
     );
 
     handleResponse(res, 200, "Cập nhật suất diễn thành công", result);

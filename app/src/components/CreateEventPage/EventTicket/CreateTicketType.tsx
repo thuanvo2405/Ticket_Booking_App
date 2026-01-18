@@ -60,7 +60,7 @@ export default function CreateTicketType({
         moTa,
         giaTien,
         soLuongPhatHanh,
-        maSuatDien
+        maSuatDien,
       ),
     onSuccess: () => {
       queryClient.invalidateQueries({});
@@ -83,13 +83,12 @@ export default function CreateTicketType({
   const onSubmit = (values: TicketSchemaType) => {
     createTicketTypeMutation.mutate({
       tenLoaiVe: values.tenLoaiVe,
-      mota: values.moTa,
+      moTa: values.moTa,
       giaTien: values.giaTien,
       soLuongPhatHanh: values.soLuongPhatHanh,
       maSuatDien,
     });
   };
-
   return (
     <Card>
       <CardHeader>

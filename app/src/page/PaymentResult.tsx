@@ -53,7 +53,10 @@ export default function PaymentResultPage() {
           {isSuccess ? (
             <>
               <Button asChild className="w-full">
-                <a href="/my-order" className="flex items-center gap-2">
+                <a
+                  href={`/my-order/${madonhang}`}
+                  className="flex items-center gap-2"
+                >
                   <Ticket className="w-4 h-4" /> Xem vé của tôi
                 </a>
               </Button>

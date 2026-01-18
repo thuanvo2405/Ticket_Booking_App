@@ -20,12 +20,12 @@ const QRCheck: React.FC<QRCheckProps> = ({
   const mutation = useMutation({
     mutationFn: (qrCode: string) => checkinAPI(qrCode, maSuatDien),
     onSuccess: (data) => {
-      setResultMessage(`Check-in thành công: ${data.message}`);
+      setResultMessage(`Check-in thành công!`);
       if (onSuccess) onSuccess();
     },
     onError: (err: any) => {
       setResultMessage(
-        `Check-in thất bại: ${err?.response?.data?.message || err.message}`
+        `Check-in thất bại: ${err?.response?.data?.message || err.message}`,
       );
     },
     onSettled: () => {},

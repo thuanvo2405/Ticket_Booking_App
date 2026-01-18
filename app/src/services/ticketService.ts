@@ -5,7 +5,7 @@ import axios from "axios";
 export const CreatePerformanceAPI = async (
   thoiGianBatDau: string,
   thoiGianKetThuc: string,
-  maSuKien: string
+  maSuKien: string,
 ) => {
   const res = await axiosInstance.post(URL + "performance", {
     thoiGianBatDau,
@@ -33,8 +33,9 @@ export const createTicketTypeAPI = async (
   moTa: string,
   giaTien: number,
   soLuongPhatHanh: number,
-  maSuatDien: string
+  maSuatDien: string,
 ) => {
+  console.log(moTa);
   const res = await axiosInstance.post(URL + "ticket-type", {
     tenLoaiVe,
     moTa,
@@ -69,7 +70,7 @@ export const getTicketTypeByPerformanceIDAPI = async (maSuatDien: string) => {
 export const updatePerformanceAPI = async (
   maSuatDien: string,
   thoiGianBatDau: string,
-  thoiGianKetThuc: string
+  thoiGianKetThuc: string,
 ) => {
   const res = await axiosInstance.patch(URL + "performance", {
     maSuatDien,
@@ -85,7 +86,7 @@ export const updateTicketTypeAPI = async (
   giaTien: number,
   soLuongPhatHanh: number,
   maLoaiVe: string,
-  moTa?: string
+  moTa?: string,
 ) => {
   const res = await axiosInstance.patch(URL + "ticket-type", {
     tenLoaiVe,
