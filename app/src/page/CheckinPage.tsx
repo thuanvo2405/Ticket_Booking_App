@@ -57,7 +57,7 @@ const CheckinPage = () => {
       <div className="flex gap-2">
         <Button
           variant="outline"
-          onClick={() => navigate(-1)} // quay về trang trước
+          onClick={() => navigate(-1)} 
         >
           Quay về
         </Button>

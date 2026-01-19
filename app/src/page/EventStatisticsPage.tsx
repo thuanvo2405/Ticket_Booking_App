@@ -179,7 +179,7 @@ export default function EventStatisticsPage() {
         },
       },
     ],
-    []
+    [],
   );
 
   const ticketData: TicketRow[] = useMemo(() => {
@@ -206,14 +206,16 @@ export default function EventStatisticsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">Thống kê sự kiện</h1>
         <div className="flex gap-2 items-center">
-          <Button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-            onClick={() => {
-              if (session) navigate(`/organizer/checkin/${session}`);
-            }}
-          >
-            Check-in vé
-          </Button>
+          {sessionData?.session && (
+            <Button
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+              onClick={() => {
+                if (session) navigate(`/organizer/checkin/${session}`);
+              }}
+            >
+              Check-in vé
+            </Button>
+          )}
           <Select
             onValueChange={setSession}
             value={session ?? undefined}
@@ -227,7 +229,7 @@ export default function EventStatisticsPage() {
                 <SelectItem key={item.maSuatDien} value={item.maSuatDien}>
                   {formatFullDateTime(
                     item.thoiGianBatDau,
-                    item.thoiGianKetThuc || item.thoiGianBatDau
+                    item.thoiGianKetThuc || item.thoiGianBatDau,
                   )}
                 </SelectItem>
               ))}
